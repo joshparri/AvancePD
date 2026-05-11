@@ -66,17 +66,24 @@ const examples = [
 function TicketNotes({ ticketNotePracticeCount, incrementTicketNotePractice }: TicketNotesProps) {
   const [userNote, setUserNote] = useState('');
   const [feedback, setFeedback] = useState('');
+  const [error, setError] = useState('');
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
 
   const handleGetFeedback = async () => {
     setIsLoadingFeedback(true);
-    const request: TicketNoteFeedbackRequest = {
-      idealAnswer: ticketNoteTemplate,
-      userAnswer: userNote,
-    };
-    const result = await getTicketNoteFeedback(request);
-    setFeedback(result);
-    setIsLoadingFeedback(false);
+    setError('');
+    try {
+      const request: TicketNoteFeedbackRequest = {
+        idealAnswer: ticketNoteTemplate,
+        userAnswer: userNote,
+      };
+      const result = await getTicketNoteFeedback(request);
+      setFeedback(result);
+    } catch (err: any) {
+      setError(err?.message || 'Unable to get feedback.');
+    } finally {
+      setIsLoadingFeedback(false);
+    }
   };
   return (
     <div>
@@ -151,6 +158,12 @@ function TicketNotes({ ticketNotePracticeCount, incrementTicketNotePractice }: T
           <div className="feedback-panel">
             <h3>AI Feedback</h3>
             <p>{feedback}</p>
+          </div>
+        )}
+        {error && (
+          <div className="error-panel">
+            <h3>Error</h3>
+            <p>{error}</p>
           </div>
         )}
       </section>

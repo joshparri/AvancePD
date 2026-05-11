@@ -16,6 +16,7 @@ function MspScenarios({ progress, updateScenarioProgress }: MspScenariosProps) {
   const [userInputs, setUserInputs] = useState<Record<string, { firstQuestions: string; checks: string; escalationDecision: string; ticketNote: string }>>({});
   const [feedback, setFeedback] = useState<Record<string, string>>({});
   const [showHiddenCause, setShowHiddenCause] = useState<Record<string, boolean>>({});
+  const [error, setError] = useState<Record<string, string>>({});
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
 
   const selectedScenario = useMemo(
@@ -58,10 +59,16 @@ Ticket note: ${userInput.ticketNote}
       idealAnswer,
       userAnswer,
     };
-    const result = await getScenarioFeedback(request);
-    setFeedback((current) => ({ ...current, [selectedScenario.id]: result }));
-    setShowHiddenCause((current) => ({ ...current, [selectedScenario.id]: true }));
-    setIsLoadingFeedback(false);
+    try {
+      const result = await getScenarioFeedback(request);
+      setFeedback((current) => ({ ...current, [selectedScenario.id]: result }));
+      setShowHiddenCause((current) => ({ ...current, [selectedScenario.id]: true }));
+      setError((current) => ({ ...current, [selectedScenario.id]: '' }));
+    } catch (err: any) {
+      setError((current) => ({ ...current, [selectedScenario.id]: err?.message || 'Unable to get feedback.' }));
+    } finally {
+      setIsLoadingFeedback(false);
+    }
   };
 
   return (
@@ -177,6 +184,12 @@ Ticket note: ${userInput.ticketNote}
               <div className="feedback-panel">
                 <h4>AI Feedback</h4>
                 <p>{scenarioFeedback}</p>
+              </div>
+            )}
+            {error[selectedScenario.id] && (
+              <div className="error-panel">
+                <h4>Error</h4>
+                <p>{error[selectedScenario.id]}</p>
               </div>
             )}
             {hiddenCauseVisible && (

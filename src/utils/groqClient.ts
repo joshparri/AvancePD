@@ -27,11 +27,13 @@ async function callCoachAPI(mode: 'scenario' | 'communication' | 'ticket-note', 
     }),
   });
 
+  const data = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error('Failed to get feedback');
+    const message = data?.message || 'Failed to get feedback';
+    const code = data?.code ? ` (${data.code})` : '';
+    throw new Error(`${message}${code}`);
   }
 
-  const data = await response.json();
   return data.feedback;
 }
 

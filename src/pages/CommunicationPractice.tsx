@@ -6,6 +6,7 @@ function CommunicationPractice() {
   const [selectedId, setSelectedId] = useState(communicationScenarios[0]?.id ?? '');
   const [userResponses, setUserResponses] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState<Record<string, string>>({});
+  const [error, setError] = useState<string>('');
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
 
   const selectedScenario = communicationScenarios.find((scenario) => scenario.id === selectedId) ?? communicationScenarios[0];
@@ -14,14 +15,20 @@ function CommunicationPractice() {
 
   const handleGetFeedback = async () => {
     setIsLoadingFeedback(true);
-    const request: CommunicationFeedbackRequest = {
-      scenarioContext: selectedScenario.context,
-      idealAnswer: selectedScenario.excellentResponse,
-      userAnswer: userResponse,
-    };
-    const result = await getCommunicationFeedback(request);
-    setFeedback((current) => ({ ...current, [selectedId]: result }));
-    setIsLoadingFeedback(false);
+    setError('');
+    try {
+      const request: CommunicationFeedbackRequest = {
+        scenarioContext: selectedScenario.context,
+        idealAnswer: selectedScenario.excellentResponse,
+        userAnswer: userResponse,
+      };
+      const result = await getCommunicationFeedback(request);
+      setFeedback((current) => ({ ...current, [selectedId]: result }));
+    } catch (err: any) {
+      setError(err?.message || 'Unable to get feedback.');
+    } finally {
+      setIsLoadingFeedback(false);
+    }
   };
 
   return (
@@ -71,6 +78,12 @@ function CommunicationPractice() {
               <div className="feedback-panel">
                 <h4>AI Feedback</h4>
                 <p>{scenarioFeedback}</p>
+              </div>
+            )}
+            {error && (
+              <div className="error-panel">
+                <h4>Error</h4>
+                <p>{error}</p>
               </div>
             )}
           </div>

@@ -296,11 +296,31 @@ section {
   margin: 0 0 8px 0;
 }
 
+.error-panel {
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  margin-top: 16px;
+  padding: 12px;
+}
+
+.error-panel h4 {
+  color: #b91c1c;
+  margin: 0 0 8px 0;
+}
+
 .privacy-reminder {
   font-size: 0.875rem;
   color: #dc2626;
   margin: 8px 0;
   font-style: italic;
+}
+
+.health-status-card {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 12px;
 }
 
 .hidden-cause-panel {

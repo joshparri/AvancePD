@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { mspSkills } from '../data/mspSkills';
 import { mspScenarios } from '../data/mspScenarios';
 import { getEffectiveSkillReadiness, getRecommendedStudyAreas, getWeakSkills } from '../utils/nextBestAction';
@@ -10,8 +10,31 @@ type EvidencePackProps = {
 
 function EvidencePack({ progress }: EvidencePackProps) {
   const [copyStatus, setCopyStatus] = useState('');
+  const [healthStatus, setHealthStatus] = useState('Checking AI coach...');
+  const [healthModel, setHealthModel] = useState('');
   const summary = useMemo(() => buildEvidenceSummary(progress), [progress]);
   const markdown = useMemo(() => buildMarkdownSummary(summary), [summary]);
+
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        const response = await fetch('/api/health');
+        const data = await response.json();
+        if (response.ok && data.ok) {
+          setHealthStatus(data.hasGroqKey ? 'AI Coach: Online' : 'AI Coach: Not configured');
+          setHealthModel(data.model || 'unknown model');
+        } else {
+          setHealthStatus('AI Coach: Error');
+          setHealthModel(data?.message || 'unknown');
+        }
+      } catch (err) {
+        setHealthStatus('AI Coach: Error');
+        setHealthModel('Unable to reach health endpoint.');
+      }
+    };
+
+    checkHealth();
+  }, []);
 
   const copyMarkdown = async () => {
     try {
@@ -39,6 +62,14 @@ function EvidencePack({ progress }: EvidencePackProps) {
           <Metric label="Needs review" value={summary.scenariosNeedsReview.length} />
           <Metric label="Ticket note practices" value={progress.ticketNotePracticeCount} />
           <Metric label="Weak areas" value={summary.weakAreas.length} />
+        </div>
+      </section>
+
+      <section className="card">
+        <h2>AI health status</h2>
+        <div className="health-status-card">
+          <p>{healthStatus}</p>
+          {healthModel && <p>Model: {healthModel}</p>}
         </div>
       </section>
 

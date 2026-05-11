@@ -1,8 +1,14 @@
 import Groq from 'groq-sdk';
 
+const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
+
+function sendError(res: any, status: number, code: string, message: string) {
+  return res.status(status).json({ ok: false, code, message });
+}
 
 export interface CoachRequest {
   mode: 'scenario' | 'communication' | 'ticket-note';
@@ -16,15 +22,23 @@ export interface CoachRequest {
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return sendError(res, 405, 'INVALID_METHOD', 'Only POST requests are accepted.');
+  }
+
+  if (!process.env.GROQ_API_KEY) {
+    console.error('Missing GROQ_API_KEY in server environment.');
+    return sendError(res, 500, 'MISSING_API_KEY', 'AI feedback is not configured yet.');
   }
 
   try {
     const body: CoachRequest = req.body;
 
-    // Validate input
-    if (!body.userAnswer || body.userAnswer.length > 5000) {
-      return res.status(400).json({ error: 'Invalid input' });
+    if (!body || typeof body !== 'object' || !body.userAnswer || typeof body.userAnswer !== 'string') {
+      return sendError(res, 400, 'INVALID_PAYLOAD', 'Invalid request payload.');
+    }
+
+    if (body.userAnswer.length > 5000) {
+      return sendError(res, 400, 'INVALID_PAYLOAD', 'User answer is too long.');
     }
 
     let systemPrompt = '';
@@ -61,19 +75,23 @@ User note: ${body.userAnswer}`;
     }
 
     const completion = await groq.chat.completions.create({
-      model: "llama3-70b-8192",
+      model: GROQ_MODEL,
       messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
       ],
       max_tokens: 500,
     });
 
-    const feedback = completion.choices[0]?.message?.content || 'No feedback available';
+    const feedback = completion.choices?.[0]?.message?.content || 'No feedback available';
 
-    return res.status(200).json({ feedback });
-  } catch (error) {
+    return res.status(200).json({ ok: true, feedback, model: GROQ_MODEL });
+  } catch (error: any) {
     console.error('Groq API error:', error);
-    return res.status(500).json({ error: 'Failed to get feedback' });
+    const errorText = String(error?.message || error);
+    if (errorText.match(/model|unavailable|unsupported/i)) {
+      return sendError(res, 502, 'MODEL_UNAVAILABLE', 'Selected AI model is unavailable.');
+    }
+    return sendError(res, 502, 'GROQ_REQUEST_FAILED', 'AI feedback request failed.');
   }
 }
