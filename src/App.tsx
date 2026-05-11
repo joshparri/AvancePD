@@ -9,6 +9,7 @@ import Time from './pages/Time';
 import PD from './pages/PD';
 import MspSkills from './pages/MspSkills';
 import MspScenarios from './pages/MspScenarios';
+import MspQuiz from './pages/MspQuiz';
 import TicketNotes from './pages/TicketNotes';
 import CommunicationPractice from './pages/CommunicationPractice';
 import MspRoadmap from './pages/MspRoadmap';
@@ -51,6 +52,7 @@ const pages = [
   { id: 'avanceWorkday', label: 'Avance Workday' },
   { id: 'mspSkills', label: 'MSP Skills' },
   { id: 'mspScenarios', label: 'MSP Scenarios' },
+  { id: 'mspQuiz', label: 'Strict Quiz' },
   { id: 'ticketNotes', label: 'Ticket Notes' },
   { id: 'communicationPractice', label: 'Communication Practice' },
   { id: 'mspRoadmap', label: 'MSP Roadmap' },
@@ -70,6 +72,7 @@ type PageId =
   | 'avanceWorkday'
   | 'mspSkills'
   | 'mspScenarios'
+  | 'mspQuiz'
   | 'ticketNotes'
   | 'communicationPractice'
   | 'mspRoadmap'
@@ -260,6 +263,12 @@ function App() {
         )}
         {currentPage === 'mspSkills' && <MspSkills progress={progress} updateSkillReadiness={updateSkillReadiness} />}
         {currentPage === 'mspScenarios' && <MspScenarios progress={progress} updateScenarioProgress={updateScenarioStatus} />}
+        {currentPage === 'mspQuiz' && (
+          <MspQuiz
+            progress={progress}
+            onNavigate={(page) => setCurrentPage(page as PageId)}
+          />
+        )}
         {currentPage === 'ticketNotes' && (
           <TicketNotes
             ticketNotePracticeCount={progress.ticketNotePracticeCount}
@@ -282,3 +291,4 @@ function App() {
 }
 
 export default App;
+
