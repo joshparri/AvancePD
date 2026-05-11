@@ -1,36 +1,36 @@
- # Avance Work Companion / Avance PD
+ # Avance Work Companion / Avance Professional Development
 
-A combined repository for the Avance Work Companion and Avance PD applications — local-first tools to support daily MSP shift work, learning, and professional development for Josh and the Avance team.
+This repository contains two tightly related projects: the Avance Work Companion (operational tools for shift work) and the Avance Professional Development (PD) app (learning, scenario practice, and evidence generation). The codebase is local-first and privacy-focused.
 
 Overview
 --------
-- Purpose: Provide a privacy-first, local-first web app to help a single operator (Josh) manage shifts, capture work logs, triage incidents, and practice MSP skills.
-- Two complementary focuses:
-	- Avance Work Companion: operational tools for shift prep, tasks, work logs, troubleshooting playbooks, and quick capture.
-	- Avance PD: professional development flows (MSP Skills Matrix, Scenario Trainer, Ticket Notes Trainer, Evidence Pack, Learning Cockpit).
+- Avance Work Companion: shift prep, quick capture, follow-ups, playbooks, and work logs to support daily MSP operations.
+- Avance PD: MSP Skills Matrix, Scenario Trainer, Ticket Notes Trainer, Evidence Pack, Learning Cockpit for structured PD practice.
 
 Features
 --------
 - Dashboard with next shift, follow-ups, quick-capture and PD summary
-- MSP skills matrix with readiness tracking
-- Guided MSP scenario trainer and ticket-notes practice
-- Evidence Pack summary and exportable, manager-safe reports
+- MSP Skills Matrix and Scenario Trainer
+- Ticket Notes Trainer and Evidence Pack (manager-safe summaries)
 - Knowledge base, playbooks, and troubleshooting flows
 - Health & Outdoors reminders and microbreak flows
 
-Documentation
--------------
-- Vision and product docs: `VISION.md`, `docs/vision/`
-- Requirements and PRD: `docs/requirements/`
-- Implementation backlog: `TODO.md`
-- Guides and how-tos: `docs/guides/`
-- Build prompts and instructions: `build/`
+Current Implementation Status
+-----------------------------
+The PD features (MSP Skills Matrix, Scenario Trainer, Ticket Notes Trainer, Evidence Pack) are implemented in the `app/` folder. Other planned modules (Work Logs, Tasks, Knowledge Base, Playbooks, Clients, Learning Tracker) are documented in `TODO.md` and may return 404 until implemented.
 
-Run locally
+Known Issues
 ------------
-Install and run the application (app directory):
+- MSP Scenario Trainer: "Scenario progress" select dropdown shows a dark background when opened, which can hide options.
+- Evidence Pack: missing explicit copy-to-clipboard button (now addressed) for the Markdown summary.
+- Ticket Notes Trainer: currently accessible via direct URL only; navigation needs updating.
+
+Run Locally
+-----------
+From the repository root:
 
 ```bash
+cd app
 npm install
 npm run dev
 ```
@@ -42,6 +42,23 @@ Build
 npm run build
 ```
 
+Repository Structure
+--------------------
+- `app/`: Next.js application source code (primary codebase for both PD and Work Companion features).
+- `docs/`: Documentation, requirements, architecture, and guides.
+- `build/`: Prompts and build instructions used during development.
+- `archive/`: Archived or legacy files.
+
+Deployment
+----------
+See `docs/deployment/vercel_deployment.md` for Vercel deployment notes.
+
+Getting Started
+---------------
+1. Read `VISION.md` for high-level product direction.
+2. Review `docs/vision/` and `docs/requirements/` for scope and specs.
+3. Run the app locally via `app/`.
+
 Notes
 -----
-- This repo is intentionally local-first and privacy-focused: do not store client-sensitive data (names, emails, hostnames, passwords) in the app. Use `docs/` for non-sensitive planning content and archive private exports outside the repo.
+- Keep the app local-first and avoid storing client-sensitive data inside the app or repo.

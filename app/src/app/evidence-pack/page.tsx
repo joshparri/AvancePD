@@ -5,6 +5,7 @@ import { Layout } from '@/components/Layout';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import { mspScenarios } from '@/data/mspScenarios';
 import { mspSkills } from '@/data/mspSkills';
 import { getMspNextBestActions } from '@/lib/mspNextBestAction';
@@ -31,6 +32,7 @@ const formatList = (items: string[]) => items.map((item) => `- ${item}`).join('\
 export default function EvidencePackPage() {
   const [skillReadiness] = useState<MspSkillReadinessById>(() => getStoredSkillReadiness());
   const [scenarioStatuses] = useState<MspScenarioStatusById>(() => getStoredScenarioStatuses());
+  const [copyMessage, setCopyMessage] = useState<string>('');
 
   const skillsWithProgress = useMemo(
     () => mergeSkillsWithProgress(mspSkills, skillReadiness),
@@ -78,6 +80,17 @@ export default function EvidencePackPage() {
         )
     ),
   ].slice(0, 10);
+
+  const handleCopySummary = async () => {
+    try {
+      await navigator.clipboard.writeText(markdownSummary);
+      setCopyMessage('Summary copied!');
+      setTimeout(() => setCopyMessage(''), 2000);
+    } catch (error) {
+      setCopyMessage('Failed to copy');
+      setTimeout(() => setCopyMessage(''), 2000);
+    }
+  };
 
   const markdownSummary = `# MSP Professional Development Evidence Pack
 
@@ -257,6 +270,12 @@ ${formatList(practicalOutputs)}
                 overstating capability.
               </p>
               <Textarea readOnly value={markdownSummary} className="min-h-[520px] font-mono text-sm" />
+              <div className="flex items-center gap-2">
+                <Button onClick={handleCopySummary} size="sm">
+                  Copy summary
+                </Button>
+                {copyMessage && <span className="text-sm text-green-600">{copyMessage}</span>}
+              </div>
             </CardContent>
           </Card>
         </div>

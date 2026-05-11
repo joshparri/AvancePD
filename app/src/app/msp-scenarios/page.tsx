@@ -151,7 +151,7 @@ export default function MspScenariosPage() {
                           event.target.value as MspScenarioStatus
                         )
                       }
-                      className="mt-2 h-10 w-full rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 md:w-64"
+                      className="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 dark:bg-white dark:text-slate-900 md:w-64"
                     >
                       {mspScenarioStatusOptions.map((option) => (
                         <option key={option} value={option}>

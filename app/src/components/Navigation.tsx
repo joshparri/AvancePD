@@ -6,13 +6,6 @@ import { cn } from '@/lib/utils';
 import {
   Home,
   Calendar,
-  BookOpen,
-  CheckSquare,
-  Users,
-  Lightbulb,
-  FileText,
-  Settings,
-  BarChart3,
   Target,
   ClipboardList,
   ClipboardCheck,
@@ -23,18 +16,11 @@ import {
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
   { name: 'Shifts', href: '/shifts', icon: Calendar },
-  { name: 'Work Logs', href: '/logs', icon: BookOpen },
-  { name: 'Tasks', href: '/tasks', icon: CheckSquare },
-  { name: 'Knowledge', href: '/knowledge', icon: FileText },
-  { name: 'Playbooks', href: '/playbooks', icon: Settings },
-  { name: 'Clients', href: '/clients', icon: Users },
-  { name: 'Learning', href: '/learning', icon: Lightbulb },
   { name: 'MSP Skills', href: '/msp-skills', icon: Target },
   { name: 'MSP Scenarios', href: '/msp-scenarios', icon: ClipboardList },
   { name: 'Ticket Notes', href: '/ticket-notes', icon: ClipboardCheck },
   { name: 'Evidence Pack', href: '/evidence-pack', icon: Archive },
   { name: 'MSP Roadmap', href: '/msp-roadmap', icon: Map },
-  { name: 'Reports', href: '/reports', icon: BarChart3 },
 ];
 
 export function Navigation() {
