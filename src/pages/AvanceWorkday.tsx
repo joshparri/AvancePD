@@ -33,7 +33,7 @@ const overwhelmedOptions = [
 const teachingModes = [
   { label: 'Learn', description: 'Read a concept card', pageId: 'microLearning', available: true },
   { label: 'Practise', description: 'Work a scenario', pageId: 'mspScenarios', available: true },
-  { label: 'Quiz', description: 'Test your knowledge', pageId: 'mspSkills', available: false },
+  { label: 'Quiz', description: 'Test your knowledge', pageId: 'mspQuiz', available: true },
   { label: 'Roleplay', description: 'Practise communication', pageId: 'communicationPractice', available: true },
   { label: 'Reflect', description: 'Log your evidence', pageId: 'evidencePack', available: true },
   { label: 'Review', description: 'Check your skill gaps', pageId: 'mspSkills', available: true },
