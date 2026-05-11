@@ -8,7 +8,9 @@ import { Shift, WorkLog, Task, PDAchievement } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Calendar, CheckSquare, TrendingUp, Plus, BookOpen } from 'lucide-react';
+import { Clock, Calendar, CheckSquare, TrendingUp, Plus, BookOpen, Lightbulb } from 'lucide-react';
+import { getLearningProgress, getLearningStats, getDueReviewSuggestions } from '@/lib/mspLearningProgress';
+import { mspLearningActivities } from '@/data/mspLearningActivities';
 
 export function Dashboard() {
   const [nextShift, setNextShift] = useState<Shift | null>(null);
@@ -16,6 +18,8 @@ export function Dashboard() {
   const [pendingTasks, setPendingTasks] = useState<Task[]>([]);
   const [totalHoursThisMonth, setTotalHoursThisMonth] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [learningStats, setLearningStats] = useState(getLearningStats());
+  const [nextBestActivity, setNextBestActivity] = useState<any>(null);
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -63,6 +67,16 @@ export function Dashboard() {
 
         const totalHours = workLogsThisMonth.reduce((sum, log) => sum + (log.duration / 60), 0);
         setTotalHoursThisMonth(Math.round(totalHours * 10) / 10);
+
+        // Load learning progress
+        const stats = getLearningStats();
+        setLearningStats(stats);
+        
+        const recommendations = getDueReviewSuggestions(mspLearningActivities);
+        if (recommendations.length > 0) {
+          const nextActivity = mspLearningActivities.find(a => a.id === recommendations[0]);
+          setNextBestActivity(nextActivity);
+        }
 
       } catch (error) {
         console.error('Failed to load dashboard data:', error);
@@ -210,6 +224,78 @@ export function Dashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Today's PD Focus */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lightbulb className="w-5 h-5" />
+              Today's PD Focus
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Learning Progress Summary */}
+              <div className="space-y-2">
+                <h3 className="font-medium text-sm">Learning Progress</h3>
+                <div className="text-2xl font-bold text-blue-600">
+                  {learningStats.completedCount}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  activities completed
+                </p>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {learningStats.totalMinutes} minutes logged
+                </div>
+              </div>
+
+              {/* Next Best Activity */}
+              <div className="space-y-2">
+                <h3 className="font-medium text-sm">Next Best Move</h3>
+                {nextBestActivity ? (
+                  <div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                      {nextBestActivity.title.slice(0, 40)}...
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                      <Badge variant="outline">{nextBestActivity.activityType}</Badge>
+                      <span>{nextBestActivity.estimatedMinutes} min</span>
+                    </div>
+                    <Button size="sm" className="w-full" asChild>
+                      <a href="/learning-cockpit">
+                        Start Learning
+                      </a>
+                    </Button>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      Great progress! Check the Learning Cockpit for more activities.
+                    </p>
+                    <Button size="sm" variant="outline" className="w-full" asChild>
+                      <a href="/learning-cockpit">
+                        View All Activities
+                      </a>
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Learning Cockpit Link */}
+              <div className="space-y-2">
+                <h3 className="font-medium text-sm">Learning Cockpit</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  Your personalized MSP training coach with mixed learning activities.
+                </p>
+                <Button size="sm" className="w-full" asChild>
+                  <a href="/learning-cockpit">
+                    Open Learning Cockpit
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

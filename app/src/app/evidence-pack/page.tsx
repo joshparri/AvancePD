@@ -19,7 +19,9 @@ import {
   MspSkillReadinessById,
 } from '@/lib/mspProgress';
 import { getStoredQuizAttempts, getBestQuizScore } from '@/lib/mspQuizProgress';
-import { Archive, ClipboardCheck, FileText, Target, TrendingUp } from 'lucide-react';
+import { getLearningProgress, getLearningStats } from '@/lib/mspLearningProgress';
+import { mspLearningActivities } from '@/data/mspLearningActivities';
+import { Archive, ClipboardCheck, FileText, Target, TrendingUp, Brain } from 'lucide-react';
 
 const countBy = <T,>(items: T[], getKey: (item: T) => string) =>
   items.reduce<Record<string, number>>((counts, item) => {
@@ -34,6 +36,8 @@ export default function EvidencePackPage() {
   const [skillReadiness] = useState<MspSkillReadinessById>(() => getStoredSkillReadiness());
   const [scenarioStatuses] = useState<MspScenarioStatusById>(() => getStoredScenarioStatuses());
   const [copyMessage, setCopyMessage] = useState<string>('');
+  const [learningProgress] = useState(() => getLearningProgress());
+  const [learningStats] = useState(() => getLearningStats());
 
   const skillsWithProgress = useMemo(
     () => mergeSkillsWithProgress(mspSkills, skillReadiness),
@@ -61,6 +65,30 @@ export default function EvidencePackPage() {
   const quizAttempts = getStoredQuizAttempts();
   const bestQuizScore = getBestQuizScore();
   const bestQuizAttempt = quizAttempts.find(a => a.percentage === bestQuizScore?.percentage);
+
+  // Learning activities data
+  const completedActivities = mspLearningActivities.filter(activity => 
+    learningProgress.completedActivityIds.includes(activity.id)
+  );
+  const activityTypeCounts = learningStats.activityTypeCounts;
+  const domainCounts = learningStats.domainCounts;
+  const activityTypesCompleted = Object.entries(activityTypeCounts)
+    .filter(([_, count]) => count > 0)
+    .map(([type, count]) => `${type}: ${count}`);
+  const domainsCompleted = Object.entries(domainCounts)
+    .map(([domain, count]) => `${domain}: ${count}`);
+  const recentActivities = completedActivities
+    .slice(-5)
+    .map(activity => `${activity.title} (${activity.activityType}, ${activity.estimatedMinutes} min)`);
+
+  // Recent reflections from learning activities
+  const recentReflections = Object.entries(learningProgress.reflections || {})
+    .slice(-3)
+    .map(([activityId, reflection]) => {
+      const activity = completedActivities.find(a => a.id === activityId);
+      return activity ? `${activity.title}: ${reflection.slice(0, 100)}${reflection.length > 100 ? '...' : ''}` : null;
+    })
+    .filter(Boolean) as string[];
 
   const skillsPractised = practisedSkills.slice(0, 8).map((skill) => skill.title);
   const weakAreas = Object.entries(weakAreaCounts)
@@ -101,7 +129,8 @@ export default function EvidencePackPage() {
 
 ## Summary
 - Focus: Building practical MSP readiness across triage, endpoint support, Microsoft 365, networking, security, documentation, and escalation judgement.
-- Current evidence base: ${practisedSkills.length} skills at practised or stronger readiness, ${reviewedScenarios.length} scenarios marked reviewed/practised/confident, and ticket note practice in place.
+- Current evidence base: ${practisedSkills.length} skills at practised or stronger readiness, ${reviewedScenarios.length} scenarios marked reviewed/practised/confident, ${completedActivities.length} learning activities completed, and ticket note practice in place.
+- Learning progress: ${learningStats.totalMinutes} minutes logged across ${Object.keys(activityTypeCounts).length} learning activity types.
 - Current weak area pattern: ${weakAreas[0] ?? 'No weak area data available yet.'}
 
 ## Skills Practised
@@ -112,6 +141,14 @@ ${formatList(scenarioCategories.length > 0 ? scenarioCategories : ['No scenarios
 
 ## Scenario Progress
 ${formatList(scenarioProgressList.length > 0 ? scenarioProgressList : ['No scenario progress saved yet.'])}
+
+## Learning Activities Completed
+- Total activities: ${completedActivities.length}
+- Minutes logged: ${learningStats.totalMinutes}
+- Activity types practiced: ${formatList(activityTypesCompleted.length > 0 ? activityTypesCompleted : ['No learning activities completed yet.'])}
+- Domains covered: ${formatList(domainsCompleted.length > 0 ? domainsCompleted : ['No domains covered yet.'])}
+- Recent activities: ${formatList(recentActivities.length > 0 ? recentActivities : ['No recent activities.'])}
+- Recent reflections: ${formatList(recentReflections.length > 0 ? recentReflections : ['No reflections written yet.'])}
 
 ## Ticket Notes Practice
 - Structure practised: Issue, user impact, checks performed, action taken, result, next step, and escalation reason.
@@ -167,14 +204,14 @@ ${formatList(practicalOutputs)}
             </Card>
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Next actions</p>
-                <p className="text-2xl font-bold">{recommendations.length}</p>
+                <p className="text-xs text-muted-foreground">Activities done</p>
+                <p className="text-2xl font-bold">{completedActivities.length}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Quiz attempts</p>
-                <p className="text-2xl font-bold">{quizAttempts.length}</p>
+                <p className="text-xs text-muted-foreground">Minutes logged</p>
+                <p className="text-2xl font-bold">{learningStats.totalMinutes}</p>
               </CardContent>
             </Card>
             <Card>
@@ -308,6 +345,47 @@ ${formatList(practicalOutputs)}
                       {output}
                     </Badge>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Brain className="h-5 w-5" />
+                  Learning Activities Progress
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium">Activities Completed</span>
+                  <Badge variant="outline">{completedActivities.length}</Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium">Total Minutes</span>
+                  <Badge variant="outline">{learningStats.totalMinutes}</Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium">Activity Types</span>
+                  <Badge variant="outline">{Object.keys(activityTypeCounts).length}</Badge>
+                </div>
+                <div className="text-sm">
+                  <p className="font-medium mb-1">Activity Types Practiced</p>
+                  <div className="flex flex-wrap gap-1">
+                    {Object.entries(activityTypeCounts).map(([type, count]) => (
+                      <Badge key={type} variant="outline" className="text-xs">
+                        {type}: {count}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                <div className="text-sm">
+                  <p className="font-medium mb-1">Recent Activities</p>
+                  <ul className="text-muted-foreground space-y-1">
+                    {recentActivities.slice(0, 3).map((activity, index) => (
+                      <li key={index} className="text-xs">- {activity}</li>
+                    ))}
+                  </ul>
                 </div>
               </CardContent>
             </Card>
