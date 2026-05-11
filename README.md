@@ -1,59 +1,47 @@
-# Avance PD
+ # Avance Work Companion / Avance PD
 
-Avance PD is a local-first professional development app for practising MSP help desk skills, tracking learning progress, and producing privacy-safe evidence of growth.
+A combined repository for the Avance Work Companion and Avance PD applications — local-first tools to support daily MSP shift work, learning, and professional development for Josh and the Avance team.
 
-## Features
+Overview
+--------
+- Purpose: Provide a privacy-first, local-first web app to help a single operator (Josh) manage shifts, capture work logs, triage incidents, and practice MSP skills.
+- Two complementary focuses:
+	- Avance Work Companion: operational tools for shift prep, tasks, work logs, troubleshooting playbooks, and quick capture.
+	- Avance PD: professional development flows (MSP Skills Matrix, Scenario Trainer, Ticket Notes Trainer, Evidence Pack, Learning Cockpit).
 
+Features
+--------
+- Dashboard with next shift, follow-ups, quick-capture and PD summary
 - MSP skills matrix with readiness tracking
-- Guided MSP scenario trainer
-- Ticket notes trainer
-- Evidence pack summary
-- Communication practice examples
-- MSP roadmap
-- Workday checklist and next-best-action recommendations
-- Health & Outdoors reminders for hydration, screen breaks, outdoor daylight, movement, and end-of-day shutdown
+- Guided MSP scenario trainer and ticket-notes practice
+- Evidence Pack summary and exportable, manager-safe reports
+- Knowledge base, playbooks, and troubleshooting flows
+- Health & Outdoors reminders and microbreak flows
 
-## Documentation
+Documentation
+-------------
+- Vision and product docs: `VISION.md`, `docs/vision/`
+- Requirements and PRD: `docs/requirements/`
+- Implementation backlog: `TODO.md`
+- Guides and how-tos: `docs/guides/`
+- Build prompts and instructions: `build/`
 
-- User guide: `docs/USER_GUIDE.md`
-- Developer guide: `docs/DEVELOPER_README.md`
-- Product vision: `docs/vision.md`
-- Deployment: `docs/DEPLOYMENT.md`
-- Roadmap: `docs/ROADMAP.md`
-- Ideas and vibe-coder plan: `docs/AWESOME_IDEAS_AND_VIBE_CODER_PLAN.md`
-- Field notes app inspiration: `docs/FIELD_NOTES_APP_INSPIRATION.md`
-- Vibe-coder prompt packs: `docs/VIBE_CODER_PROMPT_PACKS.md`
-- Learning machine backlog: `docs/LEARNING_MACHINE_TODO.md`
-- KB learning guide: `docs/KB_LEARNING_GUIDE.md`
-- KB learning experience model: `docs/KB_LEARNING_EXPERIENCE_MODEL.md`
-- KB learning acceptance criteria: `docs/KB_LEARNING_ACCEPTANCE.md`
-- KB learning QA checklist: `docs/KB_LEARNING_QA.md`
-- Agent coordination guide: `docs/AGENT_COORDINATION.md`
-- Project tracker: `TODO.md`
-- Health & Outdoors implementation note: `HEALTH_OUTDOORS_IMPLEMENTATION.md`
-
-## Privacy
-
-This app is designed for generic professional development tracking. Do not store client names, company names, passwords, screenshots, copied ticket text, hostnames, IP addresses, or sensitive operational data in the app.
-
-## Tech Stack
-
-- React
-- TypeScript
-- Vite
-- Browser localStorage for local progress
-
-## Run Locally
+Run locally
+------------
+Install and run the application (app directory):
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Build
+Build
+-----
 
 ```bash
 npm run build
 ```
 
-The production output is generated in `dist/`.
+Notes
+-----
+- This repo is intentionally local-first and privacy-focused: do not store client-sensitive data (names, emails, hostnames, passwords) in the app. Use `docs/` for non-sensitive planning content and archive private exports outside the repo.
