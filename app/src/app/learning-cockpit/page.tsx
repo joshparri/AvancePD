@@ -559,12 +559,12 @@ export default function LearningCockpit() {
                   { activity: weaknessCoaching.activities.checklistActivity, label: "Checklist" },
                   { activity: weaknessCoaching.activities.quizActivity, label: "Quiz" }
                 ].map(({ activity, label }, index) => (
-                  <div key={index} className="border rounded-lg p-3">
+                  <div key={index} className="border rounded-lg p-3 border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium">
+                      <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center text-xs font-medium">
                         {index + 1}
                       </div>
-                      <span className="text-sm font-medium">{label}</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{label}</span>
                     </div>
                     {activity ? (
                       <Button 
@@ -655,7 +655,7 @@ export default function LearningCockpit() {
                     </Badge>
                     <Icon className="w-4 h-4 text-muted-foreground" />
                   </div>
-                  <CardTitle className="text-sm">{activity.title}</CardTitle>
+                  <CardTitle className="text-sm text-gray-900 dark:text-white">{activity.title}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -704,7 +704,7 @@ export default function LearningCockpit() {
             <div className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold">{selectedActivity.title}</h2>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedActivity.title}</h2>
                   <Button 
                     variant="ghost" 
                     size="sm"
@@ -731,14 +731,14 @@ export default function LearningCockpit() {
                   </div>
                   
                   <div>
-                    <h3 className="font-medium mb-2">Summary</h3>
+                    <h3 className="font-medium mb-2 text-gray-900 dark:text-white">Summary</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       {selectedActivity.summary}
                     </p>
                   </div>
                   
                   <div>
-                    <h3 className="font-medium mb-2">Why It Matters</h3>
+                    <h3 className="font-medium mb-2 text-gray-900 dark:text-white">Why It Matters</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       {selectedActivity.whyItMatters}
                     </p>
@@ -747,12 +747,12 @@ export default function LearningCockpit() {
                   {renderActivityInteraction(selectedActivity)}
                   
                   <div>
-                    <h3 className="font-medium mb-2">Evidence Examples</h3>
+                    <h3 className="font-medium mb-2 text-gray-900 dark:text-white">Evidence Examples</h3>
                     <ul className="text-sm space-y-1">
                       {selectedActivity.evidenceExamples.map((example, index) => (
                         <li key={index} className="flex items-start">
                           <span className="text-green-500 mr-2">•</span>
-                          {example}
+                          <span className="text-gray-700 dark:text-gray-300">{example}</span>
                         </li>
                       ))}
                     </ul>
