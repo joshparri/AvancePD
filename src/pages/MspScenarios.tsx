@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { mspScenarios } from '../data/mspScenarios';
+import { getScenarioFeedback, type ScenarioFeedbackRequest } from '../utils/groqClient';
 import type { AvanceProgress, ScenarioStatus } from '../utils/progressStorage';
 
 const scenarioStatuses: ScenarioStatus[] = ['not-started', 'practised', 'confident', 'needs-review'];
@@ -12,6 +13,10 @@ type MspScenariosProps = {
 function MspScenarios({ progress, updateScenarioProgress }: MspScenariosProps) {
   const [selectedScenarioId, setSelectedScenarioId] = useState(mspScenarios[0]?.id ?? '');
   const [reflectionDrafts, setReflectionDrafts] = useState<Record<string, string>>({});
+  const [userInputs, setUserInputs] = useState<Record<string, { firstQuestions: string; checks: string; escalationDecision: string; ticketNote: string }>>({});
+  const [feedback, setFeedback] = useState<Record<string, string>>({});
+  const [showHiddenCause, setShowHiddenCause] = useState<Record<string, boolean>>({});
+  const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
 
   const selectedScenario = useMemo(
     () => mspScenarios.find((scenario) => scenario.id === selectedScenarioId) ?? mspScenarios[0],
@@ -22,9 +27,42 @@ function MspScenarios({ progress, updateScenarioProgress }: MspScenariosProps) {
     return null;
   }
 
-  const selectedProgress = progress.scenarioProgress[selectedScenario.id];
+  const selectedProgress = progress.scenarioProgress[selectedScenarioId];
   const selectedStatus = selectedProgress?.status ?? 'not-started';
-  const reflection = reflectionDrafts[selectedScenario.id] ?? selectedProgress?.reflection ?? '';
+  const reflection = reflectionDrafts[selectedScenarioId] ?? selectedProgress?.reflection ?? '';
+  const userInput = userInputs[selectedScenarioId] ?? {
+    firstQuestions: '',
+    checks: '',
+    escalationDecision: '',
+    ticketNote: '',
+  };
+  const scenarioFeedback = feedback[selectedScenarioId] ?? '';
+  const hiddenCauseVisible = showHiddenCause[selectedScenarioId] ?? false;
+
+  const handleGetFeedback = async () => {
+    setIsLoadingFeedback(true);
+    const idealAnswer = `
+First questions: ${selectedScenario.goodFirstQuestions.join(", ")}
+Expected checks: ${selectedScenario.expectedChecks.join(", ")}
+Escalation triggers: ${selectedScenario.escalationTriggers.join(", ")}
+Ticket note: ${selectedScenario.idealTicketNotes}
+    `.trim();
+    const userAnswer = `
+First questions: ${userInput.firstQuestions}
+Checks: ${userInput.checks}
+Escalation decision: ${userInput.escalationDecision}
+Ticket note: ${userInput.ticketNote}
+    `.trim();
+    const request: ScenarioFeedbackRequest = {
+      scenarioTitle: selectedScenario.title,
+      idealAnswer,
+      userAnswer,
+    };
+    const result = await getScenarioFeedback(request);
+    setFeedback((current) => ({ ...current, [selectedScenario.id]: result }));
+    setShowHiddenCause((current) => ({ ...current, [selectedScenario.id]: true }));
+    setIsLoadingFeedback(false);
+  };
 
   return (
     <div>
@@ -94,6 +132,59 @@ function MspScenarios({ progress, updateScenarioProgress }: MspScenariosProps) {
                 placeholder="Privacy-safe note: what judgement, check, or escalation trigger should I remember?"
               />
             </label>
+          </div>
+
+          <div className="training-section">
+            <h3>Interactive Practice</h3>
+            <p>Enter your approach to this scenario, then get AI feedback.</p>
+            <label>
+              First questions you'd ask:
+              <textarea
+                value={userInput.firstQuestions}
+                onChange={(event) => setUserInputs((current) => ({ ...current, [selectedScenario.id]: { ...userInput, firstQuestions: event.target.value } }))}
+                placeholder="List 2-3 questions to clarify the issue..."
+              />
+            </label>
+            <label>
+              Checks you'd perform:
+              <textarea
+                value={userInput.checks}
+                onChange={(event) => setUserInputs((current) => ({ ...current, [selectedScenario.id]: { ...userInput, checks: event.target.value } }))}
+                placeholder="List safe diagnostic steps..."
+              />
+            </label>
+            <label>
+              Escalation decision:
+              <textarea
+                value={userInput.escalationDecision}
+                onChange={(event) => setUserInputs((current) => ({ ...current, [selectedScenario.id]: { ...userInput, escalationDecision: event.target.value } }))}
+                placeholder="When would you escalate and why?"
+              />
+            </label>
+            <label>
+              Draft ticket note:
+              <textarea
+                value={userInput.ticketNote}
+                onChange={(event) => setUserInputs((current) => ({ ...current, [selectedScenario.id]: { ...userInput, ticketNote: event.target.value } }))}
+                placeholder="Write a brief ticket note..."
+              />
+            </label>
+            <p className="privacy-reminder">Use generic training answers only. Do not include client names, passwords, hostnames, private ticket text, or sensitive data.</p>
+            <button type="button" onClick={handleGetFeedback} disabled={isLoadingFeedback}>
+              {isLoadingFeedback ? 'Getting feedback...' : 'Get AI Feedback'}
+            </button>
+            {scenarioFeedback && (
+              <div className="feedback-panel">
+                <h4>AI Feedback</h4>
+                <p>{scenarioFeedback}</p>
+              </div>
+            )}
+            {hiddenCauseVisible && (
+              <div className="hidden-cause-panel">
+                <h4>Hidden Cause</h4>
+                <p>{selectedScenario.hiddenCause}</p>
+              </div>
+            )}
           </div>
 
           <div className="training-section">

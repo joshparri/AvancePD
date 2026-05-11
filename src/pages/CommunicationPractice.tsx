@@ -1,9 +1,28 @@
 import { useState } from 'react';
 import { communicationScenarios } from '../data/communicationScenarios';
+import { getCommunicationFeedback, type CommunicationFeedbackRequest } from '../utils/groqClient';
 
 function CommunicationPractice() {
   const [selectedId, setSelectedId] = useState(communicationScenarios[0]?.id ?? '');
+  const [userResponses, setUserResponses] = useState<Record<string, string>>({});
+  const [feedback, setFeedback] = useState<Record<string, string>>({});
+  const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
+
   const selectedScenario = communicationScenarios.find((scenario) => scenario.id === selectedId) ?? communicationScenarios[0];
+  const userResponse = userResponses[selectedId] ?? '';
+  const scenarioFeedback = feedback[selectedId] ?? '';
+
+  const handleGetFeedback = async () => {
+    setIsLoadingFeedback(true);
+    const request: CommunicationFeedbackRequest = {
+      scenarioContext: selectedScenario.context,
+      idealAnswer: selectedScenario.excellentResponse,
+      userAnswer: userResponse,
+    };
+    const result = await getCommunicationFeedback(request);
+    setFeedback((current) => ({ ...current, [selectedId]: result }));
+    setIsLoadingFeedback(false);
+  };
 
   return (
     <div className="page-card communication-page">
@@ -35,6 +54,26 @@ function CommunicationPractice() {
             <div className="status-chip">Related skills: {selectedScenario.relatedMspSkills.join(', ')}</div>
           </div>
           <p className="context">Context: {selectedScenario.context}</p>
+
+          <div className="training-section">
+            <h4>Your response</h4>
+            <textarea
+              value={userResponse}
+              onChange={(event) => setUserResponses((current) => ({ ...current, [selectedId]: event.target.value }))}
+              placeholder="Write your professional response to this scenario..."
+              rows={4}
+            />
+            <p className="privacy-reminder">Use generic training answers only. Do not include client names, passwords, hostnames, private ticket text, or sensitive data.</p>
+            <button type="button" onClick={handleGetFeedback} disabled={isLoadingFeedback || !userResponse.trim()}>
+              {isLoadingFeedback ? 'Getting feedback...' : 'Get AI Feedback'}
+            </button>
+            {scenarioFeedback && (
+              <div className="feedback-panel">
+                <h4>AI Feedback</h4>
+                <p>{scenarioFeedback}</p>
+              </div>
+            )}
+          </div>
 
           <div className="training-section">
             <h4>Poor response</h4>

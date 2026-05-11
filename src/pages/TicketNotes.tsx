@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { responseRubrics } from '../data/responseRubrics';
+import { getTicketNoteFeedback, type TicketNoteFeedbackRequest } from '../utils/groqClient';
 
 type TicketNotesProps = {
   ticketNotePracticeCount: number;
@@ -62,6 +64,20 @@ const examples = [
 ] as const;
 
 function TicketNotes({ ticketNotePracticeCount, incrementTicketNotePractice }: TicketNotesProps) {
+  const [userNote, setUserNote] = useState('');
+  const [feedback, setFeedback] = useState('');
+  const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
+
+  const handleGetFeedback = async () => {
+    setIsLoadingFeedback(true);
+    const request: TicketNoteFeedbackRequest = {
+      idealAnswer: ticketNoteTemplate,
+      userAnswer: userNote,
+    };
+    const result = await getTicketNoteFeedback(request);
+    setFeedback(result);
+    setIsLoadingFeedback(false);
+  };
   return (
     <div>
       <section className="card">
@@ -116,6 +132,27 @@ function TicketNotes({ ticketNotePracticeCount, incrementTicketNotePractice }: T
         <h2>Template</h2>
         <p>Use this as a starting point when writing or reviewing a ticket.</p>
         <pre className="template-box">{ticketNoteTemplate}</pre>
+      </section>
+
+      <section className="card">
+        <h2>Practice writing a ticket note</h2>
+        <p>Write a ticket note based on a hypothetical scenario, then get AI feedback.</p>
+        <textarea
+          value={userNote}
+          onChange={(event) => setUserNote(event.target.value)}
+          placeholder="Write your ticket note here..."
+          rows={8}
+        />
+        <p className="privacy-reminder">Use generic training answers only. Do not include client names, passwords, hostnames, private ticket text, or sensitive data.</p>
+        <button type="button" onClick={handleGetFeedback} disabled={isLoadingFeedback || !userNote.trim()}>
+          {isLoadingFeedback ? 'Getting feedback...' : 'Get AI Feedback'}
+        </button>
+        {feedback && (
+          <div className="feedback-panel">
+            <h3>AI Feedback</h3>
+            <p>{feedback}</p>
+          </div>
+        )}
       </section>
     </div>
   );
