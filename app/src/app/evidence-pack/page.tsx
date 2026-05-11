@@ -18,6 +18,7 @@ import {
   MspScenarioStatusById,
   MspSkillReadinessById,
 } from '@/lib/mspProgress';
+import { getStoredQuizAttempts, getBestQuizScore } from '@/lib/mspQuizProgress';
 import { Archive, ClipboardCheck, FileText, Target, TrendingUp } from 'lucide-react';
 
 const countBy = <T,>(items: T[], getKey: (item: T) => string) =>
@@ -56,6 +57,10 @@ export default function EvidencePackPage() {
   const weakAreaCounts = countBy(lowReadinessSkills, (skill) => skill.category);
   const scenarioCategoryCounts = countBy(reviewedScenarios, (scenario) => scenario.category);
   const recommendations = getMspNextBestActions(skillsWithProgress, mspScenarios, scenarioStatuses);
+
+  const quizAttempts = getStoredQuizAttempts();
+  const bestQuizScore = getBestQuizScore();
+  const bestQuizAttempt = quizAttempts.find(a => a.percentage === bestQuizScore?.percentage);
 
   const skillsPractised = practisedSkills.slice(0, 8).map((skill) => skill.title);
   const weakAreas = Object.entries(weakAreaCounts)
@@ -113,6 +118,12 @@ ${formatList(scenarioProgressList.length > 0 ? scenarioProgressList : ['No scena
 - Current output: Copy-ready ticket note template and poor/okay/excellent examples.
 - Next evidence target: Write one excellent ticket note from a scenario and one escalation-ready handover note.
 
+## Quiz Performance
+- Quiz attempts completed: ${quizAttempts.length}
+- Best quiz score: ${bestQuizScore ? `${bestQuizScore.percentage}%` : 'No quizzes completed yet'}
+- Recent quiz scores: ${quizAttempts.slice(0, 3).map(a => `${a.percentage}%`).join(', ') || 'None'}
+- Quiz domains covered: ${[...new Set(quizAttempts.flatMap(a => Object.keys(a.domainBreakdown)))].join(', ') || 'None'}
+
 ## Weak Areas Identified
 ${formatList(weakAreas)}
 
@@ -135,7 +146,7 @@ ${formatList(practicalOutputs)}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-6">
             <Card>
               <CardContent className="p-4">
                 <p className="text-xs text-muted-foreground">Skills practised</p>
@@ -160,9 +171,54 @@ ${formatList(practicalOutputs)}
                 <p className="text-2xl font-bold">{recommendations.length}</p>
               </CardContent>
             </Card>
+            <Card>
+              <CardContent className="p-4">
+                <p className="text-xs text-muted-foreground">Quiz attempts</p>
+                <p className="text-2xl font-bold">{quizAttempts.length}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <p className="text-xs text-muted-foreground">Best quiz score</p>
+                <p className="text-2xl font-bold">{bestQuizScore ? `${bestQuizScore.percentage}%` : 'N/A'}</p>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <TrendingUp className="h-5 w-5" />
+                  Quiz Performance
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {quizAttempts.length > 0 ? (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Best Score</span>
+                      <Badge variant="outline">{bestQuizScore?.percentage}%</Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Recent Attempts</span>
+                      <span className="text-sm text-muted-foreground">
+                        {quizAttempts.slice(0, 3).map(a => `${a.percentage}%`).join(', ')}
+                      </span>
+                    </div>
+                    <div className="text-sm">
+                      <p className="font-medium mb-1">Weakest Domains</p>
+                      <p className="text-muted-foreground">
+                        {bestQuizAttempt?.weakestDomains?.slice(0, 2).join(', ') || 'None identified'}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No quiz attempts yet. Complete a quiz to see your performance here.</p>
+                )}
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">

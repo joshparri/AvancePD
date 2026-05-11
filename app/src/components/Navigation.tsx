@@ -10,7 +10,8 @@ import {
   ClipboardList,
   ClipboardCheck,
   Archive,
-  Map
+  Map,
+  Brain
 } from 'lucide-react';
 
 const navigation = [
@@ -18,6 +19,7 @@ const navigation = [
   { name: 'Shifts', href: '/shifts', icon: Calendar },
   { name: 'MSP Skills', href: '/msp-skills', icon: Target },
   { name: 'MSP Scenarios', href: '/msp-scenarios', icon: ClipboardList },
+  { name: 'MSP Quiz', href: '/msp-quiz', icon: Brain },
   { name: 'Ticket Notes', href: '/ticket-notes', icon: ClipboardCheck },
   { name: 'Evidence Pack', href: '/evidence-pack', icon: Archive },
   { name: 'MSP Roadmap', href: '/msp-roadmap', icon: Map },
