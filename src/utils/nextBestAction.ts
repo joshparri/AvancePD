@@ -84,6 +84,58 @@ export function getNextBestAction(progress: AvanceProgress): NextBestAction {
   };
 }
 
+export type QuietWindowDuration = '5min' | '10min' | '15min' | '20min';
+
+export type QuietWindowSuggestion = NextBestAction & { suggestedPageId: string };
+
+const categoryPageMap: Record<string, string> = {
+  'Documentation': 'ticketNotes',
+  'Cybersecurity': 'mspScenarios',
+  'Networking': 'mspScenarios',
+  'Escalation and professional judgement': 'mspScenarios',
+  'Evidence': 'evidencePack',
+};
+
+export function getQuietWindowSuggestion(
+  progress: AvanceProgress,
+  duration: QuietWindowDuration
+): QuietWindowSuggestion {
+  if (duration === '5min') {
+    return {
+      title: 'Read one concept card',
+      reason: 'Five minutes is enough to lock in one MSP concept that will pay off the next time the same issue appears in the queue.',
+      action: 'Open Micro-Learning, pick a card in a category you feel least confident in, and read the concept and example only.',
+      category: 'Learning',
+      suggestedPageId: 'microLearning'
+    };
+  }
+
+  const base = getNextBestAction(progress);
+  const suggestedPageId = categoryPageMap[base.category] ?? 'mspSkills';
+
+  if (duration === '10min') {
+    return {
+      ...base,
+      action: base.action + ' Read through the content only — skip the interactive fields for now.',
+      suggestedPageId
+    };
+  }
+
+  if (duration === '15min') {
+    return {
+      ...base,
+      action: base.action + ' Fill in the reflection field or the practice inputs.',
+      suggestedPageId
+    };
+  }
+
+  return {
+    ...base,
+    action: base.action + ' Use the interactive practice section and request AI feedback on your response.',
+    suggestedPageId
+  };
+}
+
 export function getRecommendedStudyAreas(progress: AvanceProgress, limit = 5) {
   return getWeakSkills(progress)
     .slice(0, limit)

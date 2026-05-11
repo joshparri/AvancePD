@@ -14,10 +14,12 @@ import CommunicationPractice from './pages/CommunicationPractice';
 import MspRoadmap from './pages/MspRoadmap';
 import AvanceWorkday from './pages/AvanceWorkday';
 import EvidencePack from './pages/EvidencePack';
+import MicroLearning from './pages/MicroLearning';
 import type { MspSkillReadiness } from './data/mspSkills';
 import {
   incrementTicketNotePractice as incrementTicketNotePracticeProgress,
   loadProgress,
+  markMicroCardViewed as markMicroCardViewedProgress,
   saveProgress,
   setScenarioProgress,
   setSkillReadiness,
@@ -52,7 +54,8 @@ const pages = [
   { id: 'ticketNotes', label: 'Ticket Notes' },
   { id: 'communicationPractice', label: 'Communication Practice' },
   { id: 'mspRoadmap', label: 'MSP Roadmap' },
-  { id: 'evidencePack', label: 'Evidence Pack' }
+  { id: 'evidencePack', label: 'Evidence Pack' },
+  { id: 'microLearning', label: 'Micro-Learning' }
 ];
 
 type PageId =
@@ -70,7 +73,8 @@ type PageId =
   | 'ticketNotes'
   | 'communicationPractice'
   | 'mspRoadmap'
-  | 'evidencePack';
+  | 'evidencePack'
+  | 'microLearning';
 
 function loadPersisted<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') {
@@ -160,6 +164,9 @@ function App() {
   const updateWorkday = (workdayFocus: string, quickSupportMode: string) => {
     setProgress((current) => updateWorkdayProgress(current, workdayFocus, quickSupportMode));
   };
+  const markMicroCardViewed = (cardId: string) => {
+    setProgress((current) => markMicroCardViewedProgress(current, cardId));
+  };
 
   return (
     <div className="app-shell">
@@ -244,7 +251,13 @@ function App() {
             deleteLearningItem={deleteLearningItem}
           />
         )}
-        {currentPage === 'avanceWorkday' && <AvanceWorkday progress={progress} updateWorkday={updateWorkday} />}
+        {currentPage === 'avanceWorkday' && (
+          <AvanceWorkday
+            progress={progress}
+            updateWorkday={updateWorkday}
+            onNavigate={(page) => setCurrentPage(page as PageId)}
+          />
+        )}
         {currentPage === 'mspSkills' && <MspSkills progress={progress} updateSkillReadiness={updateSkillReadiness} />}
         {currentPage === 'mspScenarios' && <MspScenarios progress={progress} updateScenarioProgress={updateScenarioStatus} />}
         {currentPage === 'ticketNotes' && (
@@ -256,6 +269,13 @@ function App() {
         {currentPage === 'communicationPractice' && <CommunicationPractice />}
         {currentPage === 'mspRoadmap' && <MspRoadmap />}
         {currentPage === 'evidencePack' && <EvidencePack progress={progress} />}
+        {currentPage === 'microLearning' && (
+          <MicroLearning
+            progress={progress}
+            markMicroCardViewed={markMicroCardViewed}
+            onNavigate={(page) => setCurrentPage(page as PageId)}
+          />
+        )}
       </main>
     </div>
   );

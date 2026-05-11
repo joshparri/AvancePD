@@ -17,6 +17,7 @@ export type AvanceProgress = {
   weakAreas: string[];
   workdayFocus?: string;
   quickSupportMode?: string;
+  viewedMicroCardIds?: string[];
 };
 
 export const defaultProgress: AvanceProgress = {
@@ -97,6 +98,12 @@ export function incrementTicketNotePractice(progress: AvanceProgress): AvancePro
     ticketNotePracticeCount: progress.ticketNotePracticeCount + 1,
     lastPractisedDate: todayIso()
   };
+}
+
+export function markMicroCardViewed(progress: AvanceProgress, cardId: string): AvanceProgress {
+  const current = progress.viewedMicroCardIds ?? [];
+  if (current.includes(cardId)) return progress;
+  return { ...progress, viewedMicroCardIds: [...current, cardId] };
 }
 
 export function updateWorkdayProgress(progress: AvanceProgress, workdayFocus: string, quickSupportMode: string): AvanceProgress {
