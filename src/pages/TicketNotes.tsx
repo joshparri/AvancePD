@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { responseRubrics } from '../data/responseRubrics';
-import { getTicketNoteFeedback, type TicketNoteFeedbackRequest } from '../utils/groqClient';
+import { getTicketNoteFeedback, type CoachFeedback, type TicketNoteFeedbackRequest } from '../utils/groqClient';
+import FeedbackCard from '../components/FeedbackCard';
 
 type TicketNotesProps = {
   ticketNotePracticeCount: number;
@@ -65,13 +66,14 @@ const examples = [
 
 function TicketNotes({ ticketNotePracticeCount, incrementTicketNotePractice }: TicketNotesProps) {
   const [userNote, setUserNote] = useState('');
-  const [feedback, setFeedback] = useState('');
-  const [error, setError] = useState('');
+  const [feedback, setFeedback] = useState<CoachFeedback | null>(null);
+  const [feedbackError, setFeedbackError] = useState('');
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
 
   const handleGetFeedback = async () => {
+    if (!userNote.trim()) return;
     setIsLoadingFeedback(true);
-    setError('');
+    setFeedbackError('');
     try {
       const request: TicketNoteFeedbackRequest = {
         idealAnswer: ticketNoteTemplate,
@@ -79,12 +81,13 @@ function TicketNotes({ ticketNotePracticeCount, incrementTicketNotePractice }: T
       };
       const result = await getTicketNoteFeedback(request);
       setFeedback(result);
-    } catch (err: any) {
-      setError(err?.message || 'Unable to get feedback.');
+    } catch (err: unknown) {
+      setFeedbackError(err instanceof Error ? err.message : 'Unable to get feedback.');
     } finally {
       setIsLoadingFeedback(false);
     }
   };
+
   return (
     <div>
       <section className="card">
@@ -147,24 +150,25 @@ function TicketNotes({ ticketNotePracticeCount, incrementTicketNotePractice }: T
         <textarea
           value={userNote}
           onChange={(event) => setUserNote(event.target.value)}
-          placeholder="Write your ticket note here..."
+          placeholder="Write your ticket note here…"
           rows={8}
         />
         <p className="privacy-reminder">Use generic training answers only. Do not include client names, passwords, hostnames, private ticket text, or sensitive data.</p>
-        <button type="button" onClick={handleGetFeedback} disabled={isLoadingFeedback || !userNote.trim()}>
-          {isLoadingFeedback ? 'Getting feedback...' : 'Get AI Feedback'}
-        </button>
-        {feedback && (
-          <div className="feedback-panel">
-            <h3>AI Feedback</h3>
-            <p>{feedback}</p>
+        {!userNote.trim() ? (
+          <p className="feedback-empty-hint">Write your ticket note first, then I can coach it.</p>
+        ) : (
+          <button type="button" onClick={handleGetFeedback} disabled={isLoadingFeedback}>
+            {isLoadingFeedback ? 'Getting feedback…' : feedback ? 'Get fresh feedback' : 'Get AI Feedback'}
+          </button>
+        )}
+        {feedbackError && (
+          <div className="error-panel">
+            <h3>Feedback unavailable</h3>
+            <p>{feedbackError}</p>
           </div>
         )}
-        {error && (
-          <div className="error-panel">
-            <h3>Error</h3>
-            <p>{error}</p>
-          </div>
+        {feedback && (
+          <FeedbackCard feedback={feedback} onClear={() => setFeedback(null)} />
         )}
       </section>
     </div>

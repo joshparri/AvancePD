@@ -1,21 +1,23 @@
 import { useState } from 'react';
 import { communicationScenarios } from '../data/communicationScenarios';
-import { getCommunicationFeedback, type CommunicationFeedbackRequest } from '../utils/groqClient';
+import { getCommunicationFeedback, type CoachFeedback, type CommunicationFeedbackRequest } from '../utils/groqClient';
+import FeedbackCard from '../components/FeedbackCard';
 
 function CommunicationPractice() {
   const [selectedId, setSelectedId] = useState(communicationScenarios[0]?.id ?? '');
   const [userResponses, setUserResponses] = useState<Record<string, string>>({});
-  const [feedback, setFeedback] = useState<Record<string, string>>({});
-  const [error, setError] = useState<string>('');
+  const [feedbackMap, setFeedbackMap] = useState<Record<string, CoachFeedback>>({});
+  const [feedbackError, setFeedbackError] = useState<string>('');
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
 
   const selectedScenario = communicationScenarios.find((scenario) => scenario.id === selectedId) ?? communicationScenarios[0];
   const userResponse = userResponses[selectedId] ?? '';
-  const scenarioFeedback = feedback[selectedId] ?? '';
+  const scenarioFeedback = feedbackMap[selectedId];
 
   const handleGetFeedback = async () => {
+    if (!userResponse.trim()) return;
     setIsLoadingFeedback(true);
-    setError('');
+    setFeedbackError('');
     try {
       const request: CommunicationFeedbackRequest = {
         scenarioContext: selectedScenario.context,
@@ -23,12 +25,17 @@ function CommunicationPractice() {
         userAnswer: userResponse,
       };
       const result = await getCommunicationFeedback(request);
-      setFeedback((current) => ({ ...current, [selectedId]: result }));
-    } catch (err: any) {
-      setError(err?.message || 'Unable to get feedback.');
+      setFeedbackMap((current) => ({ ...current, [selectedId]: result }));
+    } catch (err: unknown) {
+      setFeedbackError(err instanceof Error ? err.message : 'Unable to get feedback.');
     } finally {
       setIsLoadingFeedback(false);
     }
+  };
+
+  const handleClearFeedback = () => {
+    setFeedbackMap((c) => { const n = { ...c }; delete n[selectedId]; return n; });
+    setFeedbackError('');
   };
 
   return (
@@ -67,24 +74,25 @@ function CommunicationPractice() {
             <textarea
               value={userResponse}
               onChange={(event) => setUserResponses((current) => ({ ...current, [selectedId]: event.target.value }))}
-              placeholder="Write your professional response to this scenario..."
+              placeholder="Write your professional response to this scenario…"
               rows={4}
             />
             <p className="privacy-reminder">Use generic training answers only. Do not include client names, passwords, hostnames, private ticket text, or sensitive data.</p>
-            <button type="button" onClick={handleGetFeedback} disabled={isLoadingFeedback || !userResponse.trim()}>
-              {isLoadingFeedback ? 'Getting feedback...' : 'Get AI Feedback'}
-            </button>
-            {scenarioFeedback && (
-              <div className="feedback-panel">
-                <h4>AI Feedback</h4>
-                <p>{scenarioFeedback}</p>
+            {!userResponse.trim() ? (
+              <p className="feedback-empty-hint">Write your response first, then I can coach it.</p>
+            ) : (
+              <button type="button" onClick={handleGetFeedback} disabled={isLoadingFeedback}>
+                {isLoadingFeedback ? 'Getting feedback…' : scenarioFeedback ? 'Get fresh feedback' : 'Get AI Feedback'}
+              </button>
+            )}
+            {feedbackError && (
+              <div className="error-panel">
+                <h4>Feedback unavailable</h4>
+                <p>{feedbackError}</p>
               </div>
             )}
-            {error && (
-              <div className="error-panel">
-                <h4>Error</h4>
-                <p>{error}</p>
-              </div>
+            {scenarioFeedback && (
+              <FeedbackCard feedback={scenarioFeedback} onClear={handleClearFeedback} />
             )}
           </div>
 

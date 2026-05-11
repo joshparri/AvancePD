@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { mspScenarios } from '../data/mspScenarios';
-import { getScenarioFeedback, type ScenarioFeedbackRequest } from '../utils/groqClient';
+import { getScenarioFeedback, type CoachFeedback, type ScenarioFeedbackRequest } from '../utils/groqClient';
+import FeedbackCard from '../components/FeedbackCard';
 import type { AvanceProgress, ScenarioStatus } from '../utils/progressStorage';
 
 const scenarioStatuses: ScenarioStatus[] = ['not-started', 'practised', 'confident', 'needs-review'];
@@ -14,9 +15,9 @@ function MspScenarios({ progress, updateScenarioProgress }: MspScenariosProps) {
   const [selectedScenarioId, setSelectedScenarioId] = useState(mspScenarios[0]?.id ?? '');
   const [reflectionDrafts, setReflectionDrafts] = useState<Record<string, string>>({});
   const [userInputs, setUserInputs] = useState<Record<string, { firstQuestions: string; checks: string; escalationDecision: string; ticketNote: string }>>({});
-  const [feedback, setFeedback] = useState<Record<string, string>>({});
+  const [feedbackMap, setFeedbackMap] = useState<Record<string, CoachFeedback>>({});
   const [showHiddenCause, setShowHiddenCause] = useState<Record<string, boolean>>({});
-  const [error, setError] = useState<Record<string, string>>({});
+  const [feedbackError, setFeedbackError] = useState<Record<string, string>>({});
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
 
   const selectedScenario = useMemo(
@@ -37,22 +38,30 @@ function MspScenarios({ progress, updateScenarioProgress }: MspScenariosProps) {
     escalationDecision: '',
     ticketNote: '',
   };
-  const scenarioFeedback = feedback[selectedScenarioId] ?? '';
+  const scenarioFeedback = feedbackMap[selectedScenarioId];
   const hiddenCauseVisible = showHiddenCause[selectedScenarioId] ?? false;
 
+  const allBlank =
+    !userInput.firstQuestions.trim() &&
+    !userInput.checks.trim() &&
+    !userInput.escalationDecision.trim() &&
+    !userInput.ticketNote.trim();
+
   const handleGetFeedback = async () => {
+    if (allBlank) return;
     setIsLoadingFeedback(true);
+    setFeedbackError((c) => ({ ...c, [selectedScenario.id]: '' }));
     const idealAnswer = `
-First questions: ${selectedScenario.goodFirstQuestions.join(", ")}
-Expected checks: ${selectedScenario.expectedChecks.join(", ")}
-Escalation triggers: ${selectedScenario.escalationTriggers.join(", ")}
+First questions: ${selectedScenario.goodFirstQuestions.join(', ')}
+Expected checks: ${selectedScenario.expectedChecks.join(', ')}
+Escalation triggers: ${selectedScenario.escalationTriggers.join(', ')}
 Ticket note: ${selectedScenario.idealTicketNotes}
     `.trim();
     const userAnswer = `
-First questions: ${userInput.firstQuestions}
-Checks: ${userInput.checks}
-Escalation decision: ${userInput.escalationDecision}
-Ticket note: ${userInput.ticketNote}
+First questions: ${userInput.firstQuestions || '(blank)'}
+Checks: ${userInput.checks || '(blank)'}
+Escalation decision: ${userInput.escalationDecision || '(blank)'}
+Ticket note: ${userInput.ticketNote || '(blank)'}
     `.trim();
     const request: ScenarioFeedbackRequest = {
       scenarioTitle: selectedScenario.title,
@@ -61,14 +70,24 @@ Ticket note: ${userInput.ticketNote}
     };
     try {
       const result = await getScenarioFeedback(request);
-      setFeedback((current) => ({ ...current, [selectedScenario.id]: result }));
+      setFeedbackMap((current) => ({ ...current, [selectedScenario.id]: result }));
       setShowHiddenCause((current) => ({ ...current, [selectedScenario.id]: true }));
-      setError((current) => ({ ...current, [selectedScenario.id]: '' }));
-    } catch (err: any) {
-      setError((current) => ({ ...current, [selectedScenario.id]: err?.message || 'Unable to get feedback.' }));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unable to get feedback.';
+      setFeedbackError((current) => ({ ...current, [selectedScenario.id]: msg }));
     } finally {
       setIsLoadingFeedback(false);
     }
+  };
+
+  const handleClearFeedback = () => {
+    setFeedbackMap((c) => { const n = { ...c }; delete n[selectedScenario.id]; return n; });
+    setFeedbackError((c) => ({ ...c, [selectedScenario.id]: '' }));
+    setShowHiddenCause((c) => ({ ...c, [selectedScenario.id]: false }));
+  };
+
+  const setField = (field: keyof typeof userInput, value: string) => {
+    setUserInputs((c) => ({ ...c, [selectedScenario.id]: { ...userInput, [field]: value } }));
   };
 
   return (
@@ -144,53 +163,56 @@ Ticket note: ${userInput.ticketNote}
           <div className="training-section">
             <h3>Interactive Practice</h3>
             <p>Enter your approach to this scenario, then get AI feedback.</p>
-            <label>
-              First questions you'd ask:
-              <textarea
-                value={userInput.firstQuestions}
-                onChange={(event) => setUserInputs((current) => ({ ...current, [selectedScenario.id]: { ...userInput, firstQuestions: event.target.value } }))}
-                placeholder="List 2-3 questions to clarify the issue..."
-              />
-            </label>
-            <label>
-              Checks you'd perform:
-              <textarea
-                value={userInput.checks}
-                onChange={(event) => setUserInputs((current) => ({ ...current, [selectedScenario.id]: { ...userInput, checks: event.target.value } }))}
-                placeholder="List safe diagnostic steps..."
-              />
-            </label>
-            <label>
-              Escalation decision:
-              <textarea
-                value={userInput.escalationDecision}
-                onChange={(event) => setUserInputs((current) => ({ ...current, [selectedScenario.id]: { ...userInput, escalationDecision: event.target.value } }))}
-                placeholder="When would you escalate and why?"
-              />
-            </label>
-            <label>
-              Draft ticket note:
-              <textarea
-                value={userInput.ticketNote}
-                onChange={(event) => setUserInputs((current) => ({ ...current, [selectedScenario.id]: { ...userInput, ticketNote: event.target.value } }))}
-                placeholder="Write a brief ticket note..."
-              />
-            </label>
+            <div className="quick-capture-form">
+              <label>
+                First questions you'd ask:
+                <textarea
+                  value={userInput.firstQuestions}
+                  onChange={(e) => setField('firstQuestions', e.target.value)}
+                  placeholder="List 2–3 questions to clarify the issue…"
+                />
+              </label>
+              <label>
+                Checks you'd perform:
+                <textarea
+                  value={userInput.checks}
+                  onChange={(e) => setField('checks', e.target.value)}
+                  placeholder="List safe diagnostic steps…"
+                />
+              </label>
+              <label>
+                Escalation decision:
+                <textarea
+                  value={userInput.escalationDecision}
+                  onChange={(e) => setField('escalationDecision', e.target.value)}
+                  placeholder="When would you escalate and why?"
+                />
+              </label>
+              <label>
+                Draft ticket note:
+                <textarea
+                  value={userInput.ticketNote}
+                  onChange={(e) => setField('ticketNote', e.target.value)}
+                  placeholder="Write a brief ticket note…"
+                />
+              </label>
+            </div>
             <p className="privacy-reminder">Use generic training answers only. Do not include client names, passwords, hostnames, private ticket text, or sensitive data.</p>
-            <button type="button" onClick={handleGetFeedback} disabled={isLoadingFeedback}>
-              {isLoadingFeedback ? 'Getting feedback...' : 'Get AI Feedback'}
-            </button>
-            {scenarioFeedback && (
-              <div className="feedback-panel">
-                <h4>AI Feedback</h4>
-                <p>{scenarioFeedback}</p>
+            {allBlank ? (
+              <p className="feedback-empty-hint">Add your answer first, then I can coach it.</p>
+            ) : (
+              <button type="button" onClick={handleGetFeedback} disabled={isLoadingFeedback}>
+                {isLoadingFeedback ? 'Getting feedback…' : scenarioFeedback ? 'Get fresh feedback' : 'Get AI Feedback'}
+              </button>
+            )}
+            {feedbackError[selectedScenario.id] && (
+              <div className="error-panel">
+                <h4>Feedback unavailable</h4>
+                <p>{feedbackError[selectedScenario.id]}</p>
               </div>
             )}
-            {error[selectedScenario.id] && (
-              <div className="error-panel">
-                <h4>Error</h4>
-                <p>{error[selectedScenario.id]}</p>
-              </div>
+            {scenarioFeedback && (
+              <FeedbackCard feedback={scenarioFeedback} onClear={handleClearFeedback} />
             )}
             {hiddenCauseVisible && (
               <div className="hidden-cause-panel">

@@ -456,6 +456,95 @@ section {
     gap: 10px;
   }
 
+/* AI Feedback Card */
+.ai-feedback-card {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 12px;
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 16px;
+}
+
+.ai-feedback-header {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.feedback-summary {
+  color: #0f172a;
+  flex: 1;
+  font-weight: 500;
+  margin: 0;
+  min-width: 160px;
+}
+
+.feedback-section {
+  border-top: 1px solid #bae6fd;
+  padding-top: 10px;
+}
+
+.feedback-section-header {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.feedback-section-title {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.feedback-status {
+  font-size: 0.78rem;
+  padding: 3px 8px;
+}
+
+.feedback-points {
+  color: #1e293b;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.feedback-points li {
+  line-height: 1.55;
+  margin-bottom: 4px;
+}
+
+.feedback-next-step {
+  background: #e0f2fe;
+  border-radius: 8px;
+  color: #0369a1;
+  font-size: 0.9rem;
+  padding: 10px 12px;
+}
+
+.feedback-empty-hint {
+  color: #64748b;
+  font-style: italic;
+  margin-top: 8px;
+}
+
+.card .clear-feedback-btn {
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
+  font-size: 0.85rem;
+  margin-top: 8px;
+  padding: 6px 12px;
+}
+
+.card .clear-feedback-btn:hover {
+  background: #f1f5f9;
+  color: #334155;
+  filter: none;
+}
+
 @media (max-width: 900px) {
   .app-shell {
     grid-template-columns: 1fr;
