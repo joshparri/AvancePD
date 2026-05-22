@@ -1,16 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { format, addDays, startOfWeek, isToday, isTomorrow } from 'date-fns';
+import Link from 'next/link';
+import { format, isToday, isTomorrow } from 'date-fns';
 import { db, initDatabase } from '@/lib/db';
 import { seedDatabase } from '@/lib/seed';
-import { Shift, WorkLog, Task, PDAchievement } from '@/types';
+import { Shift, WorkLog, Task } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Calendar, CheckSquare, TrendingUp, Plus, BookOpen, Lightbulb } from 'lucide-react';
-import { getLearningProgress, getLearningStats, getDueReviewSuggestions } from '@/lib/mspLearningProgress';
-import { mspLearningActivities } from '@/data/mspLearningActivities';
+import { Calendar, Clock, Plus, CheckSquare, TrendingUp, Lightbulb, BookOpen } from 'lucide-react';
+import { mspLearningActivities, type MspLearningActivity } from '@/data/mspLearningActivities';
+import { getLearningStats, getDueReviewSuggestions } from '@/lib/mspLearningProgress';
 
 export function Dashboard() {
   const [nextShift, setNextShift] = useState<Shift | null>(null);
@@ -19,16 +20,20 @@ export function Dashboard() {
   const [totalHoursThisMonth, setTotalHoursThisMonth] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [learningStats, setLearningStats] = useState(getLearningStats());
-  const [nextBestActivity, setNextBestActivity] = useState<any>(null);
+  const [nextBestActivity, setNextBestActivity] = useState<MspLearningActivity | null>(null);
 
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
         await initDatabase();
 
-        // Check if we have data, if not seed the database
-        const shiftsCount = await db.shifts.count();
-        if (shiftsCount === 0) {
+        // Seed sample data only for a completely fresh local database.
+        const [shiftsCount, workLogsCount, tasksCount] = await Promise.all([
+          db.shifts.count(),
+          db.workLogs.count(),
+          db.tasks.count(),
+        ]);
+        if (shiftsCount === 0 && workLogsCount === 0 && tasksCount === 0) {
           await seedDatabase();
         }
 
@@ -75,7 +80,7 @@ export function Dashboard() {
         const recommendations = getDueReviewSuggestions(mspLearningActivities);
         if (recommendations.length > 0) {
           const nextActivity = mspLearningActivities.find(a => a.id === recommendations[0]);
-          setNextBestActivity(nextActivity);
+          setNextBestActivity(nextActivity || null);
         }
 
       } catch (error) {
@@ -140,9 +145,11 @@ export function Dashboard() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button size="sm">
-              <Plus className="w-4 h-4 mr-2" />
-              New Log
+            <Button size="sm" asChild>
+              <Link href="/work-logs">
+                <Plus className="w-4 h-4 mr-2" />
+                New Log
+              </Link>
             </Button>
             <Button variant="outline" size="sm">
               <CheckSquare className="w-4 h-4 mr-2" />
@@ -230,7 +237,7 @@ export function Dashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Lightbulb className="w-5 h-5" />
-              Today's PD Focus
+              PD Focus Today
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -330,9 +337,14 @@ export function Dashboard() {
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground text-center py-4">
-                  No work logs yet. Start by logging your first task!
-                </p>
+                <div className="text-center py-4">
+                  <p className="text-muted-foreground mb-3">
+                    No work logs yet. Capture the next useful support action.
+                  </p>
+                  <Button size="sm" asChild>
+                    <Link href="/work-logs">Create Work Log</Link>
+                  </Button>
+                </div>
               )}
             </CardContent>
           </Card>

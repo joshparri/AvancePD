@@ -13,12 +13,14 @@ import {
   Archive,
   Map,
   Brain,
-  Lightbulb
+  Lightbulb,
+  NotebookText
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
   { name: 'Shifts', href: '/shifts', icon: Calendar },
+  { name: 'Work Logs', href: '/work-logs', icon: NotebookText },
   { name: 'MSP Skills', href: '/msp-skills', icon: Target },
   { name: 'MSP Scenarios', href: '/msp-scenarios', icon: ClipboardList },
   { name: 'MSP Quiz', href: '/msp-quiz', icon: Brain },

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { mspLearningActivities, type MspLearningActivity, type MspLearningActivityType } from '@/data/mspLearningActivities';
 import { 
   getLearningProgress,
@@ -8,7 +8,6 @@ import {
   getDueReviewSuggestions,
   markActivityComplete,
   unmarkActivityComplete,
-  getCompletedActivityIds,
   saveActivityReflection
 } from '@/lib/mspLearningProgress';
 import { getStoredQuizAttempts, getBestQuizScore } from '@/lib/mspQuizProgress';
@@ -31,11 +30,10 @@ import {
   Zap,
   TrendingUp,
   Lightbulb,
-  Filter,
-  ChevronRight
+  Filter
 } from 'lucide-react';
 
-const activityTypeIcons: Record<MspLearningActivityType, React.ComponentType<any>> = {
+const activityTypeIcons: Record<MspLearningActivityType, React.ComponentType<React.SVGAttributes<SVGElement>>> = {
   read: BookOpen,
   watch: PlayCircle,
   flashcard: Brain,
@@ -59,119 +57,87 @@ const difficultyColors = {
 export default function LearningCockpit() {
   const [activities] = useState<MspLearningActivity[]>(mspLearningActivities);
   const [selectedActivity, setSelectedActivity] = useState<MspLearningActivity | null>(null);
-  const [completedIds, setCompletedIds] = useState<string[]>([]);
-  const [stats, setStats] = useState(getLearningStats());
-  const [recommendations, setRecommendations] = useState<string[]>([]);
-  const [todayPractice, setTodayPractice] = useState<MspLearningActivity[]>([]);
+  const [completedIds, setCompletedIds] = useState<string[]>(() => getLearningProgress().completedActivityIds);
+  const [stats, setStats] = useState(() => getLearningStats());
   const [filterDomain, setFilterDomain] = useState<string>('all');
   const [filterType, setFilterType] = useState<MspLearningActivityType | 'all'>('all');
   const [filterDifficulty, setFilterDifficulty] = useState<string>('all');
   const [reflectionText, setReflectionText] = useState('');
   const [showFlashcardAnswer, setShowFlashcardAnswer] = useState(false);
 
-  useEffect(() => {
-    const progress = getLearningProgress();
-    setCompletedIds(progress.completedActivityIds);
-    setStats(getLearningStats());
-    
-    // Get quiz and scenario data for better recommendations
+  const { recommendations, todayPractice } = useMemo(() => {
     const quizAttempts = getStoredQuizAttempts();
     const bestQuizScore = getBestQuizScore();
     const scenarioStatuses = getStoredScenarioStatuses();
-    
-    // Get weak domains from quiz if available
-    let weakQuizDomains: string[] = [];
-    if (quizAttempts.length > 0) {
-      const latestAttempt = quizAttempts[0];
-      weakQuizDomains = latestAttempt.weakestDomains || [];
-    }
-    
-    // Get scenarios that need practice
+    const weakQuizDomains = quizAttempts[0]?.weakestDomains || [];
     const scenariosNeedingPractice = mspScenarios.filter(scenario => {
       const status = getScenarioProgressStatus(scenarioStatuses, scenario.id);
       return status !== 'confident';
     });
-    
-    // Get enhanced recommendations
+
     const enhancedRecommendations = getDueReviewSuggestions(activities);
-    
-    // If quiz shows weak domains, prioritize non-quiz activities in those domains
-    if (weakQuizDomains.length > 0) {
-      const weakDomainActivities = activities.filter(a => 
-        !progress.completedActivityIds.includes(a.id) &&
+
+    if (weakQuizDomains.length > 0 || (bestQuizScore && bestQuizScore.percentage < 80)) {
+      const weakDomainActivities = activities.filter(a =>
+        !completedIds.includes(a.id) &&
         weakQuizDomains.includes(a.relatedQuizDomain || '') &&
         a.activityType !== 'quiz'
       );
-      
-      // Add weak domain activities to recommendations
+
       weakDomainActivities.slice(0, 2).forEach(activity => {
         if (!enhancedRecommendations.includes(activity.id)) {
           enhancedRecommendations.unshift(activity.id);
         }
       });
     }
-    
-    // If scenarios need practice, prioritize scenario activities
+
     if (scenariosNeedingPractice.length > 0) {
-      const scenarioActivities = activities.filter(a => 
-        !progress.completedActivityIds.includes(a.id) &&
+      const scenarioActivities = activities.filter(a =>
+        !completedIds.includes(a.id) &&
         (a.activityType === 'scenario' || a.activityType === 'troubleshooting-flow')
       );
-      
+
       scenarioActivities.slice(0, 1).forEach(activity => {
         if (!enhancedRecommendations.includes(activity.id)) {
           enhancedRecommendations.unshift(activity.id);
         }
       });
     }
-    
-    setRecommendations(enhancedRecommendations.slice(0, 5));
-    
-    // Generate today's mixed practice
-    const completed = progress.completedActivityIds;
-    const incomplete = activities.filter(a => !completed.includes(a.id));
-    
+
+    const incomplete = activities.filter(a => !completedIds.includes(a.id));
     const practice: MspLearningActivity[] = [];
-    
-    // One recall activity (flashcard or quiz)
+
     const recall = incomplete.find(a => a.activityType === 'flashcard' || a.activityType === 'quiz');
     if (recall) practice.push(recall);
-    
-    // One scenario or troubleshooting flow (prioritize if scenarios need practice)
+
     let scenario = incomplete.find(a => a.activityType === 'scenario' || a.activityType === 'troubleshooting-flow');
     if (!scenario && scenariosNeedingPractice.length > 0) {
-      // Find activities related to weak scenario domains
       const weakScenarioCategories = [...new Set(scenariosNeedingPractice.map(s => s.category))];
-      scenario = incomplete.find(a => 
+      scenario = incomplete.find(a =>
         (a.activityType === 'scenario' || a.activityType === 'troubleshooting-flow') &&
         weakScenarioCategories.includes(a.domain)
       );
     }
     if (scenario) practice.push(scenario);
-    
-    // One communication/reflection activity
+
     const communication = incomplete.find(a => a.activityType === 'roleplay' || a.activityType === 'reflection');
     if (communication) practice.push(communication);
-    
-    // One evidence/action task
+
     const evidence = incomplete.find(a => a.activityType === 'checklist' || a.activityType === 'mini-project' || a.activityType === 'ticket-note');
     if (evidence) practice.push(evidence);
-    
-    setTodayPractice(practice.slice(0, 4));
-  }, [activities]);
 
-  // Load saved reflection when activity is selected
-  useEffect(() => {
-    if (selectedActivity) {
-      const progress = getLearningProgress();
-      const savedReflection = progress.reflections[selectedActivity.id];
-      setReflectionText(savedReflection || '');
-      setShowFlashcardAnswer(false);
-    } else {
-      setReflectionText('');
-      setShowFlashcardAnswer(false);
-    }
-  }, [selectedActivity]);
+    return {
+      recommendations: enhancedRecommendations.slice(0, 5),
+      todayPractice: practice.slice(0, 4),
+    };
+  }, [activities, completedIds]);
+
+  const handleSelectActivity = (activity: MspLearningActivity) => {
+    const progress = getLearningProgress();
+    setSelectedActivity(activity);
+    setReflectionText(progress.reflections[activity.id] || '');
+    setShowFlashcardAnswer(false);
+  };
 
   const filteredActivities = activities.filter(activity => {
     if (filterDomain !== 'all' && activity.domain !== filterDomain) return false;
@@ -189,28 +155,39 @@ export default function LearningCockpit() {
       const newProgress = markActivityComplete(activity.id, activity.activityType, activity.domain, activity.estimatedMinutes);
       setCompletedIds(newProgress.completedActivityIds);
       setStats(getLearningStats());
-      setRecommendations(getDueReviewSuggestions(activities));
     }
   };
 
   const handleSaveReflection = () => {
     if (selectedActivity && reflectionText.trim()) {
       saveActivityReflection(selectedActivity.id, reflectionText);
-      setReflectionText('');
     }
   };
 
   const getRecommendedActivities = () => {
-    return recommendations.slice(0, 3).map(id => activities.find(a => a.id === id)).filter(Boolean) as MspLearningActivity[];
+    return recommendations
+      .slice(0, 3)
+      .map(id => activities.find(a => a.id === id))
+      .filter((activity): activity is MspLearningActivity => Boolean(activity));
   };
 
   const getWeaknessCoaching = () => {
-    const domainCounts = stats.domainCounts;
-    const sortedDomains = Object.entries(domainCounts).sort((a, b) => a[1] - b[1]);
-    const weakDomain = sortedDomains[0]?.[0];
-    
-    if (!weakDomain) return null;
-    
+    const domainScores = activities.reduce<Record<string, { label: string; total: number; completed: number }>>((acc, activity) => {
+      acc[activity.domain] ??= { label: activity.domainLabel, total: 0, completed: 0 };
+      acc[activity.domain].total += 1;
+      if (completedIds.includes(activity.id)) {
+        acc[activity.domain].completed += 1;
+      }
+      return acc;
+    }, {});
+
+    const weakestDomain = Object.entries(domainScores)
+      .filter(([, score]) => score.completed < score.total)
+      .sort(([, a], [, b]) => (a.completed / a.total) - (b.completed / b.total))[0];
+
+    if (!weakestDomain) return null;
+
+    const [weakDomain, score] = weakestDomain;
     const domainActivities = activities.filter(a => a.domain === weakDomain && !completedIds.includes(a.id));
     const readActivity = domainActivities.find(a => a.activityType === 'read');
     const scenarioActivity = domainActivities.find(a => a.activityType === 'scenario');
@@ -219,7 +196,7 @@ export default function LearningCockpit() {
     
     return {
       domain: weakDomain,
-      domainLabel: domainActivities[0]?.domainLabel || weakDomain,
+      domainLabel: score.label,
       activities: { readActivity, scenarioActivity, checklistActivity, quizActivity }
     };
   };
@@ -328,7 +305,7 @@ export default function LearningCockpit() {
           <div className="space-y-4">
             <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
               <p className="font-medium text-purple-800 dark:text-purple-300">User says:</p>
-              <p className="text-sm mt-1 italic">"I don't understand why I need this MFA thing. It's so annoying!"</p>
+              <p className="text-sm mt-1 italic">&quot;I don&apos;t understand why I need this MFA thing. It&apos;s so annoying!&quot;</p>
             </div>
             <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
               <p className="font-medium text-blue-800 dark:text-blue-300">Your response should:</p>
@@ -447,7 +424,6 @@ export default function LearningCockpit() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {recommendedActivities.map(activity => {
                   const Icon = activityTypeIcons[activity.activityType];
-                  const isCompleted = completedIds.includes(activity.id);
                   
                   return (
                     <div key={activity.id} className="border rounded-lg p-4 space-y-3">
@@ -469,10 +445,10 @@ export default function LearningCockpit() {
                         {activity.whyItMatters}
                       </p>
                       
-                      <Button 
+                    <Button 
                         size="sm" 
                         className="w-full"
-                        onClick={() => setSelectedActivity(activity)}
+                        onClick={() => handleSelectActivity(activity)}
                       >
                         Start Activity
                       </Button>
@@ -493,7 +469,7 @@ export default function LearningCockpit() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Target className="w-5 h-5" />
-              Today's Mixed Practice
+              Today&apos;s Mixed Practice
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -523,7 +499,7 @@ export default function LearningCockpit() {
                         size="sm" 
                         variant={isCompleted ? "secondary" : "default"}
                         className="w-full"
-                        onClick={() => setSelectedActivity(activity)}
+                        onClick={() => handleSelectActivity(activity)}
                       >
                         {isCompleted ? "Review" : "Start"}
                       </Button>
@@ -571,7 +547,7 @@ export default function LearningCockpit() {
                         size="sm" 
                         variant="outline" 
                         className="w-full text-xs"
-                        onClick={() => setSelectedActivity(activity)}
+                        onClick={() => handleSelectActivity(activity)}
                       >
                         {activity.title.slice(0, 30)}...
                       </Button>
@@ -603,8 +579,8 @@ export default function LearningCockpit() {
                   className="px-3 py-2 border rounded-md text-sm"
                 >
                   <option value="all">All Domains</option>
-                  {Array.from(new Set(activities.map(a => a.domainLabel))).map(domain => (
-                    <option key={domain} value={domain}>{domain}</option>
+                  {Array.from(new Map(activities.map(a => [a.domain, a.domainLabel])).entries()).map(([domain, label]) => (
+                    <option key={domain} value={domain}>{label}</option>
                   ))}
                 </select>
               </div>
@@ -613,7 +589,7 @@ export default function LearningCockpit() {
                 <label className="text-sm font-medium mb-1 block">Activity Type</label>
                 <select 
                   value={filterType} 
-                  onChange={(e) => setFilterType(e.target.value as any)}
+                  onChange={(e) => setFilterType(e.target.value as MspLearningActivityType | 'all')}
                   className="px-3 py-2 border rounded-md text-sm"
                 >
                   <option value="all">All Types</option>
@@ -680,7 +656,7 @@ export default function LearningCockpit() {
                     <Button 
                       size="sm" 
                       className="flex-1"
-                      onClick={() => setSelectedActivity(activity)}
+                      onClick={() => handleSelectActivity(activity)}
                     >
                       {isCompleted ? "Review" : "Start"}
                     </Button>

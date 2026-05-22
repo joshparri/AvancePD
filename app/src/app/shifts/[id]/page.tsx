@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { format, isToday, isTomorrow, isPast } from 'date-fns';
-import { db } from '@/lib/db';
+import { db, initDatabase } from '@/lib/db';
 import { Shift, PrepChecklistItem } from '@/types';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,6 +39,7 @@ export default function ShiftDetailPage() {
   useEffect(() => {
     const loadShift = async () => {
       try {
+        await initDatabase();
         const shiftData = await db.shifts.get(shiftId);
         if (shiftData) {
           setShift(shiftData);
@@ -55,10 +56,17 @@ export default function ShiftDetailPage() {
     }
   }, [shiftId]);
 
+  const getShiftDateTime = (shift: Shift, time: string) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const date = new Date(shift.date);
+    date.setHours(hours, minutes, 0, 0);
+    return date;
+  };
+
   const getShiftStatus = (shift: Shift): { status: string; color: BadgeProps['variant'] } => {
     const now = new Date();
-    const shiftStart = new Date(`${shift.date}T${shift.startTime}`);
-    const shiftEnd = new Date(`${shift.date}T${shift.endTime}`);
+    const shiftStart = getShiftDateTime(shift, shift.startTime);
+    const shiftEnd = getShiftDateTime(shift, shift.endTime);
 
     if (isPast(shiftEnd)) {
       return { status: 'completed', color: 'secondary' };

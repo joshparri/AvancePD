@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { format, isToday, isTomorrow, isPast } from 'date-fns';
-import { db } from '@/lib/db';
+import { db, initDatabase } from '@/lib/db';
 import { Shift } from '@/types';
 import { Layout } from '@/components/Layout';
 import { ShiftForm } from '@/components/ShiftForm';
@@ -20,6 +21,7 @@ export default function ShiftsPage() {
   useEffect(() => {
     const loadShifts = async () => {
       try {
+        await initDatabase();
         const allShifts = await db.shifts.orderBy('date').toArray();
         setShifts(allShifts);
       } catch (error) {
@@ -32,10 +34,17 @@ export default function ShiftsPage() {
     loadShifts();
   }, []);
 
+  const getShiftDateTime = (shift: Shift, time: string) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const date = new Date(shift.date);
+    date.setHours(hours, minutes, 0, 0);
+    return date;
+  };
+
   const getShiftStatus = (shift: Shift): { status: string; color: BadgeProps['variant'] } => {
     const now = new Date();
-    const shiftStart = new Date(`${shift.date}T${shift.startTime}`);
-    const shiftEnd = new Date(`${shift.date}T${shift.endTime}`);
+    const shiftStart = getShiftDateTime(shift, shift.startTime);
+    const shiftEnd = getShiftDateTime(shift, shift.endTime);
 
     if (isPast(shiftEnd)) {
       return { status: 'completed', color: 'secondary' };
@@ -180,8 +189,10 @@ export default function ShiftsPage() {
                           </Button>
                         )}
 
-                        <Button size="sm" variant="outline">
-                          View Details
+                        <Button size="sm" variant="outline" asChild>
+                          <Link href={`/shifts/${shift.id}`}>
+                            View Details
+                          </Link>
                         </Button>
                       </div>
                     </div>

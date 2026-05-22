@@ -50,6 +50,7 @@ export default function MspQuizPage() {
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [shuffledQuestions, setShuffledQuestions] = useState<MspQuizQuestion[]>([]);
 
   const filteredQuestions = useMemo(() => {
     let questions = mspQuizQuestions;
@@ -62,13 +63,12 @@ export default function MspQuizPage() {
       questions = questions.filter(q => q.difficulty === selectedDifficulty);
     }
 
-    // Shuffle and limit
-    const shuffled = [...questions].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, Math.min(questionCount, shuffled.length));
-  }, [selectedDomain, selectedDifficulty, questionCount]);
+    return questions;
+  }, [selectedDomain, selectedDifficulty]);
 
-  const currentQuestion = filteredQuestions[currentQuestionIndex];
-  const isLastQuestion = currentQuestionIndex === filteredQuestions.length - 1;
+  const currentQuizQuestion = shuffledQuestions[currentQuestionIndex];
+  const isLastQuestion = currentQuestionIndex === shuffledQuestions.length - 1;
+  const completedAnswers = answers;
 
   const handleAnswerSelect = (answerIndex: number) => {
     if (showFeedback) return;
@@ -76,14 +76,14 @@ export default function MspQuizPage() {
   };
 
   const handleSubmitAnswer = () => {
-    if (selectedAnswer === null || !currentQuestion) return;
+    if (selectedAnswer === null || !currentQuizQuestion) return;
 
-    const isCorrect = selectedAnswer === currentQuestion.correctAnswerIndex;
+    const isCorrect = selectedAnswer === currentQuizQuestion.correctAnswerIndex;
     const answer: QuizAnswer = {
-      questionId: currentQuestion.id,
+      questionId: currentQuizQuestion.id,
       selectedIndex: selectedAnswer,
       isCorrect,
-      question: currentQuestion
+      question: currentQuizQuestion
     };
 
     setAnswers(prev => [...prev, answer]);
@@ -91,25 +91,15 @@ export default function MspQuizPage() {
   };
 
   const handleNextQuestion = () => {
-    if (isLastQuestion) {
+    if (isLastQuestion && currentQuizQuestion) {
       // Calculate results
-      const correct = answers.filter(a => a.isCorrect).length + (selectedAnswer === currentQuestion.correctAnswerIndex ? 1 : 0);
-      const total = filteredQuestions.length;
+      const correct = completedAnswers.filter(a => a.isCorrect).length;
+      const total = shuffledQuestions.length;
       const percentage = Math.round((correct / total) * 100);
 
       // Domain breakdown
-      const allAnswers = [...answers];
-      if (selectedAnswer !== null) {
-        allAnswers.push({
-          questionId: currentQuestion.id,
-          selectedIndex: selectedAnswer,
-          isCorrect: selectedAnswer === currentQuestion.correctAnswerIndex,
-          question: currentQuestion
-        });
-      }
-
       const domainBreakdown: Record<string, { correct: number; total: number }> = {};
-      allAnswers.forEach(answer => {
+      completedAnswers.forEach(answer => {
         const domain = answer.question.domain;
         if (!domainBreakdown[domain]) {
           domainBreakdown[domain] = { correct: 0, total: 0 };
@@ -151,6 +141,10 @@ export default function MspQuizPage() {
 
   const handleStartQuiz = () => {
     if (filteredQuestions.length === 0) return;
+    // Shuffle and limit questions here (event-driven, not in render)
+    const shuffled = [...filteredQuestions].sort(() => Math.random() - 0.5);
+    const limitedShuffled = shuffled.slice(0, Math.min(questionCount, shuffled.length));
+    setShuffledQuestions(limitedShuffled);
     setQuizState('quiz');
     setCurrentQuestionIndex(0);
     setAnswers([]);
@@ -164,9 +158,10 @@ export default function MspQuizPage() {
     setAnswers([]);
     setSelectedAnswer(null);
     setShowFeedback(false);
+    setShuffledQuestions([]);
   };
 
-  const correctCount = answers.filter(a => a.isCorrect).length + (showFeedback && selectedAnswer === currentQuestion?.correctAnswerIndex ? 1 : 0);
+  const correctCount = answers.filter(a => a.isCorrect).length + (showFeedback && selectedAnswer === currentQuizQuestion?.correctAnswerIndex ? 1 : 0);
   const totalAnswered = answers.length + (showFeedback ? 1 : 0);
 
   const recentAttempts = getStoredQuizAttempts().slice(0, 3);
@@ -174,7 +169,7 @@ export default function MspQuizPage() {
 
   if (quizState === 'result') {
     const finalCorrect = answers.filter(a => a.isCorrect).length;
-    const finalTotal = filteredQuestions.length;
+    const finalTotal = shuffledQuestions.length;
     const finalPercentage = Math.round((finalCorrect / finalTotal) * 100);
 
     return (
@@ -184,7 +179,7 @@ export default function MspQuizPage() {
             <div className="text-center">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Quiz Complete!</h1>
               <p className="text-gray-600 dark:text-gray-400 mt-2">
-                Here's how you performed
+                Here&apos;s how you performed
               </p>
             </div>
 
@@ -278,14 +273,14 @@ export default function MspQuizPage() {
     );
   }
 
-  if (quizState === 'quiz' && currentQuestion) {
+  if (quizState === 'quiz' && currentQuizQuestion) {
     return (
       <Layout>
         <div className="p-6">
           <div className="max-w-4xl mx-auto space-y-6">
             <div className="flex justify-between items-center">
               <div className="text-sm text-muted-foreground">
-                Question {currentQuestionIndex + 1} of {filteredQuestions.length}
+                Question {currentQuestionIndex + 1} of {shuffledQuestions.length}
               </div>
               <div className="text-sm text-muted-foreground">
                 Score: {correctCount}/{totalAnswered}
@@ -295,21 +290,21 @@ export default function MspQuizPage() {
             <Card>
               <CardHeader>
                 <div className="flex flex-wrap items-start justify-between gap-3">
-                  <CardTitle className="text-xl leading-tight">{currentQuestion.question}</CardTitle>
+                  <CardTitle className="text-xl leading-tight">{currentQuizQuestion.question}</CardTitle>
                   <div className="flex gap-2">
-                    <Badge variant="outline">{currentQuestion.domainLabel}</Badge>
-                    <Badge variant="outline" className="capitalize">{currentQuestion.difficulty}</Badge>
+                    <Badge variant="outline">{currentQuizQuestion.domainLabel}</Badge>
+                    <Badge variant="outline" className="capitalize">{currentQuizQuestion.difficulty}</Badge>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  {currentQuestion.options.map((option, index) => {
+                  {currentQuizQuestion.options.map((option: string, index: number) => {
                     let buttonClass = "w-full text-left justify-start p-4 h-auto whitespace-normal";
                     let icon = null;
 
                     if (showFeedback) {
-                      if (index === currentQuestion.correctAnswerIndex) {
+                      if (index === currentQuizQuestion.correctAnswerIndex) {
                         buttonClass += " bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-200";
                         icon = <CheckCircle2 className="h-4 w-4 text-green-600" />;
                       } else if (index === selectedAnswer) {
@@ -340,7 +335,7 @@ export default function MspQuizPage() {
                 {showFeedback && (
                   <div className="space-y-3 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
                     <div className="flex items-center gap-2">
-                      {selectedAnswer === currentQuestion.correctAnswerIndex ? (
+                      {selectedAnswer === currentQuizQuestion.correctAnswerIndex ? (
                         <>
                           <CheckCircle2 className="h-5 w-5 text-green-600" />
                           <span className="font-semibold text-green-800 dark:text-green-200">Correct!</span>
@@ -354,12 +349,12 @@ export default function MspQuizPage() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">Explanation:</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{currentQuestion.explanation}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{currentQuizQuestion.explanation}</p>
                     </div>
-                    {currentQuestion.commonMistake && (
+                    {currentQuizQuestion.commonMistake && (
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">Common Mistake:</p>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{currentQuestion.commonMistake}</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{currentQuizQuestion.commonMistake}</p>
                       </div>
                     )}
                   </div>
