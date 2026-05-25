@@ -54,6 +54,9 @@ Both Avance apps provide a solid foundation for your MSP role: they structure sh
 
 
 
+### Getting the most out of Avance PD App - https://avance-pd.vercel.app/
+
+
 To get the most out of your **Avance‑PD** app and turn it into a truly indispensable “work OS,” here are the areas that would give the greatest return if you upgrade or add them:
 
 1. **Live ticket and call integration.** Right now, you have to manually copy ticket IDs and update statuses. Integrating Avance‑PD with HaloPSA (or at least reading ticket queues and statuses) and 3CX call logs would eliminate a lot of context‑switching. A simple read‑only view of your active tickets and calls, with quick actions (e.g., “open in Halo,” “mark awaiting invoice”), would keep your workflow in one place.
