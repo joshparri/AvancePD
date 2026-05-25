@@ -146,6 +146,8 @@ Implementation notes:
 
 ### 3. Keyboard Shortcut Overlay
 
+Status: done in `src/components/ShortcutOverlay.tsx`.
+
 Add a small overlay listing keyboard shortcuts.
 
 Implementation notes:
@@ -155,6 +157,8 @@ Implementation notes:
 - Ensure Escape closes it.
 
 ### 4. Safer Delete Confirmations
+
+Status: done in `src/App.tsx` for local tasks, logs, notes, playbooks, learning notes, and time entries.
 
 Replace immediate deletes with confirmation for tasks, notes, logs, playbooks, and attachments.
 
@@ -186,6 +190,8 @@ Implementation notes:
 - Keep real notification sending off in test mode.
 
 ### 7. Search Across Everything
+
+Status: done in `src/pages/Search.tsx`.
 
 Add a global search page for tasks, work logs, knowledge, playbooks, learning notes, and scenarios.
 
@@ -275,9 +281,9 @@ When implementing any idea above:
 
 ## Suggested Build Order
 
-1. Keyboard shortcut overlay.
-2. Safer delete confirmations.
-3. Global search.
+1. Keyboard shortcut overlay. Done.
+2. Safer delete confirmations. Done.
+3. Global search. Done.
 4. Evidence Pack builder.
 5. Weekly Reflection Dashboard.
 6. Skill Quest Tracks.

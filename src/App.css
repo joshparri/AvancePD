@@ -919,6 +919,24 @@ progress {
   width: 100%;
 }
 
+.modal-backdrop {
+  align-items: center;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 20px;
+  position: fixed;
+  z-index: 30;
+}
+
+.shortcut-modal {
+  max-height: min(720px, 90vh);
+  max-width: 760px;
+  overflow-y: auto;
+  width: min(760px, 100%);
+}
+
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,

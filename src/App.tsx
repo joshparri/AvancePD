@@ -17,6 +17,8 @@ import AvanceWorkday from './pages/AvanceWorkday';
 import EvidencePack from './pages/EvidencePack';
 import MicroLearning from './pages/MicroLearning';
 import HealthOutdoors from './pages/HealthOutdoors';
+import Search from './pages/Search';
+import ShortcutOverlay from './components/ShortcutOverlay';
 import type { MspSkillReadiness } from './data/mspSkills';
 import {
   incrementTicketNotePractice as incrementTicketNotePracticeProgress,
@@ -44,6 +46,7 @@ import './App.css';
 
 const pages = [
   { id: 'dashboard', label: 'Dashboard' },
+  { id: 'search', label: 'Search' },
   { id: 'shifts', label: 'Shifts' },
   { id: 'tasks', label: 'Tasks' },
   { id: 'worklogs', label: 'Work Logs' },
@@ -65,6 +68,7 @@ const pages = [
 
 type PageId =
   | 'dashboard'
+  | 'search'
   | 'shifts'
   | 'tasks'
   | 'worklogs'
@@ -105,6 +109,7 @@ function App() {
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>(() => loadPersisted('avance-timeEntries', sampleTimeEntries));
   const [progress, setProgress] = useState(loadProgress);
   const [healthState, setHealthState] = useState<HealthState>(loadHealthState);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem('avance-onboarded') !== 'true';
@@ -146,24 +151,67 @@ function App() {
     window.localStorage.setItem('avance-onboarded', showOnboarding ? 'false' : 'true');
   }, [showOnboarding]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === '?' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        const target = event.target as HTMLElement | null;
+        const isTyping = target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA' || target?.tagName === 'SELECT';
+        if (!isTyping) {
+          event.preventDefault();
+          setShowShortcuts(true);
+        }
+      }
+      if (event.key === 'Escape') {
+        setShowShortcuts(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const addWorkLog = (log: WorkLog) => setWorkLogs((current) => [log, ...current]);
   const updateWorkLog = (updatedLog: WorkLog) => setWorkLogs((current) => current.map((log) => (log.id === updatedLog.id ? updatedLog : log)));
-  const deleteWorkLog = (logId: string) => setWorkLogs((current) => current.filter((log) => log.id !== logId));
+  const deleteWorkLog = (logId: string) => {
+    if (window.confirm('Remove this local work log?')) {
+      setWorkLogs((current) => current.filter((log) => log.id !== logId));
+    }
+  };
   const addTask = (task: Task) => setTasks((current) => [task, ...current]);
   const updateTask = (updatedTask: Task) => setTasks((current) => current.map((task) => (task.id === updatedTask.id ? updatedTask : task)));
-  const deleteTask = (taskId: string) => setTasks((current) => current.filter((task) => task.id !== taskId));
+  const deleteTask = (taskId: string) => {
+    if (window.confirm('Remove this local task?')) {
+      setTasks((current) => current.filter((task) => task.id !== taskId));
+    }
+  };
   const addKnowledgeEntry = (entry: KnowledgeEntry) => setKnowledgeEntries((current) => [entry, ...current]);
   const updateKnowledgeEntry = (updatedEntry: KnowledgeEntry) => setKnowledgeEntries((current) => current.map((entry) => (entry.id === updatedEntry.id ? updatedEntry : entry)));
-  const deleteKnowledgeEntry = (entryId: string) => setKnowledgeEntries((current) => current.filter((entry) => entry.id !== entryId));
+  const deleteKnowledgeEntry = (entryId: string) => {
+    if (window.confirm('Remove this local knowledge entry?')) {
+      setKnowledgeEntries((current) => current.filter((entry) => entry.id !== entryId));
+    }
+  };
   const addPlaybook = (playbook: Playbook) => setPlaybooks((current) => [playbook, ...current]);
   const updatePlaybook = (updatedPlaybook: Playbook) => setPlaybooks((current) => current.map((playbook) => (playbook.id === updatedPlaybook.id ? updatedPlaybook : playbook)));
-  const deletePlaybook = (playbookId: string) => setPlaybooks((current) => current.filter((playbook) => playbook.id !== playbookId));
+  const deletePlaybook = (playbookId: string) => {
+    if (window.confirm('Remove this local playbook?')) {
+      setPlaybooks((current) => current.filter((playbook) => playbook.id !== playbookId));
+    }
+  };
   const addLearningItem = (item: LearningItem) => setLearningItems((current) => [item, ...current]);
   const updateLearningItem = (updatedItem: LearningItem) => setLearningItems((current) => current.map((item) => (item.id === updatedItem.id ? updatedItem : item)));
-  const deleteLearningItem = (itemId: string) => setLearningItems((current) => current.filter((item) => item.id !== itemId));
+  const deleteLearningItem = (itemId: string) => {
+    if (window.confirm('Remove this local learning note?')) {
+      setLearningItems((current) => current.filter((item) => item.id !== itemId));
+    }
+  };
   const addTimeEntry = (entry: TimeEntry) => setTimeEntries((current) => [entry, ...current]);
   const updateTimeEntry = (updatedEntry: TimeEntry) => setTimeEntries((current) => current.map((entry) => (entry.id === updatedEntry.id ? updatedEntry : entry)));
-  const deleteTimeEntry = (entryId: string) => setTimeEntries((current) => current.filter((entry) => entry.id !== entryId));
+  const deleteTimeEntry = (entryId: string) => {
+    if (window.confirm('Remove this local time entry?')) {
+      setTimeEntries((current) => current.filter((entry) => entry.id !== entryId));
+    }
+  };
   const updateScenarioStatus = (scenarioId: string, status: ScenarioStatus, reflection?: string) => {
     setProgress((current) => setScenarioProgress(current, scenarioId, status, reflection));
   };
@@ -197,6 +245,7 @@ function App() {
         </nav>
       </aside>
       <main className="main-content">
+        <ShortcutOverlay open={showShortcuts} onClose={() => setShowShortcuts(false)} onNavigate={(page) => setCurrentPage(page as PageId)} />
         {currentPage === 'dashboard' && (
           <Dashboard
             shifts={sampleShifts}
@@ -213,6 +262,17 @@ function App() {
             healthState={healthState}
             setHealthState={setHealthState}
             onNavigateHealth={() => setCurrentPage('healthOutdoors')}
+            onNavigate={(page) => setCurrentPage(page as PageId)}
+          />
+        )}
+        {currentPage === 'search' && (
+          <Search
+            tasks={tasks}
+            workLogs={workLogs}
+            knowledgeEntries={knowledgeEntries}
+            playbooks={playbooks}
+            learningItems={learningItems}
+            timeEntries={timeEntries}
             onNavigate={(page) => setCurrentPage(page as PageId)}
           />
         )}

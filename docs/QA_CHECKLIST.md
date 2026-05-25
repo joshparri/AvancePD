@@ -10,6 +10,7 @@ Use this checklist before release or deployment changes.
 ## Core Navigation
 
 - Dashboard opens.
+- Search opens and returns local results.
 - Avance Workday opens.
 - Health & Outdoors opens.
 - MSP Skills, Scenarios, Ticket Notes, Evidence Pack, and Micro-Learning open.
@@ -30,6 +31,8 @@ Use this checklist before release or deployment changes.
 - Time page shows billable totals and invoice preview.
 - Quick Capture presets reduce typing during busy states.
 - Work Logs and Knowledge accept only small safe local attachments.
+- Pressing `?` opens the keyboard shortcut overlay, and Escape closes it.
+- Delete actions ask for confirmation before removing local data.
 
 ## Health & Outdoors
 
