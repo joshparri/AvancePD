@@ -14,3 +14,4 @@ Private operational notes, client details, credentials, archives, raw references
 - `UI_UX_AND_TONE_GUIDE.md` - app tone, UX, accessibility, and visual principles
 - `SAMPLE_SEED_DATA.md` - seed-data policy and safe sample-data rules
 - `HEALTH_AND_OUTDOORS.md` - Health & Outdoors design, privacy, and email architecture notes
+- `DEPLOYMENT.md` - private deployment and local preview guidance

@@ -16,6 +16,7 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
   const [summary, setSummary] = useState('');
   const [body, setBody] = useState('');
   const [category, setCategory] = useState('');
+  const [noteType, setNoteType] = useState<KnowledgeEntry['noteType']>('reference');
   const [tags, setTags] = useState('');
   const [confidence, setConfidence] = useState<KnowledgeEntry['confidence']>('medium');
   const [sourceType, setSourceType] = useState<KnowledgeEntry['sourceType']>('personal');
@@ -27,6 +28,7 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
     setSummary('');
     setBody('');
     setCategory('');
+    setNoteType('reference');
     setTags('');
     setConfidence('medium');
     setSourceType('personal');
@@ -36,6 +38,9 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const tagList = tags.split(',').map((tag) => tag.trim()).filter(Boolean);
+    const normalizedTags = noteType === 'learned today' && !tagList.includes('learned today')
+      ? ['learned today', ...tagList]
+      : tagList;
 
     const entry: KnowledgeEntry = {
       id: editingEntryId || createId('kn'),
@@ -43,7 +48,8 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
       summary: summary || 'Captured during shift.',
       body: body || 'Detailed notes about this issue.',
       category: category || 'General',
-      tags: tagList,
+      noteType,
+      tags: normalizedTags,
       confidence,
       lastVerified: new Date().toISOString().slice(0, 10),
       clientId: undefined,
@@ -67,6 +73,7 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
     setSummary(entry.summary);
     setBody(entry.body);
     setCategory(entry.category);
+    setNoteType(entry.noteType ?? 'reference');
     setTags(entry.tags.join(', '));
     setConfidence(entry.confidence);
     setSourceType(entry.sourceType);
@@ -97,6 +104,13 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
           <label>
             Category
             <input value={category} onChange={(event) => setCategory(event.target.value)} placeholder="Email, Printer, Wi-Fi, etc." />
+          </label>
+          <label>
+            Note type
+            <select value={noteType} onChange={(event) => setNoteType(event.target.value as KnowledgeEntry['noteType'])}>
+              <option value="reference">reference</option>
+              <option value="learned today">learned today</option>
+            </select>
           </label>
           <label>
             Tags
@@ -144,6 +158,7 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
                 <p>
                   {entry.confidence} confidence — last verified {entry.lastVerified} — {entry.category}
                 </p>
+                {entry.noteType === 'learned today' && <span className="status-chip success">learned today</span>}
                 <p>{entry.summary}</p>
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                   <button type="button" onClick={() => startEditing(entry)}>

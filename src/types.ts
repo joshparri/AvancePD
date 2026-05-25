@@ -58,6 +58,7 @@ export type KnowledgeEntry = {
   summary: string;
   body: string;
   category: string;
+  noteType?: 'reference' | 'learned today';
   tags: string[];
   confidence: 'low' | 'medium' | 'high';
   lastVerified: string;
@@ -91,11 +92,13 @@ export type TimeEntry = {
 export type LearningItem = {
   id: string;
   topic: string;
+  noteType?: 'learning' | 'learned today' | 'shift review';
   confidence: 'low' | 'medium' | 'high';
   notes: string;
   seenInRealWork: boolean;
   askTeam: boolean;
   nextReviewDate: string;
+  lastReviewedDate?: string;
 };
 
 export type ReadinessStatus = 'unseen' | 'learning' | 'practised' | 'work-ready' | 'evidence-proven';

@@ -11,6 +11,7 @@ type PDProps = {
 function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearningItem }: PDProps) {
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [topic, setTopic] = useState('');
+  const [noteType, setNoteType] = useState<LearningItem['noteType']>('learning');
   const [confidence, setConfidence] = useState<LearningItem['confidence']>('low');
   const [notes, setNotes] = useState('');
   const [seenInRealWork, setSeenInRealWork] = useState(true);
@@ -20,6 +21,7 @@ function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearning
   const resetForm = () => {
     setEditingItemId(null);
     setTopic('');
+    setNoteType('learning');
     setConfidence('low');
     setNotes('');
     setSeenInRealWork(true);
@@ -33,6 +35,7 @@ function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearning
     const item: LearningItem = {
       id: editingItemId || `learn-${Date.now()}`,
       topic: topic || 'New MSP note',
+      noteType,
       confidence,
       notes: notes || 'Captured during shift.',
       seenInRealWork,
@@ -52,6 +55,7 @@ function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearning
   const startEditing = (item: LearningItem) => {
     setEditingItemId(item.id);
     setTopic(item.topic);
+    setNoteType(item.noteType ?? 'learning');
     setConfidence(item.confidence);
     setNotes(item.notes);
     setSeenInRealWork(item.seenInRealWork);
@@ -59,11 +63,60 @@ function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearning
     setNextReviewDate(item.nextReviewDate);
   };
 
+  const dueForReview = learningItems.filter((item) => item.nextReviewDate <= new Date().toISOString().slice(0, 10));
+
+  const nextReviewForConfidence = (itemConfidence: LearningItem['confidence']) => {
+    const days = itemConfidence === 'high' ? 30 : itemConfidence === 'medium' ? 14 : 7;
+    return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  };
+
+  const markReviewed = (item: LearningItem) => {
+    updateLearningItem({
+      ...item,
+      lastReviewedDate: new Date().toISOString().slice(0, 10),
+      nextReviewDate: nextReviewForConfidence(item.confidence)
+    });
+  };
+
+  const startShiftReview = () => {
+    setEditingItemId(null);
+    setTopic('Avance shift review');
+    setNoteType('shift review');
+    setConfidence('medium');
+    setNotes([
+      'What did I practise today?',
+      'What did I handle more independently than last time?',
+      'What did I need help with?',
+      'What should I review before the next shift?',
+      'What is safe to include in my Evidence Pack?'
+    ].join('\n'));
+    setSeenInRealWork(true);
+    setAskTeam(false);
+    setNextReviewDate(nextReviewForConfidence('medium'));
+  };
+
   return (
     <div>
       <section className="card">
         <h1>Professional Development</h1>
         <p>Turn shift work into MSP skill growth and review.</p>
+        <button type="button" onClick={startShiftReview}>Start shift review</button>
+      </section>
+      <section className="card">
+        <h2>Due for review</h2>
+        {dueForReview.length ? (
+          <ul>
+            {dueForReview.map((item) => (
+              <li key={item.id}>
+                <strong>{item.topic}</strong>
+                <p>Next review was {item.nextReviewDate}. Review the note, then set the next date based on confidence.</p>
+                <button type="button" onClick={() => markReviewed(item)}>Mark reviewed</button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No learning notes due today. Keep going steadily.</p>
+        )}
       </section>
       <section className="card">
         <h2>{editingItemId ? 'Edit learning note' : 'Add learning note'}</h2>
@@ -75,6 +128,14 @@ function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearning
           <label>
             Notes
             <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="What did you learn or observe?" />
+          </label>
+          <label>
+            Note type
+            <select value={noteType} onChange={(event) => setNoteType(event.target.value as LearningItem['noteType'])}>
+              <option value="learning">learning</option>
+              <option value="learned today">learned today</option>
+              <option value="shift review">shift review</option>
+            </select>
           </label>
           <label>
             Confidence
@@ -116,6 +177,7 @@ function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearning
                 <p>
                   confidence: {item.confidence} — next review {item.nextReviewDate}
                 </p>
+                {item.noteType && <span className="status-chip info">{item.noteType}</span>}
                 <p>{item.notes}</p>
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                   <button type="button" onClick={() => startEditing(item)}>

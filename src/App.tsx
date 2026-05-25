@@ -213,6 +213,7 @@ function App() {
             healthState={healthState}
             setHealthState={setHealthState}
             onNavigateHealth={() => setCurrentPage('healthOutdoors')}
+            onNavigate={(page) => setCurrentPage(page as PageId)}
           />
         )}
         {currentPage === 'shifts' && <ShiftScheduler shifts={sampleShifts} clients={sampleClients} />}

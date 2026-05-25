@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import type { Client, LearningItem, Task, WorkLog } from '../types';
 
 function createId(prefix: string) {
@@ -23,8 +23,21 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
   const [clientId, setClientId] = useState(clients[0]?.id ?? '');
   const [tags, setTags] = useState('');
   const [nextReviewDate, setNextReviewDate] = useState('');
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   const clientOptions = useMemo(() => clients, [clients]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.altKey && event.key.toLowerCase() === 'q') {
+        event.preventDefault();
+        titleInputRef.current?.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const resetForm = () => {
     setTitle('');
@@ -73,6 +86,7 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
         topic: title || 'New MSP note',
         confidence: 'low',
         notes: details || 'Captured during shift.',
+        noteType: captureType === 'learning' ? 'learned today' : 'learning',
         seenInRealWork: true,
         askTeam: false,
         nextReviewDate: nextReviewDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
@@ -82,10 +96,29 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
     resetForm();
   };
 
+  const applyPreset = (type: CaptureType, nextTitle: string, nextDetails: string, nextTags = '') => {
+    setCaptureType(type);
+    setTitle(nextTitle);
+    setDetails(nextDetails);
+    setTags(nextTags);
+    window.setTimeout(() => titleInputRef.current?.focus(), 0);
+  };
+
   return (
     <section className="card">
       <h2>Quick capture</h2>
       <p>Capture a work log, task, or learning note fast.</p>
+      <div className="status-button-row">
+        <button type="button" className="small-action" onClick={() => applyPreset('task', 'Follow up next shift', 'Check this when the queue is steady.', 'follow-up')}>
+          Follow-up
+        </button>
+        <button type="button" className="small-action" onClick={() => applyPreset('learning', 'Learned today', 'Generic MSP lesson to review later.')}>
+          Learned today
+        </button>
+        <button type="button" className="small-action" onClick={() => applyPreset('work log', 'Quick shift note', 'Generic note captured during shift.', 'shift-note')}>
+          Shift note
+        </button>
+      </div>
       <div className="capture-tabs">
         {captureOptions.map((option) => (
           <button
@@ -109,7 +142,7 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
         </label>
         <label>
           Title
-          <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Short summary" />
+          <input id="quick-capture-title" ref={titleInputRef} value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Short summary" />
         </label>
         <label>
           Details

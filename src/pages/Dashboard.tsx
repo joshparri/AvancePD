@@ -1,6 +1,7 @@
 import type { Client, LearningItem, Task, TimeEntry, WorkLog, Shift } from '../types';
 import QuickCapture from '../components/QuickCapture';
 import HealthyMspShiftPanel from '../components/HealthyMspShiftPanel';
+import DataBackupPanel from '../components/DataBackupPanel';
 import type { HealthState } from '../utils/healthOutdoors';
 
 const PAGE_TITLE = 'Dashboard';
@@ -20,6 +21,7 @@ type DashboardProps = {
   healthState: HealthState;
   setHealthState: (updater: (state: HealthState) => HealthState) => void;
   onNavigateHealth: () => void;
+  onNavigate: (page: string) => void;
 };
 
 function Dashboard({
@@ -35,7 +37,8 @@ function Dashboard({
   completeOnboarding,
   healthState,
   setHealthState,
-  onNavigateHealth
+  onNavigateHealth,
+  onNavigate
 }: DashboardProps) {
   const nextShift = shifts[0];
   const nextClient = clients.find((client) => client.id === nextShift?.clientId);
@@ -81,8 +84,30 @@ function Dashboard({
       {showOnboarding && (
         <section className="card">
           <h2>Getting started</h2>
-          <p>Use quick capture to log work, create follow-ups, and capture MSP learning from every shift.</p>
-          <button onClick={completeOnboarding}>Got it — hide this tip</button>
+          <p>Use this short setup flow to make the app useful before the next shift.</p>
+          <div className="health-plan-grid">
+            <article className="mini-card">
+              <h3>1. Set today's focus</h3>
+              <p>Open Avance Workday and choose a generic work mode.</p>
+              <button type="button" onClick={() => onNavigate('avanceWorkday')}>Open Workday</button>
+            </article>
+            <article className="mini-card">
+              <h3>2. Capture one follow-up</h3>
+              <p>Use Quick capture below for tasks, work logs, and learned-today notes.</p>
+              <button type="button" onClick={() => document.getElementById('quick-capture-title')?.focus()}>Go to capture</button>
+            </article>
+            <article className="mini-card">
+              <h3>3. Practise one skill</h3>
+              <p>Pick a micro-learning card or scenario when the queue is steady.</p>
+              <button type="button" onClick={() => onNavigate('microLearning')}>Open Micro-Learning</button>
+            </article>
+            <article className="mini-card">
+              <h3>4. Keep work sustainable</h3>
+              <p>Use Health & Outdoors for water, eye breaks, outdoor time, and shutdown.</p>
+              <button type="button" onClick={onNavigateHealth}>Open Health & Outdoors</button>
+            </article>
+          </div>
+          <button onClick={completeOnboarding}>Hide onboarding</button>
         </section>
       )}
 
@@ -131,6 +156,8 @@ function Dashboard({
           </div>
         )}
       </section>
+
+      <DataBackupPanel />
     </div>
   );
 }

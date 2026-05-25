@@ -26,7 +26,7 @@
 
 ## 4. User experience & UI work
 - [x] Implement the calm, readable UI style described in `docs/UI_UX_AND_TONE_GUIDE.md`
-- [ ] Add keyboard shortcuts or quick-capture affordances for busy work states
+- [x] Add keyboard shortcuts or quick-capture affordances for busy work states
 - [x] Build clear status chips and colour semantics for urgent, review, trusted, and billed states
 - [ ] Create empty-state guidance for all core modules
 - [ ] Ensure the app loads quickly and displays key context in under 60 seconds
@@ -34,16 +34,16 @@
 
 ## 5. Documentation & onboarding
 - [x] Keep `docs/vision.md` up to date with any scope or feature changes
-- [ ] Create a short in-app onboarding flow for first-time use
+- [x] Create a short in-app onboarding flow for first-time use
 - [x] Add a user guide or quick-start page for daily shift routine and PD habits
 - [x] Build a developer-facing README describing how to run and extend the app
 - [x] Add an accessible `docs/TODO.md` or project tracker for ongoing priorities
 
 ## 6. Professional development / MSP growth
-- [ ] Add PD-specific workflows in the app for learning goals and shift review
-- [ ] Integrate the PD checklist from `docs/PROFESSIONAL_DEVELOPMENT.md` into shift wrap-up or dashboard prompts
-- [ ] Add a "learned today" tag or note type in the knowledge base
-- [ ] Add a review cadence for learning entries and confidence updates
+- [x] Add PD-specific workflows in the app for learning goals and shift review
+- [x] Integrate the PD checklist from `docs/PROFESSIONAL_DEVELOPMENT.md` into shift wrap-up or dashboard prompts
+- [x] Add a "learned today" tag or note type in the knowledge base
+- [x] Add a review cadence for learning entries and confidence updates
 - [x] Include communication, security, endpoint, and network troubleshooting guidance as reference templates
 
 ## 7. Testing, validation & polish
@@ -56,9 +56,9 @@
 - [ ] Fix any UI/UX friction that prevents fast note capture or task creation
 
 ## 8. Deployment & support
-- [ ] Choose a runnable deployment method for a private web app (local static site, desktop wrapper, or simple hosted app)
+- [x] Choose a runnable deployment method for a private web app (local static site, desktop wrapper, or simple hosted app)
 - [x] Document launch instructions for Josh and how to open the app each shift
-- [ ] Add backup/export functionality so app data can be preserved
+- [x] Add backup/export functionality so app data can be preserved
 - [ ] Add an optional sync plan only if it stays low-risk and optional
 
 ## 9. Cleanup & repo health
