@@ -17,6 +17,7 @@ function MspScenarios({ progress, updateScenarioProgress }: MspScenariosProps) {
   const [userInputs, setUserInputs] = useState<Record<string, { firstQuestions: string; checks: string; escalationDecision: string; ticketNote: string }>>({});
   const [feedbackMap, setFeedbackMap] = useState<Record<string, CoachFeedback>>({});
   const [showHiddenCause, setShowHiddenCause] = useState<Record<string, boolean>>({});
+  const [stepProgress, setStepProgress] = useState<Record<string, number>>({});
   const [feedbackError, setFeedbackError] = useState<Record<string, string>>({});
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
 
@@ -40,6 +41,39 @@ function MspScenarios({ progress, updateScenarioProgress }: MspScenariosProps) {
   };
   const scenarioFeedback = feedbackMap[selectedScenarioId];
   const hiddenCauseVisible = showHiddenCause[selectedScenarioId] ?? false;
+  const currentStep = stepProgress[selectedScenarioId] ?? 0;
+  const scenarioSteps = [
+    {
+      title: '1. Intake',
+      body: selectedScenario.ticketText,
+      prompt: 'What is the safest first thing to clarify?'
+    },
+    {
+      title: '2. User emotion',
+      body: selectedScenario.userEmotion,
+      prompt: 'How should your tone adapt?'
+    },
+    {
+      title: '3. First questions',
+      body: selectedScenario.goodFirstQuestions.join('\n'),
+      prompt: 'Which two questions would you ask first?'
+    },
+    {
+      title: '4. Expected checks',
+      body: selectedScenario.expectedChecks.join('\n'),
+      prompt: 'Which checks are safe before escalation?'
+    },
+    {
+      title: '5. Escalation triggers',
+      body: selectedScenario.escalationTriggers.join('\n'),
+      prompt: 'When should you stop and hand over?'
+    },
+    {
+      title: '6. Ticket note',
+      body: selectedScenario.idealTicketNotes,
+      prompt: 'Compare this structure with your draft note.'
+    }
+  ];
 
   const allBlank =
     !userInput.firstQuestions.trim() &&
@@ -88,6 +122,13 @@ Ticket note: ${userInput.ticketNote || '(blank)'}
 
   const setField = (field: keyof typeof userInput, value: string) => {
     setUserInputs((c) => ({ ...c, [selectedScenario.id]: { ...userInput, [field]: value } }));
+  };
+
+  const revealNextStep = () => {
+    setStepProgress((current) => ({
+      ...current,
+      [selectedScenario.id]: Math.min((current[selectedScenario.id] ?? 0) + 1, scenarioSteps.length - 1)
+    }));
   };
 
   return (
@@ -158,6 +199,19 @@ Ticket note: ${userInput.ticketNote || '(blank)'}
                 placeholder="Privacy-safe note: what judgement, check, or escalation trigger should I remember?"
               />
             </label>
+          </div>
+
+          <div className="training-section">
+            <h3>Step trainer</h3>
+            <article className="mini-card">
+              <h4>{scenarioSteps[currentStep].title}</h4>
+              <pre className="template-box">{scenarioSteps[currentStep].body}</pre>
+              <p><strong>Prompt:</strong> {scenarioSteps[currentStep].prompt}</p>
+              <div className="status-button-row">
+                <button type="button" className="small-action" onClick={() => setStepProgress((current) => ({ ...current, [selectedScenario.id]: 0 }))}>Restart steps</button>
+                <button type="button" onClick={revealNextStep} disabled={currentStep >= scenarioSteps.length - 1}>Reveal next clue</button>
+              </div>
+            </article>
           </div>
 
           <div className="training-section">

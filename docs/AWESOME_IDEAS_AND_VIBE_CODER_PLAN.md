@@ -59,6 +59,8 @@ Vibe coder implementation:
 
 ### 5. Scenario Step Trainer
 
+Status: done in `src/pages/MspScenarios.tsx`.
+
 Make scenarios more interactive by revealing context in stages: intake, first questions, checks, escalation, ticket note, reflection.
 
 Vibe coder implementation:
@@ -70,6 +72,8 @@ Vibe coder implementation:
 - Keep AI coaching optional.
 
 ### 6. Calm Communication Coach
+
+Status: done in `src/pages/CommunicationPractice.tsx`.
 
 Add a focused tool for rewriting rushed or stressed messages into calm, professional MSP replies.
 
@@ -297,7 +301,7 @@ When implementing any idea above:
 4. Evidence Pack builder. Done.
 5. Weekly Reflection Dashboard. Done.
 6. Skill Quest Tracks. Done.
-7. Scenario Step Trainer.
+7. Scenario Step Trainer. Done.
 8. Personal Playbook Generator.
 9. Health streaks without shame.
 10. Shift Command Center.

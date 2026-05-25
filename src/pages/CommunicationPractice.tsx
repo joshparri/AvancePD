@@ -9,6 +9,10 @@ function CommunicationPractice() {
   const [feedbackMap, setFeedbackMap] = useState<Record<string, CoachFeedback>>({});
   const [feedbackError, setFeedbackError] = useState<string>('');
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
+  const [roughMessage, setRoughMessage] = useState('');
+  const [audience, setAudience] = useState('end user');
+  const [toneTarget, setToneTarget] = useState('calm and clear');
+  const [urgency, setUrgency] = useState('normal');
 
   const selectedScenario = communicationScenarios.find((scenario) => scenario.id === selectedId) ?? communicationScenarios[0];
   const userResponse = userResponses[selectedId] ?? '';
@@ -37,6 +41,16 @@ function CommunicationPractice() {
     setFeedbackMap((c) => { const n = { ...c }; delete n[selectedId]; return n; });
     setFeedbackError('');
   };
+
+  const rewrittenMessage = roughMessage.trim()
+    ? [
+        `Hi, thanks for flagging this. I understand this is ${urgency === 'urgent' ? 'time-sensitive' : 'important'}.`,
+        '',
+        `I will work through the next safe checks and keep the update ${toneTarget} for the ${audience}.`,
+        '',
+        `Next step: I will confirm the current state, avoid risky changes, and come back with either a fix or a clear escalation note.`
+      ].join('\n')
+    : '';
 
   return (
     <div className="page-card communication-page">
@@ -68,6 +82,41 @@ function CommunicationPractice() {
             <div className="status-chip">Related skills: {selectedScenario.relatedMspSkills.join(', ')}</div>
           </div>
           <p className="context">Context: {selectedScenario.context}</p>
+
+          <div className="training-section">
+            <h4>Calm rewrite coach</h4>
+            <p>Turn a rushed draft into a calmer workplace update. Keep it generic and remove private details first.</p>
+            <div className="quick-capture-form">
+              <label>
+                Rough message
+                <textarea value={roughMessage} onChange={(event) => setRoughMessage(event.target.value)} placeholder="Paste a generic rough draft only." />
+              </label>
+              <label>
+                Audience
+                <select value={audience} onChange={(event) => setAudience(event.target.value)}>
+                  <option value="end user">end user</option>
+                  <option value="manager">manager</option>
+                  <option value="senior technician">senior technician</option>
+                </select>
+              </label>
+              <label>
+                Tone target
+                <select value={toneTarget} onChange={(event) => setToneTarget(event.target.value)}>
+                  <option value="calm and clear">calm and clear</option>
+                  <option value="brief and professional">brief and professional</option>
+                  <option value="warm and reassuring">warm and reassuring</option>
+                </select>
+              </label>
+              <label>
+                Urgency
+                <select value={urgency} onChange={(event) => setUrgency(event.target.value)}>
+                  <option value="normal">normal</option>
+                  <option value="urgent">urgent</option>
+                </select>
+              </label>
+            </div>
+            {rewrittenMessage ? <pre className="template-box">{rewrittenMessage}</pre> : <p className="feedback-empty-hint">Write a generic rough draft to generate a calmer version.</p>}
+          </div>
 
           <div className="training-section">
             <h4>Your response</h4>

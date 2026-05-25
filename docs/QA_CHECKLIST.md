@@ -17,6 +17,8 @@ Use this checklist before release or deployment changes.
 - Skill Tracks opens and shows progress by MSP growth track.
 - MSP Skills, Scenarios, Ticket Notes, Evidence Pack, and Micro-Learning open.
 - Evidence Pack shows deployment status for AI coach and Health email.
+- MSP Scenarios step trainer reveals one clue at a time.
+- Communication Practice calm rewrite coach generates a privacy-safe rewrite from a generic draft.
 
 ## Local Persistence
 
