@@ -17,10 +17,13 @@ import {
   type HealthReminder,
   type HealthState
 } from '../utils/healthOutdoors';
+import type { Task } from '../types';
 
 type HealthOutdoorsProps = {
   healthState: HealthState;
   setHealthState: (updater: (state: HealthState) => HealthState) => void;
+  addTask: (task: Task) => void;
+  defaultClientId: string;
 };
 
 const shiftDayOptions = [
@@ -70,7 +73,7 @@ function buildIcs(reminders: HealthReminder[]) {
   return `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//AvancePD//Health Outdoors//EN\n${body}\nEND:VCALENDAR`;
 }
 
-function HealthOutdoors({ healthState, setHealthState }: HealthOutdoorsProps) {
+function HealthOutdoors({ healthState, setHealthState, addTask, defaultClientId }: HealthOutdoorsProps) {
   const [bannerReminder, setBannerReminder] = useState<HealthReminder | null>(null);
   const [showReset, setShowReset] = useState(false);
   const [copied, setCopied] = useState('');
@@ -199,6 +202,21 @@ function HealthOutdoors({ healthState, setHealthState }: HealthOutdoorsProps) {
   const saveTransition = (nextTransition = transition) => {
     window.localStorage.setItem(`avance-family-transition-${dateKey()}`, JSON.stringify(nextTransition));
     setCopied('transition');
+  };
+
+  const createTomorrowTask = () => {
+    if (!transition.tomorrowAction.trim()) return;
+    addTask({
+      id: `task-transition-${Date.now()}`,
+      title: transition.tomorrowAction,
+      status: 'open',
+      dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+      priority: 'medium',
+      clientId: defaultClientId,
+      note: 'Created from Health & Outdoors end-of-day transition.',
+      createdAt: new Date().toISOString()
+    });
+    setCopied('tomorrow task');
   };
 
   return (
@@ -342,7 +360,10 @@ function HealthOutdoors({ healthState, setHealthState }: HealthOutdoorsProps) {
             <input value={transition.intention} onChange={(event) => setTransition((current) => ({ ...current, intention: event.target.value }))} placeholder="How do I want to arrive home?" />
           </label>
           {healthState.settings.enableFaithPrompt && <p className="health-muted">Optional prayer: Lord, help me leave work at work and be present with my family.</p>}
-          <button type="button" onClick={() => saveTransition()}>Save transition</button>
+          <div className="status-button-row">
+            <button type="button" onClick={() => saveTransition()}>Save transition</button>
+            <button type="button" className="small-action" onClick={createTomorrowTask} disabled={!transition.tomorrowAction.trim()}>Create tomorrow task</button>
+          </div>
         </div>
       </section>
 

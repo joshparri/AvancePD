@@ -37,6 +37,10 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
     ].join(' ').toLowerCase();
     return haystack.includes(searchTerm.toLowerCase());
   });
+  const staleEntries = entries.filter((entry) => {
+    const verifiedAt = new Date(`${entry.lastVerified}T00:00:00`).getTime();
+    return Number.isFinite(verifiedAt) && Date.now() - verifiedAt > 60 * 24 * 60 * 60 * 1000;
+  });
 
   const resetForm = () => {
     setEditingEntryId(null);
@@ -199,6 +203,22 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
             )}
           </div>
         </form>
+      </section>
+
+      <section className="card">
+        <h2>Review stale knowledge</h2>
+        {staleEntries.length ? (
+          <ul>
+            {staleEntries.slice(0, 5).map((entry) => (
+              <li key={entry.id}>
+                <strong>{entry.title}</strong> last verified {entry.lastVerified}
+                <button type="button" className="small-action" onClick={() => startEditing(entry)}>Review</button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No stale knowledge entries. Keep trusted notes reviewed steadily.</p>
+        )}
       </section>
 
       <section className="card">

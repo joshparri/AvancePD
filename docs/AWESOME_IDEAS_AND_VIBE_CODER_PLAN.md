@@ -281,7 +281,7 @@ Implementation notes:
 - Add "outdoor reset suggestion based on weather" later, only if using a privacy-safe weather source.
 - Add Health & Outdoors CSV export. Done.
 - Add "copy calendar schedule" in Google Calendar-friendly wording. Done through Health & Outdoors schedule copy and `.ics`.
-- Add "create tomorrow task from shutdown ritual". Partly done: shutdown captures tomorrow's first action; direct task creation remains optional.
+- Add "create tomorrow task from shutdown ritual". Done.
 - Add "scenario of the week". Done.
 - Add "micro-learning card of the day". Done.
 - Add "communication phrase bank". Done in Quick Tools.
@@ -289,10 +289,10 @@ Implementation notes:
 - Add "ticket note quality checklist". Done in Quick Tools.
 - Add "phone call prep checklist". Done in Quick Tools.
 - Add "post-call decompression reset". Done in Quick Tools.
-- Add "low energy mode" that reduces UI clutter.
-- Add "review stale knowledge entries".
-- Add "confidence changed this week" trend.
-- Add "backup reminder" every few weeks.
+- Add "low energy mode" that reduces UI clutter. Done.
+- Add "review stale knowledge entries". Done.
+- Add "confidence changed this week" trend. Done as a Weekly Review confidence summary.
+- Add "backup reminder" every few weeks. Done.
 - Add "deployment checklist before release". Done in `docs/DEPLOYMENT.md` and `docs/QA_CHECKLIST.md`.
 - Add "sync health check" for Supabase backup. Done through Supabase backup status messages.
 - Add "keyboard-only QA checklist". Done in `docs/QA_CHECKLIST.md`.

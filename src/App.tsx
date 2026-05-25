@@ -123,6 +123,7 @@ function App() {
   const [progress, setProgress] = useState(loadProgress);
   const [healthState, setHealthState] = useState<HealthState>(loadHealthState);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [lowEnergyMode, setLowEnergyMode] = useState(() => window.localStorage.getItem('avance-low-energy-mode') === 'true');
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem('avance-onboarded') !== 'true';
@@ -163,6 +164,10 @@ function App() {
   useEffect(() => {
     window.localStorage.setItem('avance-onboarded', showOnboarding ? 'false' : 'true');
   }, [showOnboarding]);
+
+  useEffect(() => {
+    window.localStorage.setItem('avance-low-energy-mode', String(lowEnergyMode));
+  }, [lowEnergyMode]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -242,9 +247,12 @@ function App() {
   };
 
   return (
-    <div className="app-shell">
+    <div className={lowEnergyMode ? 'app-shell low-energy-mode' : 'app-shell'}>
       <aside className="sidebar">
         <div className="brand">Avance Work Companion</div>
+        <button type="button" className="low-energy-toggle" onClick={() => setLowEnergyMode((current) => !current)}>
+          {lowEnergyMode ? 'Normal mode' : 'Low energy mode'}
+        </button>
         <nav>
           {pages.map((page) => (
             <button
@@ -373,7 +381,14 @@ function App() {
             onNavigate={(page) => setCurrentPage(page as PageId)}
           />
         )}
-        {currentPage === 'healthOutdoors' && <HealthOutdoors healthState={healthState} setHealthState={setHealthState} />}
+        {currentPage === 'healthOutdoors' && (
+          <HealthOutdoors
+            healthState={healthState}
+            setHealthState={setHealthState}
+            addTask={addTask}
+            defaultClientId={sampleClients[0]?.id ?? ''}
+          />
+        )}
         {currentPage === 'skillTracks' && <SkillTracks progress={progress} onNavigate={(page) => setCurrentPage(page as PageId)} />}
         {currentPage === 'mspSkills' && <MspSkills progress={progress} updateSkillReadiness={updateSkillReadiness} />}
         {currentPage === 'mspScenarios' && <MspScenarios progress={progress} updateScenarioProgress={updateScenarioStatus} />}

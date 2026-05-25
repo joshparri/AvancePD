@@ -35,12 +35,15 @@ Use this checklist before release or deployment changes.
 - Dashboard shows next shift, open follow-ups, Healthy MSP Shift, and Quick Capture.
 - Tasks survive shift transitions because they are stored in localStorage.
 - Knowledge and Playbooks search by title, tags, checks, symptoms, and category.
+- Knowledge shows stale entries that have not been verified for more than 60 days.
 - Time page shows billable totals and invoice preview.
 - Quick Capture presets reduce typing during busy states.
+- Low energy mode can be toggled from the sidebar and reduces visual clutter.
 - Focus Mode starts, counts down, and resets.
 - Work Logs and Knowledge accept only small safe local attachments.
 - Work Logs and Knowledge attachment lists show metadata and download buttons.
 - Dashboard backup can copy settings-only data.
+- Dashboard backup shows a gentle reminder when no recent local backup exists.
 - Playbooks can create draft playbooks from repeated safe tags.
 - Mobile width shows bottom quick actions for Capture, Reset, and Now.
 - Dashboard shows Avance day banner on Mondays/Wednesdays, scenario of the week, micro-learning card, and lunch reset.
@@ -61,6 +64,7 @@ Use this checklist before release or deployment changes.
 - Health trends show gentle labels, not red failure states.
 - Reminder test mode changes the displayed next reminder without sending notifications.
 - End-of-day family transition saves closed loops, tomorrow action, and intention.
+- End-of-day family transition can create a follow-up task from tomorrow's first action.
 - Health & Outdoors can copy CSV export.
 
 ## Privacy

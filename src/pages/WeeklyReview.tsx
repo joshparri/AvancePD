@@ -32,7 +32,11 @@ function WeeklyReview({ progress, tasks, workLogs, learningItems, healthState }:
       return status === 'practised' || status === 'confident' || status === 'needs-review';
     });
     const healthTotals = getWeeklyTotals(healthState);
-    return { weeklyLogs, weeklyLearning, openTasks, practisedScenarios, healthTotals };
+    const confidenceCounts = learningItems.reduce(
+      (counts, item) => ({ ...counts, [item.confidence]: counts[item.confidence] + 1 }),
+      { low: 0, medium: 0, high: 0 }
+    );
+    return { weeklyLogs, weeklyLearning, openTasks, practisedScenarios, healthTotals, confidenceCounts };
   }, [healthState, learningItems, progress, tasks, workLogs]);
 
   const managerSummary = [
@@ -74,6 +78,9 @@ function WeeklyReview({ progress, tasks, workLogs, learningItems, healthState }:
           <Metric label="Outdoor minutes" value={summary.healthTotals.outdoorMinutes} />
           <Metric label="Movement breaks" value={summary.healthTotals.movementBreaks} />
           <Metric label="Shutdowns" value={summary.healthTotals.shutdowns} />
+          <Metric label="High confidence notes" value={summary.confidenceCounts.high} />
+          <Metric label="Medium confidence notes" value={summary.confidenceCounts.medium} />
+          <Metric label="Low confidence notes" value={summary.confidenceCounts.low} />
         </div>
       </section>
 

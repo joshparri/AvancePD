@@ -38,6 +38,11 @@
   color: #ffffff;
 }
 
+.low-energy-toggle {
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  margin-bottom: 8px;
+}
+
 .main-content {
   padding: 24px;
 }
@@ -939,6 +944,19 @@ progress {
 
 .mobile-bottom-actions {
   display: none;
+}
+
+.low-energy-mode .card {
+  box-shadow: none;
+}
+
+.low-energy-mode .health-research-grid,
+.low-energy-mode .roadmap-grid {
+  display: none;
+}
+
+.low-energy-mode .main-content {
+  max-width: 980px;
 }
 
 button:focus-visible,
