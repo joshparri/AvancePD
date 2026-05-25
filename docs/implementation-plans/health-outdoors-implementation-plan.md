@@ -78,6 +78,47 @@ The Health & Outdoors module will help Josh stay physically, mentally, and spiri
 - MSP Roadmap (Map)
 ```
 
+### Pre-Implementation Inspection Record
+
+This section records the documentation-first inspection completed before code implementation begins.
+
+**Repository Boundary:**
+- Work only in `joshparri/AvanceProfessionalDevelopment`.
+- This is the HP ProBook repository.
+- Do not touch or reference the Lenovo/Vite repository except to avoid confusing the two projects.
+
+**Confirmed Repo Check:**
+- Remote: `https://github.com/joshparri/AvanceProfessionalDevelopment.git`
+- App source: `app/`
+- Framework: Next.js 16.2.4 with React 19 and App Router conventions.
+- App routes live under `app/src/app`.
+- Shared components live under `app/src/components`.
+
+**Current Routing Pattern:**
+- Routes use `app/src/app/<route>/page.tsx`.
+- Existing examples include `/msp-skills`, `/msp-scenarios`, `/ticket-notes`, `/evidence-pack`, `/msp-roadmap`, and `/learning-cockpit`.
+- The homepage is `app/src/app/page.tsx` and renders `Dashboard` inside `Layout`.
+
+**Current Shared Component Pattern:**
+- `Layout` wraps pages and renders `Navigation`.
+- UI primitives already available: `Card`, `CardHeader`, `CardTitle`, `CardContent`, `Button`, `Badge`, `Dialog`, `Input`, `Textarea`, and `Label`.
+- Page-level interactive routes generally use client components where local state, localStorage, clipboard, or browser APIs are needed.
+
+**Current Progress and Storage Pattern:**
+- Dexie is available in `app/src/lib/db.ts` for core work data.
+- MSP readiness, scenario status, learning progress, and quiz attempts use guarded `localStorage` helpers.
+- Health & Outdoors should use isolated guarded `localStorage` unless a future requirement needs relational IndexedDB storage.
+- Browser-only APIs must be guarded with `typeof window !== 'undefined'`.
+
+**Navigation and Dashboard Integration Points:**
+- Navigation is defined in `app/src/components/Navigation.tsx` as a shared `navigation` array used by both desktop and mobile nav.
+- Dashboard cards are rendered in `app/src/components/Dashboard.tsx`.
+- Future implementation must preserve existing local changes in `Navigation.tsx`, `Dashboard.tsx`, and related untracked work.
+
+**Documentation-First Gate:**
+- No Health & Outdoors code implementation should begin until this plan is reviewed and the implementation scope is clear.
+- The first code pass should be small and verifiable: route, navigation item, static data, isolated storage, reminder engine, dashboard card, and page UI.
+
 ---
 
 ## Implementation Phases
