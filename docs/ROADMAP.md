@@ -2,6 +2,8 @@
 
 This roadmap holds optional or future work that should not block the current local-first app.
 
+For a broader idea bank with implementation notes, see `AWESOME_IDEAS_AND_VIBE_CODER_PLAN.md`.
+
 ## Low-Risk Future Work
 
 - Email-to-note import: implemented as a cleaned communication-note Quick Capture preset. Direct inbox access remains deferred.

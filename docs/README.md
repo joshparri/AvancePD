@@ -18,3 +18,4 @@ Private operational notes, client details, credentials, archives, raw references
 - `SYNC_PLAN.md` - optional low-risk sync plan
 - `QA_CHECKLIST.md` - build, navigation, persistence, and privacy checks
 - `ROADMAP.md` - deferred future work and guardrails
+- `AWESOME_IDEAS_AND_VIBE_CODER_PLAN.md` - feature ideas, upgrades, and implementation guidance
