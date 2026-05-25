@@ -90,6 +90,8 @@ Vibe coder implementation:
 
 ### 8. Evidence Pack Builder
 
+Status: done in `src/pages/EvidencePack.tsx`.
+
 Create a guided Evidence Pack builder that lets Josh choose which safe achievements to include before copying/exporting.
 
 Vibe coder implementation:
@@ -204,6 +206,8 @@ Implementation notes:
 
 ### 8. Better Evidence Export Formats
 
+Status: done in `src/pages/EvidencePack.tsx`.
+
 Add copyable plain text, Markdown, and JSON exports.
 
 Implementation notes:
@@ -223,6 +227,8 @@ Implementation notes:
 - Example labels: "steady", "building", "needs gentler plan".
 
 ### 10. Deployment Status Panel
+
+Status: done in `src/pages/EvidencePack.tsx`.
 
 Show whether API health, AI coach, and email reminder backend are configured.
 
@@ -284,7 +290,7 @@ When implementing any idea above:
 1. Keyboard shortcut overlay. Done.
 2. Safer delete confirmations. Done.
 3. Global search. Done.
-4. Evidence Pack builder.
+4. Evidence Pack builder. Done.
 5. Weekly Reflection Dashboard.
 6. Skill Quest Tracks.
 7. Scenario Step Trainer.

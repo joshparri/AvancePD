@@ -14,6 +14,7 @@ Use this checklist before release or deployment changes.
 - Avance Workday opens.
 - Health & Outdoors opens.
 - MSP Skills, Scenarios, Ticket Notes, Evidence Pack, and Micro-Learning open.
+- Evidence Pack shows deployment status for AI coach and Health email.
 
 ## Local Persistence
 
@@ -33,6 +34,7 @@ Use this checklist before release or deployment changes.
 - Work Logs and Knowledge accept only small safe local attachments.
 - Pressing `?` opens the keyboard shortcut overlay, and Escape closes it.
 - Delete actions ask for confirmation before removing local data.
+- Evidence Pack builder can include/exclude sections and copy Markdown, plain text, and JSON.
 
 ## Health & Outdoors
 

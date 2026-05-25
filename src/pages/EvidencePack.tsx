@@ -12,8 +12,19 @@ function EvidencePack({ progress }: EvidencePackProps) {
   const [copyStatus, setCopyStatus] = useState('');
   const [healthStatus, setHealthStatus] = useState('Checking AI coach...');
   const [healthModel, setHealthModel] = useState('');
+  const [emailStatus, setEmailStatus] = useState('Checking health reminders...');
+  const [selectedSections, setSelectedSections] = useState<Record<string, boolean>>({
+    skills: true,
+    scenarios: true,
+    weakAreas: true,
+    studyAreas: true,
+    outputs: true,
+    healthRoutine: true
+  });
   const summary = useMemo(() => buildEvidenceSummary(progress), [progress]);
-  const markdown = useMemo(() => buildMarkdownSummary(summary), [summary]);
+  const markdown = useMemo(() => buildMarkdownSummary(summary, selectedSections), [summary, selectedSections]);
+  const plainText = useMemo(() => buildPlainTextSummary(summary, selectedSections), [summary, selectedSections]);
+  const jsonSummary = useMemo(() => JSON.stringify({ generatedAt: new Date().toISOString(), summary, selectedSections }, null, 2), [summary, selectedSections]);
 
   useEffect(() => {
     const checkHealth = async () => {
@@ -22,13 +33,16 @@ function EvidencePack({ progress }: EvidencePackProps) {
         const data = await response.json();
         if (response.ok && data.ok) {
           setHealthStatus(data.hasGroqKey ? 'AI Coach: Online' : 'AI Coach: Not configured');
+          setEmailStatus(data.hasHealthReminderEmail ? 'Health email: Configured' : 'Health email: Not configured');
           setHealthModel(data.model || 'unknown model');
         } else {
           setHealthStatus('AI Coach: Error');
+          setEmailStatus('Health email: Unknown');
           setHealthModel(data?.message || 'unknown');
         }
       } catch (err) {
         setHealthStatus('AI Coach: Error');
+        setEmailStatus('Health email: Unable to check');
         setHealthModel('Unable to reach health endpoint.');
       }
     };
@@ -43,6 +57,28 @@ function EvidencePack({ progress }: EvidencePackProps) {
     } catch {
       setCopyStatus('Could not copy automatically. Select the summary text manually.');
     }
+  };
+
+  const copyPlainText = async () => {
+    try {
+      await navigator.clipboard.writeText(plainText);
+      setCopyStatus('Copied plain text summary.');
+    } catch {
+      setCopyStatus('Could not copy automatically. Select the summary text manually.');
+    }
+  };
+
+  const copyJson = async () => {
+    try {
+      await navigator.clipboard.writeText(jsonSummary);
+      setCopyStatus('Copied JSON summary.');
+    } catch {
+      setCopyStatus('Could not copy automatically. Select the JSON manually.');
+    }
+  };
+
+  const toggleSection = (section: string) => {
+    setSelectedSections((current) => ({ ...current, [section]: !current[section] }));
   };
 
   return (
@@ -66,10 +102,31 @@ function EvidencePack({ progress }: EvidencePackProps) {
       </section>
 
       <section className="card">
-        <h2>AI health status</h2>
+        <h2>Deployment status</h2>
         <div className="health-status-card">
           <p>{healthStatus}</p>
+          <p>{emailStatus}</p>
           {healthModel && <p>Model: {healthModel}</p>}
+        </div>
+      </section>
+
+      <section className="card">
+        <h2>Evidence Pack builder</h2>
+        <p>Choose safe sections to include before copying. Keep private details out of exports.</p>
+        <div className="checklist-grid">
+          {[
+            ['skills', 'Skills practised'],
+            ['scenarios', 'Scenarios practised'],
+            ['weakAreas', 'Weak areas'],
+            ['studyAreas', 'Recommended study areas'],
+            ['outputs', 'Practical outputs'],
+            ['healthRoutine', 'Sustainable work routine']
+          ].map(([key, label]) => (
+            <label key={key} className="checklist-item">
+              <input type="checkbox" checked={selectedSections[key]} onChange={() => toggleSection(key)} />
+              {label}
+            </label>
+          ))}
         </div>
       </section>
 
@@ -89,8 +146,12 @@ function EvidencePack({ progress }: EvidencePackProps) {
 
       <section className="card">
         <div className="skill-card-header">
-          <h2>Markdown summary</h2>
-          <button type="button" onClick={copyMarkdown}>Copy Markdown Summary</button>
+          <h2>Manager-safe export</h2>
+          <div className="status-button-row">
+            <button type="button" onClick={copyMarkdown}>Copy Markdown</button>
+            <button type="button" className="small-action" onClick={copyPlainText}>Copy Plain Text</button>
+            <button type="button" className="small-action" onClick={copyJson}>Copy JSON</button>
+          </div>
         </div>
         {copyStatus && <p>{copyStatus}</p>}
         <pre className="template-box">{markdown}</pre>
@@ -138,7 +199,7 @@ function buildEvidenceSummary(progress: AvanceProgress) {
   };
 }
 
-function buildMarkdownSummary(summary: ReturnType<typeof buildEvidenceSummary>) {
+function buildMarkdownSummary(summary: ReturnType<typeof buildEvidenceSummary>, selectedSections: Record<string, boolean>) {
   return [
     '# MSP Professional Development Evidence Summary',
     '',
@@ -149,21 +210,26 @@ function buildMarkdownSummary(summary: ReturnType<typeof buildEvidenceSummary>) 
     `- Scenarios marked confident: ${summary.scenariosConfident.length}`,
     `- Scenarios needing review: ${summary.scenariosNeedsReview.length}`,
     '',
-    '## Skills Practised',
-    ...toList(summary.skillsPractised.map((skill) => `${skill.title} (${skill.category})`)),
-    '',
-    '## Scenarios Practised',
-    ...toList(summary.scenariosPractised.map((scenario) => `${scenario.title} (${scenario.category})`)),
-    '',
-    '## Weak Areas',
-    ...toList(summary.weakAreas.map((skill) => `${skill.title} (${skill.category})`)),
-    '',
-    '## Recommended Next Study Areas',
-    ...toList(summary.recommendedStudyAreas),
-    '',
-    '## Practical Outputs',
-    ...toList(summary.practicalOutputs)
-  ].join('\n');
+    ...optionalSection(selectedSections.skills, '## Skills Practised', summary.skillsPractised.map((skill) => `${skill.title} (${skill.category})`)),
+    ...optionalSection(selectedSections.scenarios, '## Scenarios Practised', summary.scenariosPractised.map((scenario) => `${scenario.title} (${scenario.category})`)),
+    ...optionalSection(selectedSections.weakAreas, '## Weak Areas', summary.weakAreas.map((skill) => `${skill.title} (${skill.category})`)),
+    ...optionalSection(selectedSections.studyAreas, '## Recommended Next Study Areas', summary.recommendedStudyAreas),
+    ...optionalSection(selectedSections.outputs, '## Practical Outputs', summary.practicalOutputs),
+    ...optionalSection(selectedSections.healthRoutine, '## Sustainable Work Routine', [
+      'Josh uses structured wellbeing routines to support sustainable MSP work, including planned breaks, hydration prompts, screen breaks, and end-of-day shutdown habits.'
+    ])
+  ].filter((line) => line !== null).join('\n');
+}
+
+function buildPlainTextSummary(summary: ReturnType<typeof buildEvidenceSummary>, selectedSections: Record<string, boolean>) {
+  return buildMarkdownSummary(summary, selectedSections)
+    .replace(/^# /gm, '')
+    .replace(/^## /gm, '')
+    .replace(/^- /gm, '- ');
+}
+
+function optionalSection(include: boolean, title: string, items: string[]) {
+  return include ? ['', title, ...toList(items)] : [];
 }
 
 function toList(items: string[]) {
