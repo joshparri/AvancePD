@@ -1,6 +1,6 @@
 import { FormEvent, useMemo, useState } from 'react';
 import type { KnowledgeEntry, SafeAttachment } from '../types';
-import { attachmentPolicyText, readSafeAttachment } from '../utils/attachments';
+import { attachmentPolicyText, downloadAttachment, readSafeAttachment } from '../utils/attachments';
 
 type KnowledgeProps = {
   entries: KnowledgeEntry[];
@@ -178,8 +178,13 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
             <ul>
               {attachments.map((attachment) => (
                 <li key={attachment.id}>
-                  {attachment.name} ({Math.round(attachment.size / 1024)} KB)
-                  <button type="button" className="small-action" onClick={() => setAttachments((current) => current.filter((item) => item.id !== attachment.id))}>Remove</button>
+                  {attachment.name} ({Math.round(attachment.size / 1024)} KB, {attachment.type})
+                  <button type="button" className="small-action" onClick={() => downloadAttachment(attachment)}>Download</button>
+                  <button type="button" className="small-action" onClick={() => {
+                    if (window.confirm('Remove this local attachment?')) {
+                      setAttachments((current) => current.filter((item) => item.id !== attachment.id));
+                    }
+                  }}>Remove</button>
                 </li>
               ))}
             </ul>
@@ -212,7 +217,19 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
                 </p>
                 {entry.noteType === 'learned today' && <span className="status-chip success">learned today</span>}
                 <p>{entry.summary}</p>
-                {entry.attachments?.length ? <p>{entry.attachments.length} safe attachment(s)</p> : null}
+                {entry.attachments?.length ? (
+                  <div>
+                    <p>{entry.attachments.length} safe attachment(s)</p>
+                    <ul>
+                      {entry.attachments.map((attachment) => (
+                        <li key={attachment.id}>
+                          {attachment.name} ({Math.round(attachment.size / 1024)} KB)
+                          <button type="button" className="small-action" onClick={() => downloadAttachment(attachment)}>Download</button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                   <button type="button" onClick={() => startEditing(entry)}>
                     Edit

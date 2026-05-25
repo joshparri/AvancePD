@@ -1,6 +1,6 @@
 import { FormEvent, useMemo, useState } from 'react';
 import type { Client, SafeAttachment, WorkLog } from '../types';
-import { attachmentPolicyText, readSafeAttachment } from '../utils/attachments';
+import { attachmentPolicyText, downloadAttachment, readSafeAttachment } from '../utils/attachments';
 
 type WorkLogsProps = {
   workLogs: WorkLog[];
@@ -143,8 +143,13 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
             <ul>
               {attachments.map((attachment) => (
                 <li key={attachment.id}>
-                  {attachment.name} ({Math.round(attachment.size / 1024)} KB)
-                  <button type="button" className="small-action" onClick={() => setAttachments((current) => current.filter((item) => item.id !== attachment.id))}>Remove</button>
+                  {attachment.name} ({Math.round(attachment.size / 1024)} KB, {attachment.type})
+                  <button type="button" className="small-action" onClick={() => downloadAttachment(attachment)}>Download</button>
+                  <button type="button" className="small-action" onClick={() => {
+                    if (window.confirm('Remove this local attachment?')) {
+                      setAttachments((current) => current.filter((item) => item.id !== attachment.id));
+                    }
+                  }}>Remove</button>
                 </li>
               ))}
             </ul>
@@ -178,7 +183,19 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
                     {client?.name} — {new Date(log.createdAt).toLocaleDateString()} {log.draft && '(draft)'}
                   </p>
                   <p>{log.summary}</p>
-                  {log.attachments?.length ? <p>{log.attachments.length} safe attachment(s)</p> : null}
+                  {log.attachments?.length ? (
+                    <div>
+                      <p>{log.attachments.length} safe attachment(s)</p>
+                      <ul>
+                        {log.attachments.map((attachment) => (
+                          <li key={attachment.id}>
+                            {attachment.name} ({Math.round(attachment.size / 1024)} KB)
+                            <button type="button" className="small-action" onClick={() => downloadAttachment(attachment)}>Download</button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                     <button type="button" onClick={() => startEditing(log)}>
                       Edit

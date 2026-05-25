@@ -1,14 +1,16 @@
 import { FormEvent, useState } from 'react';
-import type { Playbook } from '../types';
+import type { KnowledgeEntry, Playbook, WorkLog } from '../types';
 
 type PlaybooksProps = {
   playbooks: Playbook[];
+  workLogs: WorkLog[];
+  knowledgeEntries: KnowledgeEntry[];
   addPlaybook: (playbook: Playbook) => void;
   updatePlaybook: (playbook: Playbook) => void;
   deletePlaybook: (playbookId: string) => void;
 };
 
-function Playbooks({ playbooks, addPlaybook, updatePlaybook, deletePlaybook }: PlaybooksProps) {
+function Playbooks({ playbooks, workLogs, knowledgeEntries, addPlaybook, updatePlaybook, deletePlaybook }: PlaybooksProps) {
   const [editingPlaybookId, setEditingPlaybookId] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [symptoms, setSymptoms] = useState('');
@@ -29,6 +31,7 @@ function Playbooks({ playbooks, addPlaybook, updatePlaybook, deletePlaybook }: P
     ].join(' ').toLowerCase();
     return haystack.includes(searchTerm.toLowerCase());
   });
+  const generatedDrafts = getPlaybookDrafts(workLogs, knowledgeEntries);
 
   const resetForm = () => {
     setEditingPlaybookId(null);
@@ -118,6 +121,23 @@ function Playbooks({ playbooks, addPlaybook, updatePlaybook, deletePlaybook }: P
       </section>
 
       <section className="card">
+        <h2>Suggested playbook drafts</h2>
+        {generatedDrafts.length ? (
+          <div className="health-plan-grid">
+            {generatedDrafts.map((draft) => (
+              <article key={draft.title} className="mini-card">
+                <h3>{draft.title}</h3>
+                <p>{draft.notes}</p>
+                <button type="button" onClick={() => addPlaybook(draft)}>Create draft playbook</button>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p>No repeated safe tags yet. Add generic work log tags to generate draft playbook ideas.</p>
+        )}
+      </section>
+
+      <section className="card">
         <h2>All playbooks</h2>
         <label className="inline-control">
           Search playbooks
@@ -128,6 +148,7 @@ function Playbooks({ playbooks, addPlaybook, updatePlaybook, deletePlaybook }: P
             {filteredPlaybooks.map((playbook) => (
               <li key={playbook.id} style={{ marginBottom: '16px' }}>
                 <strong>{playbook.title}</strong>
+                {playbook.draft && <span className="status-chip warn">draft</span>}
                 <p>{playbook.notes}</p>
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                   <button type="button" onClick={() => startEditing(playbook)}>
@@ -149,6 +170,35 @@ function Playbooks({ playbooks, addPlaybook, updatePlaybook, deletePlaybook }: P
       </section>
     </div>
   );
+}
+
+function getPlaybookDrafts(workLogs: WorkLog[], knowledgeEntries: KnowledgeEntry[]): Playbook[] {
+  const counts = workLogs.reduce<Record<string, number>>((acc, log) => {
+    log.tags.forEach((tag) => {
+      const normalized = tag.trim().toLowerCase();
+      if (!normalized) return;
+      acc[normalized] = (acc[normalized] ?? 0) + 1;
+    });
+    return acc;
+  }, {});
+
+  return Object.entries(counts)
+    .filter(([, count]) => count > 1)
+    .slice(0, 3)
+    .map(([tag]) => {
+      const relatedKnowledge = knowledgeEntries.filter((entry) => entry.tags.map((item) => item.toLowerCase()).includes(tag));
+      return {
+        id: `pb-draft-${tag}-${Date.now()}`,
+        title: `${tag} triage draft`,
+        symptoms: [`Repeated local tag: ${tag}`],
+        firstChecks: relatedKnowledge.length ? relatedKnowledge.map((entry) => entry.summary).slice(0, 3) : ['Confirm scope and impact', 'Collect safe symptoms', 'Check known playbooks or public docs'],
+        deeperChecks: ['Review related knowledge entries', 'Escalate if security, data loss, or broad impact is suspected'],
+        escalation: 'Escalate when safe first checks do not explain the issue or risk increases.',
+        notes: 'Generated from repeated safe local tags. Review before relying on this playbook.',
+        relatedKnowledgeIds: relatedKnowledge.map((entry) => entry.id),
+        draft: true
+      };
+    });
 }
 
 export default Playbooks;

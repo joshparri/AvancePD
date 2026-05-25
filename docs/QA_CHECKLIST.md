@@ -38,6 +38,10 @@ Use this checklist before release or deployment changes.
 - Quick Capture presets reduce typing during busy states.
 - Focus Mode starts, counts down, and resets.
 - Work Logs and Knowledge accept only small safe local attachments.
+- Work Logs and Knowledge attachment lists show metadata and download buttons.
+- Dashboard backup can copy settings-only data.
+- Playbooks can create draft playbooks from repeated safe tags.
+- Mobile width shows bottom quick actions for Capture, Reset, and Now.
 - Pressing `?` opens the keyboard shortcut overlay, and Escape closes it.
 - Delete actions ask for confirmation before removing local data.
 - Evidence Pack builder can include/exclude sections and copy Markdown, plain text, and JSON.

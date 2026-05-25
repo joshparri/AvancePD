@@ -117,6 +117,8 @@ Vibe coder implementation:
 
 ### 9. Personal Playbook Generator
 
+Status: done in `src/pages/Playbooks.tsx`.
+
 Use repeated safe tags and knowledge entries to suggest draft playbooks.
 
 Vibe coder implementation:
@@ -144,6 +146,8 @@ Vibe coder implementation:
 
 ### 1. Better Mobile Bottom Actions
 
+Status: done in `src/components/MobileBottomActions.tsx`.
+
 Add a sticky mobile action bar for Quick Capture, Health Reset, and Urgent Ticket Mode.
 
 Implementation notes:
@@ -153,6 +157,8 @@ Implementation notes:
 - Use existing navigation callbacks.
 
 ### 2. Import/Export Settings Separately
+
+Status: done in `src/components/DataBackupPanel.tsx`.
 
 Let Josh export only settings without exporting all notes.
 
@@ -187,6 +193,8 @@ Implementation notes:
 - Keep wording calm: "Remove this local item?"
 
 ### 5. Better Attachment Viewer
+
+Status: done in `src/pages/WorkLogs.tsx` and `src/pages/Knowledge.tsx`.
 
 Show attachment metadata and allow downloading attached files.
 
@@ -312,6 +320,6 @@ When implementing any idea above:
 5. Weekly Reflection Dashboard. Done.
 6. Skill Quest Tracks. Done.
 7. Scenario Step Trainer. Done.
-8. Personal Playbook Generator.
+8. Personal Playbook Generator. Done.
 9. Health streaks without shame. Done.
 10. Shift Command Center.

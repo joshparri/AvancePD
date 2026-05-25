@@ -88,6 +88,7 @@ export type Playbook = {
   escalation: string;
   notes: string;
   relatedKnowledgeIds: string[];
+  draft?: boolean;
 };
 
 export type TimeEntry = {

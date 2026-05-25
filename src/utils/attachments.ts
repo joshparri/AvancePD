@@ -33,3 +33,10 @@ export function readSafeAttachment(file: File): Promise<SafeAttachment> {
     reader.readAsDataURL(file);
   });
 }
+
+export function downloadAttachment(attachment: SafeAttachment) {
+  const link = document.createElement('a');
+  link.href = attachment.dataUrl;
+  link.download = attachment.name;
+  link.click();
+}

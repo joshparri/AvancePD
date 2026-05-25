@@ -19,6 +19,7 @@ import MicroLearning from './pages/MicroLearning';
 import HealthOutdoors from './pages/HealthOutdoors';
 import Search from './pages/Search';
 import ShortcutOverlay from './components/ShortcutOverlay';
+import MobileBottomActions from './components/MobileBottomActions';
 import SkillTracks from './pages/SkillTracks';
 import WeeklyReview from './pages/WeeklyReview';
 import ShiftCommandCenter from './pages/ShiftCommandCenter';
@@ -315,6 +316,8 @@ function App() {
         {currentPage === 'playbooks' && (
           <Playbooks
             playbooks={playbooks}
+            workLogs={workLogs}
+            knowledgeEntries={knowledgeEntries}
             addPlaybook={addPlaybook}
             updatePlaybook={updatePlaybook}
             deletePlaybook={deletePlaybook}
@@ -392,6 +395,7 @@ function App() {
           />
         )}
       </main>
+      <MobileBottomActions onNavigate={(page) => setCurrentPage(page as PageId)} />
     </div>
   );
 }

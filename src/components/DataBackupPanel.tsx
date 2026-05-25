@@ -57,6 +57,32 @@ function DataBackupPanel() {
     setStatus('Backup downloaded.');
   };
 
+  const copySettingsBackup = async () => {
+    const settingsOnly = {
+      exportedAt: new Date().toISOString(),
+      app: 'Avance Work Companion',
+      version: 1,
+      data: Object.fromEntries(
+        ['avance-health-outdoors', 'avance-onboarded', 'avance-supabase-sync-settings']
+          .map((key) => [key, window.localStorage.getItem(key)])
+          .filter(([, value]) => value)
+          .map(([key, value]) => {
+            try {
+              return [key, JSON.parse(String(value))];
+            } catch {
+              return [key, value];
+            }
+          })
+      )
+    };
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(settingsOnly, null, 2));
+      setStatus('Settings-only backup copied.');
+    } catch {
+      setStatus('Could not copy settings automatically.');
+    }
+  };
+
   const importBackup = () => {
     try {
       const parsed = JSON.parse(importText) as { data?: Record<string, unknown> };
@@ -84,6 +110,7 @@ function DataBackupPanel() {
         <div className="status-button-row">
           <button type="button" onClick={copyBackup}>Copy backup JSON</button>
           <button type="button" className="small-action" onClick={downloadBackup}>Download backup</button>
+          <button type="button" className="small-action" onClick={copySettingsBackup}>Copy settings only</button>
         </div>
         <div className="quick-capture-form">
           <label>

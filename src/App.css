@@ -937,6 +937,10 @@ progress {
   width: min(760px, 100%);
 }
 
+.mobile-bottom-actions {
+  display: none;
+}
+
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
@@ -989,7 +993,7 @@ textarea:focus-visible {
   }
 
   .main-content {
-    padding: 16px;
+    padding: 16px 16px 86px;
   }
 
   .health-action-row button,
@@ -1005,5 +1009,27 @@ textarea:focus-visible {
   .capture-tabs {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .mobile-bottom-actions {
+    background: #ffffff;
+    border-top: 1px solid #cbd5e1;
+    bottom: 0;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(3, 1fr);
+    left: 0;
+    padding: 10px;
+    position: fixed;
+    right: 0;
+    z-index: 25;
+  }
+
+  .mobile-bottom-actions button {
+    background: #0f172a;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    min-height: 48px;
   }
 }
