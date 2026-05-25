@@ -33,7 +33,18 @@ npm run build
 - `src/pages/` - page components for core workflows
 - `src/data/sampleData.ts` - generic demo seed data
 - `src/types.ts` - app data model types
+- `src/utils/healthOutdoors.ts` - Health & Outdoors local reminder state and scheduling logic
 - `src/styles.css` and `src/App.css` - styles
+
+## Build Checks
+
+Run this before committing app changes:
+
+```bash
+npm run build
+```
+
+The build runs TypeScript first and then Vite.
 
 ## Notes
 

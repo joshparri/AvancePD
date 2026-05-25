@@ -25,7 +25,7 @@
 - [x] Build the learning tracker with topic, confidence score, "seen in real work", ask-team flag, and next review date
 
 ## 4. User experience & UI work
-- [x] Implement the calm, readable UI style described in `docs/strategy/07_UI_UX_AND_TONE_GUIDE.md`
+- [x] Implement the calm, readable UI style described in `docs/UI_UX_AND_TONE_GUIDE.md`
 - [ ] Add keyboard shortcuts or quick-capture affordances for busy work states
 - [x] Build clear status chips and colour semantics for urgent, review, trusted, and billed states
 - [ ] Create empty-state guidance for all core modules
@@ -41,13 +41,13 @@
 
 ## 6. Professional development / MSP growth
 - [ ] Add PD-specific workflows in the app for learning goals and shift review
-- [ ] Integrate the PD checklist from `docs/pd/PROFESSIONAL_DEVELOPMENT.md` into shift wrap-up or dashboard prompts
+- [ ] Integrate the PD checklist from `docs/PROFESSIONAL_DEVELOPMENT.md` into shift wrap-up or dashboard prompts
 - [ ] Add a "learned today" tag or note type in the knowledge base
 - [ ] Add a review cadence for learning entries and confidence updates
 - [x] Include communication, security, endpoint, and network troubleshooting guidance as reference templates
 
 ## 7. Testing, validation & polish
-- [x] Populate the app with sample seed data for early testing (`docs/strategy/08_SAMPLE_SEED_DATA.md`)
+- [x] Populate the app with sample seed data for early testing (`docs/SAMPLE_SEED_DATA.md`)
 - [ ] Test that the dashboard surfaces the right context after a gap between shifts
 - [ ] Validate that follow-ups and tasks survive shift transitions
 - [ ] Verify that knowledge and playbooks are searchable and discoverable
