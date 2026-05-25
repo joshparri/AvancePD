@@ -111,6 +111,7 @@ export type LearningItem = {
   askTeam: boolean;
   nextReviewDate: string;
   lastReviewedDate?: string;
+  evidenceWorthy?: boolean;
 };
 
 export type ReadinessStatus = 'unseen' | 'learning' | 'practised' | 'work-ready' | 'evidence-proven';

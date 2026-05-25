@@ -148,6 +148,25 @@ function HealthOutdoors({ healthState, setHealthState }: HealthOutdoorsProps) {
     setCopied('export');
   };
 
+  const exportCsv = () => {
+    const rows = [
+      ['date', 'hydrationCount', 'outdoorMinutes', 'movementBreaks', 'eyeBreaks', 'lunchAwayFromScreenCount', 'shutdownCount', 'urgentTicketModeCount', 'skippedReminders'],
+      ...Object.values(healthState.days).map((day) => [
+        day.date,
+        String(day.hydrationCount),
+        String(day.outdoorMinutes),
+        String(day.movementBreaks),
+        String(day.eyeBreaks),
+        String(day.lunchAwayFromScreenCount),
+        String(day.shutdownCount),
+        String(day.urgentTicketModeCount),
+        String(day.skippedBreaks.length)
+      ])
+    ];
+    copyText(rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n'));
+    setCopied('health CSV');
+  };
+
   const downloadIcs = () => {
     const blob = new Blob([buildIcs(reminders)], { type: 'text/calendar' });
     const url = URL.createObjectURL(blob);
@@ -465,6 +484,7 @@ function HealthOutdoors({ healthState, setHealthState }: HealthOutdoorsProps) {
           <button type="button" className="small-action" onClick={() => setHealthState((state) => ({ ...state, settings: defaultHealthSettings }))}>Reset settings</button>
           <button type="button" className="small-action" onClick={resetHealthData}>Reset health data</button>
           <button type="button" className="small-action" onClick={exportJson}>Export health data JSON</button>
+          <button type="button" className="small-action" onClick={exportCsv}>Export health data CSV</button>
         </div>
       </section>
     </div>

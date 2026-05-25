@@ -200,6 +200,9 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
                     <button type="button" onClick={() => startEditing(log)}>
                       Edit
                     </button>
+                    <button type="button" className="small-action" onClick={() => navigator.clipboard?.writeText(`${log.title}\n\nSummary: ${log.summary}\nNext step: ${log.nextStep}`)}>
+                      Copy safe summary
+                    </button>
                     <button type="button" onClick={() => deleteWorkLog(log.id)} style={{ background: '#dc2626' }}>
                       Delete
                     </button>

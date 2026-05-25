@@ -3,6 +3,9 @@ import QuickCapture from '../components/QuickCapture';
 import HealthyMspShiftPanel from '../components/HealthyMspShiftPanel';
 import DataBackupPanel from '../components/DataBackupPanel';
 import type { HealthState } from '../utils/healthOutdoors';
+import { getTodayLog } from '../utils/healthOutdoors';
+import { mspScenarios } from '../data/mspScenarios';
+import { microLearningCards } from '../data/microLearning';
 
 const PAGE_TITLE = 'Dashboard';
 
@@ -48,11 +51,15 @@ function Dashboard({
   const repeatedTags = getRepeatedTags(workLogs);
 
   const hasData = tasks.length > 0 || workLogs.length > 0 || timeEntries.length > 0;
+  const isAvanceDay = [1, 3].includes(new Date().getDay());
+  const scenarioOfWeek = mspScenarios[getWeekNumber() % mspScenarios.length];
+  const microCardOfDay = microLearningCards[new Date().getDay() % microLearningCards.length];
 
   return (
     <div>
       <section className="card">
         <h1>{PAGE_TITLE}</h1>
+        {isAvanceDay && <div className="privacy-note">Today is an Avance day. Keep notes generic, protect client details, and use tiny resets.</div>}
         {hasData ? (
           <p>Welcome back, Josh. Your next shift is:</p>
         ) : (
@@ -118,6 +125,30 @@ function Dashboard({
         onNavigate={onNavigateHealth}
         onReset={onNavigateHealth}
       />
+
+      <section className="card">
+        <h2>Today's tiny practice</h2>
+        <div className="health-plan-grid">
+          <article className="mini-card">
+            <h3>Scenario of the week</h3>
+            <p>{scenarioOfWeek.title}</p>
+            <button type="button" onClick={() => onNavigate('mspScenarios')}>Practise scenario</button>
+          </article>
+          <article className="mini-card">
+            <h3>Micro-learning card</h3>
+            <p>{microCardOfDay.topic}</p>
+            <button type="button" onClick={() => onNavigate('microLearning')}>Read card</button>
+          </article>
+          <article className="mini-card">
+            <h3>Lunch away from screen</h3>
+            <p>Mark lunch as a real pause if you can.</p>
+            <button type="button" onClick={() => setHealthState((state) => {
+              const today = getTodayLog(state);
+              return { ...state, days: { ...state.days, [today.date]: { ...today, lunchAwayFromScreenCount: today.lunchAwayFromScreenCount + 1 } } };
+            })}>Lunch reset done</button>
+          </article>
+        </div>
+      </section>
 
       <QuickCapture
         clients={clients}
@@ -198,6 +229,12 @@ function getRepeatedTags(workLogs: WorkLog[]) {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
     .map(([label, count]) => ({ label, count }));
+}
+
+function getWeekNumber() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 1);
+  return Math.floor(((now.getTime() - start.getTime()) / 86400000 + start.getDay()) / 7);
 }
 
 export default Dashboard;

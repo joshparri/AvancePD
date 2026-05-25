@@ -12,6 +12,7 @@ Use this checklist before release or deployment changes.
 - Dashboard opens.
 - Search opens and returns local results.
 - Command Center opens and shows Now, Focus Mode, Health, Later, and Shutdown sections.
+- Quick Tools opens and shows phrase bank, escalation builder, ticket checklist, phone prep, decompression, and safe wording checker.
 - Avance Workday opens.
 - Weekly Review opens and shows scorecard plus copyable manager-safe summary.
 - Health & Outdoors opens.
@@ -42,6 +43,8 @@ Use this checklist before release or deployment changes.
 - Dashboard backup can copy settings-only data.
 - Playbooks can create draft playbooks from repeated safe tags.
 - Mobile width shows bottom quick actions for Capture, Reset, and Now.
+- Dashboard shows Avance day banner on Mondays/Wednesdays, scenario of the week, micro-learning card, and lunch reset.
+- PD notes can be marked evidence-worthy, copied as safe summaries, and converted to Knowledge.
 - Pressing `?` opens the keyboard shortcut overlay, and Escape closes it.
 - Delete actions ask for confirmation before removing local data.
 - Evidence Pack builder can include/exclude sections and copy Markdown, plain text, and JSON.
@@ -58,6 +61,7 @@ Use this checklist before release or deployment changes.
 - Health trends show gentle labels, not red failure states.
 - Reminder test mode changes the displayed next reminder without sending notifications.
 - End-of-day family transition saves closed loops, tomorrow action, and intention.
+- Health & Outdoors can copy CSV export.
 
 ## Privacy
 

@@ -267,36 +267,36 @@ Implementation notes:
 
 ## 20-30 Smaller Ideas
 
-- Add a "first action tomorrow" field to Avance Workday.
-- Add "copy safe summary" buttons to Work Logs and Learning Notes.
-- Add task carry-forward prompts on Monday and Wednesday.
-- Add "review before shift" list based on overdue learning notes.
-- Add "mark as evidence-worthy" to learning notes.
-- Add "convert learning note to knowledge entry".
-- Add "convert repeated tag to playbook draft".
-- Add a "safe wording checker" for evidence exports.
-- Add a "private data reminder" before file attachment upload.
-- Add a small "today is an Avance day" banner.
-- Add "lunch taken away from screen" quick button in Dashboard.
+- Add a "first action tomorrow" field to Avance Workday. Done through Health & Outdoors family transition and Command Center shutdown.
+- Add "copy safe summary" buttons to Work Logs and Learning Notes. Done.
+- Add task carry-forward prompts on Monday and Wednesday. Done through Command Center and Dashboard Avance day prompts.
+- Add "review before shift" list based on overdue learning notes. Done in Command Center and Weekly Review.
+- Add "mark as evidence-worthy" to learning notes. Done.
+- Add "convert learning note to knowledge entry". Done.
+- Add "convert repeated tag to playbook draft". Done.
+- Add a "safe wording checker" for evidence exports. Done in Quick Tools.
+- Add a "private data reminder" before file attachment upload. Done.
+- Add a small "today is an Avance day" banner. Done.
+- Add "lunch taken away from screen" quick button in Dashboard. Done.
 - Add "outdoor reset suggestion based on weather" later, only if using a privacy-safe weather source.
-- Add Health & Outdoors CSV export.
-- Add "copy calendar schedule" in Google Calendar-friendly wording.
-- Add "create tomorrow task from shutdown ritual".
-- Add "scenario of the week".
-- Add "micro-learning card of the day".
-- Add "communication phrase bank".
-- Add "escalation note builder".
-- Add "ticket note quality checklist".
-- Add "phone call prep checklist".
-- Add "post-call decompression reset".
+- Add Health & Outdoors CSV export. Done.
+- Add "copy calendar schedule" in Google Calendar-friendly wording. Done through Health & Outdoors schedule copy and `.ics`.
+- Add "create tomorrow task from shutdown ritual". Partly done: shutdown captures tomorrow's first action; direct task creation remains optional.
+- Add "scenario of the week". Done.
+- Add "micro-learning card of the day". Done.
+- Add "communication phrase bank". Done in Quick Tools.
+- Add "escalation note builder". Done in Quick Tools.
+- Add "ticket note quality checklist". Done in Quick Tools.
+- Add "phone call prep checklist". Done in Quick Tools.
+- Add "post-call decompression reset". Done in Quick Tools.
 - Add "low energy mode" that reduces UI clutter.
 - Add "review stale knowledge entries".
 - Add "confidence changed this week" trend.
 - Add "backup reminder" every few weeks.
-- Add "deployment checklist before release".
-- Add "sync health check" for Supabase backup.
-- Add "keyboard-only QA checklist".
-- Add "family transition reflection" as an optional private prompt.
+- Add "deployment checklist before release". Done in `docs/DEPLOYMENT.md` and `docs/QA_CHECKLIST.md`.
+- Add "sync health check" for Supabase backup. Done through Supabase backup status messages.
+- Add "keyboard-only QA checklist". Done in `docs/QA_CHECKLIST.md`.
+- Add "family transition reflection" as an optional private prompt. Done.
 
 ## Vibe Coder Operating Rules
 

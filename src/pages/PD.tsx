@@ -1,14 +1,15 @@
 import { FormEvent, useState } from 'react';
-import type { LearningItem } from '../types';
+import type { KnowledgeEntry, LearningItem } from '../types';
 
 type PDProps = {
   learningItems: LearningItem[];
   addLearningItem: (item: LearningItem) => void;
   updateLearningItem: (item: LearningItem) => void;
   deleteLearningItem: (itemId: string) => void;
+  addKnowledgeEntry: (entry: KnowledgeEntry) => void;
 };
 
-function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearningItem }: PDProps) {
+function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearningItem, addKnowledgeEntry }: PDProps) {
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [topic, setTopic] = useState('');
   const [noteType, setNoteType] = useState<LearningItem['noteType']>('learning');
@@ -16,6 +17,7 @@ function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearning
   const [notes, setNotes] = useState('');
   const [seenInRealWork, setSeenInRealWork] = useState(true);
   const [askTeam, setAskTeam] = useState(false);
+  const [evidenceWorthy, setEvidenceWorthy] = useState(false);
   const [nextReviewDate, setNextReviewDate] = useState('');
 
   const resetForm = () => {
@@ -26,6 +28,7 @@ function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearning
     setNotes('');
     setSeenInRealWork(true);
     setAskTeam(false);
+    setEvidenceWorthy(false);
     setNextReviewDate('');
   };
 
@@ -40,6 +43,7 @@ function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearning
       notes: notes || 'Captured during shift.',
       seenInRealWork,
       askTeam,
+      evidenceWorthy,
       nextReviewDate: nextReviewDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
     };
 
@@ -60,6 +64,7 @@ function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearning
     setNotes(item.notes);
     setSeenInRealWork(item.seenInRealWork);
     setAskTeam(item.askTeam);
+    setEvidenceWorthy(item.evidenceWorthy ?? false);
     setNextReviewDate(item.nextReviewDate);
   };
 
@@ -92,7 +97,25 @@ function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearning
     ].join('\n'));
     setSeenInRealWork(true);
     setAskTeam(false);
+    setEvidenceWorthy(true);
     setNextReviewDate(nextReviewForConfidence('medium'));
+  };
+
+  const convertToKnowledge = (item: LearningItem) => {
+    addKnowledgeEntry({
+      id: `kn-from-${item.id}-${Date.now()}`,
+      title: item.topic,
+      summary: item.notes.slice(0, 160) || 'Converted from learning note.',
+      body: item.notes || 'Converted from learning note.',
+      category: 'Professional development',
+      noteType: item.noteType === 'learned today' ? 'learned today' : 'reference',
+      tags: ['learning', item.confidence],
+      confidence: item.confidence,
+      lastVerified: new Date().toISOString().slice(0, 10),
+      sourceType: 'personal',
+      trusted: item.confidence !== 'low',
+      createdAt: new Date().toISOString()
+    });
   };
 
   return (
@@ -157,6 +180,10 @@ function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearning
             <input type="checkbox" checked={askTeam} onChange={(event) => setAskTeam(event.target.checked)} />
             Ask team
           </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <input type="checkbox" checked={evidenceWorthy} onChange={(event) => setEvidenceWorthy(event.target.checked)} />
+            Mark as evidence-worthy
+          </label>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             <button type="submit">{editingItemId ? 'Save note' : 'Add note'}</button>
             {editingItemId && (
@@ -178,10 +205,17 @@ function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearning
                   confidence: {item.confidence} — next review {item.nextReviewDate}
                 </p>
                 {item.noteType && <span className="status-chip info">{item.noteType}</span>}
+                {item.evidenceWorthy && <span className="status-chip success">evidence-worthy</span>}
                 <p>{item.notes}</p>
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                   <button type="button" onClick={() => startEditing(item)}>
                     Edit
+                  </button>
+                  <button type="button" onClick={() => convertToKnowledge(item)}>
+                    Convert to knowledge
+                  </button>
+                  <button type="button" className="small-action" onClick={() => navigator.clipboard?.writeText(`${item.topic}\n\n${item.notes}`)}>
+                    Copy safe summary
                   </button>
                   <button type="button" onClick={() => deleteLearningItem(item.id)} style={{ background: '#dc2626' }}>
                     Delete

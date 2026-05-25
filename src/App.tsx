@@ -23,6 +23,7 @@ import MobileBottomActions from './components/MobileBottomActions';
 import SkillTracks from './pages/SkillTracks';
 import WeeklyReview from './pages/WeeklyReview';
 import ShiftCommandCenter from './pages/ShiftCommandCenter';
+import QuickTools from './pages/QuickTools';
 import type { MspSkillReadiness } from './data/mspSkills';
 import {
   incrementTicketNotePractice as incrementTicketNotePracticeProgress,
@@ -51,6 +52,7 @@ import './App.css';
 const pages = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'search', label: 'Search' },
+  { id: 'quickTools', label: 'Quick Tools' },
   { id: 'shifts', label: 'Shifts' },
   { id: 'tasks', label: 'Tasks' },
   { id: 'worklogs', label: 'Work Logs' },
@@ -76,6 +78,7 @@ const pages = [
 type PageId =
   | 'dashboard'
   | 'search'
+  | 'quickTools'
   | 'shifts'
   | 'tasks'
   | 'worklogs'
@@ -286,6 +289,7 @@ function App() {
             onNavigate={(page) => setCurrentPage(page as PageId)}
           />
         )}
+        {currentPage === 'quickTools' && <QuickTools />}
         {currentPage === 'shifts' && <ShiftScheduler shifts={sampleShifts} clients={sampleClients} />}
         {currentPage === 'tasks' && (
           <Tasks
@@ -337,6 +341,7 @@ function App() {
             addLearningItem={addLearningItem}
             updateLearningItem={updateLearningItem}
             deleteLearningItem={deleteLearningItem}
+            addKnowledgeEntry={addKnowledgeEntry}
           />
         )}
         {currentPage === 'weeklyReview' && (
