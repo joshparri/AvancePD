@@ -12,6 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, Plus, CheckSquare, TrendingUp, Lightbulb, BookOpen } from 'lucide-react';
 import { mspLearningActivities, type MspLearningActivity } from '@/data/mspLearningActivities';
 import { getLearningStats, getDueReviewSuggestions } from '@/lib/mspLearningProgress';
+import { PendingActionTracker } from '@/components/PendingActionTracker';
+import { HealthyShiftCard } from '@/components/HealthyShiftCard';
 
 export function Dashboard() {
   const [nextShift, setNextShift] = useState<Shift | null>(null);
@@ -303,6 +305,10 @@ export function Dashboard() {
             </div>
           </CardContent>
         </Card>
+
+        <HealthyShiftCard />
+
+        <PendingActionTracker />
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

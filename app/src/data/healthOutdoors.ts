@@ -44,7 +44,7 @@ export interface ResearchCard {
   summary: string; // Research summary (careful language)
   practicalAction: string; // What Josh can do about it
   sourceLabel: string; // e.g., "Research suggests" or "Some studies show"
-  sourceUrl?: string; // Optional link for context
+  sourceUrl: string; // Source link for context
   confidenceLevel: ConfidenceLevel;
   category: HealthCategory;
   emoji?: string;
@@ -318,6 +318,7 @@ export const researchCards: ResearchCard[] = [
     practicalAction:
       'Aim for short outdoor breaks during work shifts. Even 5 minutes outside can provide benefits.',
     sourceLabel: 'Research suggests',
+    sourceUrl: 'https://pubmed.ncbi.nlm.nih.gov/33946197/',
     confidenceLevel: 'strong',
     category: 'outdoors',
     emoji: '🌳',
@@ -330,6 +331,7 @@ export const researchCards: ResearchCard[] = [
     practicalAction:
       'Spread outdoor time across your week: short breaks during shifts plus longer time on days off.',
     sourceLabel: 'Some studies suggest',
+    sourceUrl: 'https://www.nature.com/articles/s41598-019-44097-3',
     confidenceLevel: 'moderate',
     category: 'outdoors',
     emoji: '📊',
@@ -342,6 +344,7 @@ export const researchCards: ResearchCard[] = [
     practicalAction:
       'Set reminders for brief 2–5 minute breaks every 30–60 minutes of focused work.',
     sourceLabel: 'Research suggests',
+    sourceUrl: 'https://pubmed.ncbi.nlm.nih.gov/36044424/',
     confidenceLevel: 'strong',
     category: 'movement',
     emoji: '⏸️',
@@ -353,7 +356,8 @@ export const researchCards: ResearchCard[] = [
       'Morning and afternoon daylight exposure helps regulate circadian rhythm, which supports sleep quality, mood, and energy levels.',
     practicalAction:
       'Get daylight in the morning (8–10am) and again in the afternoon (before 3pm) on work days.',
-    sourceLabel: 'Research shows',
+    sourceLabel: 'Research suggests',
+    sourceUrl: 'https://www.nhlbi.nih.gov/health/sleep/sleep-wake-cycle',
     confidenceLevel: 'strong',
     category: 'outdoors',
     emoji: '🕐',
@@ -366,6 +370,7 @@ export const researchCards: ResearchCard[] = [
     practicalAction:
       'Stand and move for 2–3 minutes at least every hour during work shifts.',
     sourceLabel: 'Research suggests',
+    sourceUrl: 'https://pubmed.ncbi.nlm.nih.gov/29878870/',
     confidenceLevel: 'strong',
     category: 'movement',
     emoji: '🚶',
@@ -377,7 +382,8 @@ export const researchCards: ResearchCard[] = [
       'Even mild dehydration (1–2% of body weight) is associated with reduced attention, increased fatigue, and difficulty concentrating.',
     practicalAction:
       'Drink regular small amounts of water throughout your shift, rather than large amounts at once.',
-    sourceLabel: 'Research indicates',
+    sourceLabel: 'Research suggests',
+    sourceUrl: 'https://pubmed.ncbi.nlm.nih.gov/24480458/',
     confidenceLevel: 'strong',
     category: 'hydration',
     emoji: '💧',
@@ -389,7 +395,8 @@ export const researchCards: ResearchCard[] = [
       'Looking at screens continuously causes eye strain. Looking 20 feet away for 20 seconds every 20 minutes may help reduce strain.',
     practicalAction:
       'Every 20 minutes, look at something 20 feet away for at least 20 seconds.',
-    sourceLabel: 'Research supports',
+    sourceLabel: 'Research suggests',
+    sourceUrl: 'https://www.aoa.org/AOA/Images/Patients/Eye%20Conditions/20-20-20-rule.pdf',
     confidenceLevel: 'moderate',
     category: 'eyes',
     emoji: '👀',
@@ -402,6 +409,7 @@ export const researchCards: ResearchCard[] = [
     practicalAction:
       'Spend 5–10 minutes at end of shift noting open loops, next actions, and intentionally closing your work tools.',
     sourceLabel: 'Some research suggests',
+    sourceUrl: 'https://pubmed.ncbi.nlm.nih.gov/16248688/',
     confidenceLevel: 'moderate',
     category: 'shutdown',
     emoji: '🏁',
@@ -413,7 +421,8 @@ export const researchCards: ResearchCard[] = [
       'Deliberately slow breathing (5–6 breaths per minute) activates the parasympathetic nervous system, which may help reduce stress and anxiety.',
     practicalAction:
       'During stressful moments, try breathing in for 4 counts, holding for 4, and out for 4.',
-    sourceLabel: 'Research shows',
+    sourceLabel: 'Research suggests',
+    sourceUrl: 'https://pubmed.ncbi.nlm.nih.gov/29209423/',
     confidenceLevel: 'strong',
     category: 'stress',
     emoji: '🌬️',
@@ -426,6 +435,7 @@ export const researchCards: ResearchCard[] = [
     practicalAction:
       'When overwhelmed, pause and name the emotion in one word (e.g., "frustrated," "scattered," "anxious").',
     sourceLabel: 'Some research suggests',
+    sourceUrl: 'https://pubmed.ncbi.nlm.nih.gov/17576282/',
     confidenceLevel: 'moderate',
     category: 'stress',
     emoji: '💭',
