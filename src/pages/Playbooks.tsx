@@ -16,6 +16,19 @@ function Playbooks({ playbooks, addPlaybook, updatePlaybook, deletePlaybook }: P
   const [deeperChecks, setDeeperChecks] = useState('');
   const [escalation, setEscalation] = useState('');
   const [notes, setNotes] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredPlaybooks = playbooks.filter((playbook) => {
+    const haystack = [
+      playbook.title,
+      playbook.symptoms.join(' '),
+      playbook.firstChecks.join(' '),
+      playbook.deeperChecks.join(' '),
+      playbook.escalation,
+      playbook.notes
+    ].join(' ').toLowerCase();
+    return haystack.includes(searchTerm.toLowerCase());
+  });
 
   const resetForm = () => {
     setEditingPlaybookId(null);
@@ -106,9 +119,13 @@ function Playbooks({ playbooks, addPlaybook, updatePlaybook, deletePlaybook }: P
 
       <section className="card">
         <h2>All playbooks</h2>
-        {playbooks.length ? (
+        <label className="inline-control">
+          Search playbooks
+          <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search issue, symptom, check, or escalation" />
+        </label>
+        {filteredPlaybooks.length ? (
           <ul>
-            {playbooks.map((playbook) => (
+            {filteredPlaybooks.map((playbook) => (
               <li key={playbook.id} style={{ marginBottom: '16px' }}>
                 <strong>{playbook.title}</strong>
                 <p>{playbook.notes}</p>
@@ -125,8 +142,8 @@ function Playbooks({ playbooks, addPlaybook, updatePlaybook, deletePlaybook }: P
           </ul>
         ) : (
           <div>
-            <p>No playbooks created yet.</p>
-            <p><em>Document repeatable troubleshooting processes and client-specific procedures using the form above.</em></p>
+            <p>{playbooks.length ? 'No playbooks match that search.' : 'No playbooks created yet.'}</p>
+            <p><em>Document repeatable troubleshooting processes and generic troubleshooting procedures using the form above.</em></p>
           </div>
         )}
       </section>

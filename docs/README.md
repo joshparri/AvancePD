@@ -15,3 +15,5 @@ Private operational notes, client details, credentials, archives, raw references
 - `SAMPLE_SEED_DATA.md` - seed-data policy and safe sample-data rules
 - `HEALTH_AND_OUTDOORS.md` - Health & Outdoors design, privacy, and email architecture notes
 - `DEPLOYMENT.md` - private deployment and local preview guidance
+- `SYNC_PLAN.md` - optional low-risk sync plan
+- `QA_CHECKLIST.md` - build, navigation, persistence, and privacy checks

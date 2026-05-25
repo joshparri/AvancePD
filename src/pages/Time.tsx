@@ -14,9 +14,14 @@ function Time({ timeEntries, addTimeEntry, updateTimeEntry, deleteTimeEntry }: T
   const [hours, setHours] = useState('');
   const [billable, setBillable] = useState(true);
   const [description, setDescription] = useState('');
+  const [copyStatus, setCopyStatus] = useState('');
 
   const totalHours = timeEntries.reduce((sum, entry) => sum + entry.hours, 0);
   const billableHours = timeEntries.filter((entry) => entry.billable).reduce((sum, entry) => sum + entry.hours, 0);
+  const invoicePreview = timeEntries
+    .filter((entry) => entry.billable)
+    .map((entry) => `${entry.date} | ${entry.hours.toFixed(1)}h | ${entry.description}`)
+    .join('\n');
 
   const resetForm = () => {
     setEditingEntryId(null);
@@ -60,6 +65,15 @@ function Time({ timeEntries, addTimeEntry, updateTimeEntry, deleteTimeEntry }: T
     setDescription(entry.description);
   };
 
+  const copyInvoicePreview = async () => {
+    try {
+      await navigator.clipboard.writeText(invoicePreview || 'No billable time entries yet.');
+      setCopyStatus('Invoice preview copied.');
+    } catch {
+      setCopyStatus('Could not copy automatically. Select the preview text manually.');
+    }
+  };
+
   return (
     <div>
       <section className="card">
@@ -69,6 +83,14 @@ function Time({ timeEntries, addTimeEntry, updateTimeEntry, deleteTimeEntry }: T
       <section className="card">
         <p>Total logged hours: {totalHours.toFixed(1)}</p>
         <p>Billable hours: {billableHours.toFixed(1)}</p>
+      </section>
+      <section className="card">
+        <div className="skill-card-header">
+          <h2>Invoice preview</h2>
+          <button type="button" onClick={copyInvoicePreview}>Copy invoice preview</button>
+        </div>
+        {copyStatus && <p>{copyStatus}</p>}
+        <pre className="template-box">{invoicePreview || 'No billable time entries yet.'}</pre>
       </section>
       <section className="card">
         <h2>{editingEntryId ? 'Edit time entry' : 'Add time entry'}</h2>

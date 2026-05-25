@@ -28,8 +28,8 @@
 - [x] Implement the calm, readable UI style described in `docs/UI_UX_AND_TONE_GUIDE.md`
 - [x] Add keyboard shortcuts or quick-capture affordances for busy work states
 - [x] Build clear status chips and colour semantics for urgent, review, trusted, and billed states
-- [ ] Create empty-state guidance for all core modules
-- [ ] Ensure the app loads quickly and displays key context in under 60 seconds
+- [x] Create empty-state guidance for all core modules
+- [x] Ensure the app loads quickly and displays key context in under 60 seconds
 - [x] Add explicit warnings about not storing passwords or sensitive information
 
 ## 5. Documentation & onboarding
@@ -48,18 +48,18 @@
 
 ## 7. Testing, validation & polish
 - [x] Populate the app with sample seed data for early testing (`docs/SAMPLE_SEED_DATA.md`)
-- [ ] Test that the dashboard surfaces the right context after a gap between shifts
-- [ ] Validate that follow-ups and tasks survive shift transitions
-- [ ] Verify that knowledge and playbooks are searchable and discoverable
-- [ ] Test invoice preview generation and time tracking summaries
-- [ ] Run usability checks for quick capture under pressure
-- [ ] Fix any UI/UX friction that prevents fast note capture or task creation
+- [x] Test that the dashboard surfaces the right context after a gap between shifts
+- [x] Validate that follow-ups and tasks survive shift transitions
+- [x] Verify that knowledge and playbooks are searchable and discoverable
+- [x] Test invoice preview generation and time tracking summaries
+- [x] Run usability checks for quick capture under pressure
+- [x] Fix any UI/UX friction that prevents fast note capture or task creation
 
 ## 8. Deployment & support
 - [x] Choose a runnable deployment method for a private web app (local static site, desktop wrapper, or simple hosted app)
 - [x] Document launch instructions for Josh and how to open the app each shift
 - [x] Add backup/export functionality so app data can be preserved
-- [ ] Add an optional sync plan only if it stays low-risk and optional
+- [x] Add an optional sync plan only if it stays low-risk and optional
 
 ## 9. Cleanup & repo health
 - [x] Keep the repo organized with the current folder structure and doc index files

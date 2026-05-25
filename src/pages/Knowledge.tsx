@@ -21,6 +21,19 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
   const [confidence, setConfidence] = useState<KnowledgeEntry['confidence']>('medium');
   const [sourceType, setSourceType] = useState<KnowledgeEntry['sourceType']>('personal');
   const [trusted, setTrusted] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredEntries = entries.filter((entry) => {
+    const haystack = [
+      entry.title,
+      entry.summary,
+      entry.body,
+      entry.category,
+      entry.noteType ?? '',
+      entry.tags.join(' ')
+    ].join(' ').toLowerCase();
+    return haystack.includes(searchTerm.toLowerCase());
+  });
 
   const resetForm = () => {
     setEditingEntryId(null);
@@ -150,9 +163,13 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
 
       <section className="card">
         <h2>All knowledge entries</h2>
-        {entries.length ? (
+        <label className="inline-control">
+          Search knowledge
+          <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search title, tag, category, or note type" />
+        </label>
+        {filteredEntries.length ? (
           <ul>
-            {entries.map((entry) => (
+            {filteredEntries.map((entry) => (
               <li key={entry.id} style={{ marginBottom: '16px' }}>
                 <strong>{entry.title}</strong>
                 <p>
@@ -173,7 +190,7 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
           </ul>
         ) : (
           <div>
-            <p>No knowledge entries yet.</p>
+            <p>{entries.length ? 'No knowledge entries match that search.' : 'No knowledge entries yet.'}</p>
             <p><em>Add trusted notes about recurring issues, fixes, and MSP insights using the form above.</em></p>
           </div>
         )}
