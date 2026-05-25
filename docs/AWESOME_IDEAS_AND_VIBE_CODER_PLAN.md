@@ -91,6 +91,8 @@ Vibe coder implementation:
 
 ### 7. Health Streaks Without Shame
 
+Status: done in `src/pages/HealthOutdoors.tsx`.
+
 Add gentle trend indicators for hydration, outdoor minutes, eye breaks, and shutdowns without failure states.
 
 Vibe coder implementation:
@@ -125,6 +127,8 @@ Vibe coder implementation:
 - Mark generated playbooks as drafts until reviewed.
 
 ### 10. End-Of-Day Family Transition
+
+Status: done in `src/pages/HealthOutdoors.tsx`.
 
 Add a shutdown ritual focused on leaving work at work, reconnecting with family, and noting tomorrow's first action.
 
@@ -193,6 +197,8 @@ Implementation notes:
 - Avoid inline preview for PDFs/screenshots to reduce accidental exposure.
 
 ### 6. Health Reminder Test Mode
+
+Status: done in `src/pages/HealthOutdoors.tsx`.
 
 Let Josh simulate Monday/Wednesday reminders without changing system time.
 
@@ -307,5 +313,5 @@ When implementing any idea above:
 6. Skill Quest Tracks. Done.
 7. Scenario Step Trainer. Done.
 8. Personal Playbook Generator.
-9. Health streaks without shame.
+9. Health streaks without shame. Done.
 10. Shift Command Center.

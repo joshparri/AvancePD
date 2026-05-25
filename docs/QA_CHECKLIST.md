@@ -51,6 +51,9 @@ Use this checklist before release or deployment changes.
 - Reset and export actions work.
 - Downloadable `.ics` reminder file works.
 - Email reminder endpoint fails closed if server email settings are missing.
+- Health trends show gentle labels, not red failure states.
+- Reminder test mode changes the displayed next reminder without sending notifications.
+- End-of-day family transition saves closed loops, tomorrow action, and intention.
 
 ## Privacy
 

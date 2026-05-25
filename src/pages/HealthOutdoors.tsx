@@ -75,12 +75,16 @@ function HealthOutdoors({ healthState, setHealthState }: HealthOutdoorsProps) {
   const [showReset, setShowReset] = useState(false);
   const [copied, setCopied] = useState('');
   const [emailStatus, setEmailStatus] = useState('');
+  const [testDateTime, setTestDateTime] = useState('');
+  const [transition, setTransition] = useState(() => loadTransition(dateKey()));
   const notifiedKeys = useRef<Set<string>>(new Set());
   const emailedKeys = useRef<Set<string>>(new Set());
   const today = getTodayLog(healthState);
   const reminders = useMemo(() => buildReminders(healthState.settings), [healthState.settings]);
-  const nextReminder = getNextHealthReminder(new Date(), healthState.settings, today);
+  const testNow = testDateTime ? new Date(testDateTime) : null;
+  const nextReminder = getNextHealthReminder(testNow ?? new Date(), healthState.settings, testNow ? getTodayLog(healthState, testNow) : today);
   const weeklyTotals = getWeeklyTotals(healthState);
+  const previousTotals = getPreviousWeekTotals(healthState);
   const notificationSupported = typeof window !== 'undefined' && 'Notification' in window;
 
   useEffect(() => {
@@ -171,6 +175,11 @@ function HealthOutdoors({ healthState, setHealthState }: HealthOutdoorsProps) {
     } catch {
       setEmailStatus('Email reminder could not be sent.');
     }
+  };
+
+  const saveTransition = (nextTransition = transition) => {
+    window.localStorage.setItem(`avance-family-transition-${dateKey()}`, JSON.stringify(nextTransition));
+    setCopied('transition');
   };
 
   return (
@@ -283,6 +292,38 @@ function HealthOutdoors({ healthState, setHealthState }: HealthOutdoorsProps) {
           <h2>Weekly nature target</h2>
           <p>{weeklyTotals.outdoorMinutes} / 120 minutes outside this week.</p>
           <progress value={Math.min(weeklyTotals.outdoorMinutes, 120)} max={120} />
+        </div>
+      </section>
+
+      <section className="card">
+        <h2>Health trends without shame</h2>
+        <p>Trend language stays gentle. A reset week is still useful information.</p>
+        <div className="health-metrics-grid">
+          <TrendCard label="Water" current={weeklyTotals.water} previous={previousTotals.water} unit="check-ins" />
+          <TrendCard label="Outdoor time" current={weeklyTotals.outdoorMinutes} previous={previousTotals.outdoorMinutes} unit="minutes" />
+          <TrendCard label="Eye breaks" current={weeklyTotals.eyeBreaks} previous={previousTotals.eyeBreaks} unit="breaks" />
+          <TrendCard label="Shutdowns" current={weeklyTotals.shutdowns} previous={previousTotals.shutdowns} unit="times" />
+        </div>
+      </section>
+
+      <section className="card">
+        <h2>End-of-day family transition</h2>
+        <p>Close work gently and name the next tiny action before family time.</p>
+        <div className="quick-capture-form">
+          <label>
+            Closed loops
+            <textarea value={transition.closedLoops} onChange={(event) => setTransition((current) => ({ ...current, closedLoops: event.target.value }))} placeholder="What did I close or hand over?" />
+          </label>
+          <label>
+            Tomorrow's first action
+            <input value={transition.tomorrowAction} onChange={(event) => setTransition((current) => ({ ...current, tomorrowAction: event.target.value }))} placeholder="First small work action next shift" />
+          </label>
+          <label>
+            Transition intention
+            <input value={transition.intention} onChange={(event) => setTransition((current) => ({ ...current, intention: event.target.value }))} placeholder="How do I want to arrive home?" />
+          </label>
+          {healthState.settings.enableFaithPrompt && <p className="health-muted">Optional prayer: Lord, help me leave work at work and be present with my family.</p>}
+          <button type="button" onClick={() => saveTransition()}>Save transition</button>
         </div>
       </section>
 
@@ -409,6 +450,10 @@ function HealthOutdoors({ healthState, setHealthState }: HealthOutdoorsProps) {
               </label>
             ))}
           </div>
+          <label>Reminder test mode
+            <input type="datetime-local" value={testDateTime} onChange={(event) => setTestDateTime(event.target.value)} />
+          </label>
+          <p className="health-muted">Test mode changes the displayed next reminder only. It does not send notifications or emails.</p>
           <div className="health-action-row">
             <button type="button" onClick={enableNotifications} disabled={healthState.settings.notificationPermissionStatus === 'denied'}>
               Enable health reminders
@@ -423,6 +468,49 @@ function HealthOutdoors({ healthState, setHealthState }: HealthOutdoorsProps) {
         </div>
       </section>
     </div>
+  );
+}
+
+function loadTransition(dayKey: string) {
+  try {
+    const raw = window.localStorage.getItem(`avance-family-transition-${dayKey}`);
+    return raw ? JSON.parse(raw) as { closedLoops: string; tomorrowAction: string; intention: string } : { closedLoops: '', tomorrowAction: '', intention: '' };
+  } catch {
+    return { closedLoops: '', tomorrowAction: '', intention: '' };
+  }
+}
+
+function getPreviousWeekTotals(healthState: HealthState) {
+  const now = new Date();
+  const thisWeekStart = new Date(now);
+  thisWeekStart.setDate(now.getDate() - now.getDay());
+  thisWeekStart.setHours(0, 0, 0, 0);
+  const previousWeekStart = new Date(thisWeekStart);
+  previousWeekStart.setDate(thisWeekStart.getDate() - 7);
+
+  return Object.values(healthState.days).reduce(
+    (totals, day) => {
+      const dayDate = new Date(`${day.date}T00:00:00`);
+      if (dayDate < previousWeekStart || dayDate >= thisWeekStart) return totals;
+      return {
+        water: totals.water + day.hydrationCount,
+        outdoorMinutes: totals.outdoorMinutes + day.outdoorMinutes,
+        eyeBreaks: totals.eyeBreaks + day.eyeBreaks,
+        shutdowns: totals.shutdowns + day.shutdownCount
+      };
+    },
+    { water: 0, outdoorMinutes: 0, eyeBreaks: 0, shutdowns: 0 }
+  );
+}
+
+function TrendCard({ label, current, previous, unit }: { label: string; current: number; previous: number; unit: string }) {
+  const trend = current > previous ? 'more than last week' : current === previous ? 'steady' : 'reset week';
+  return (
+    <article className="mini-card">
+      <h3>{label}</h3>
+      <p>{current} {unit}</p>
+      <span className="status-chip info">{trend}</span>
+    </article>
   );
 }
 
