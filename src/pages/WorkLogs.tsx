@@ -1,5 +1,6 @@
 import { FormEvent, useMemo, useState } from 'react';
-import type { Client, WorkLog } from '../types';
+import type { Client, SafeAttachment, WorkLog } from '../types';
+import { attachmentPolicyText, readSafeAttachment } from '../utils/attachments';
 
 type WorkLogsProps = {
   workLogs: WorkLog[];
@@ -22,6 +23,8 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
   const [clientId, setClientId] = useState(clients[0]?.id ?? '');
   const [tags, setTags] = useState('');
   const [draft, setDraft] = useState(false);
+  const [attachments, setAttachments] = useState<SafeAttachment[]>([]);
+  const [attachmentStatus, setAttachmentStatus] = useState('');
 
   const resetForm = () => {
     setEditingLogId(null);
@@ -33,6 +36,8 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
     setClientId(clients[0]?.id ?? '');
     setTags('');
     setDraft(false);
+    setAttachments([]);
+    setAttachmentStatus('');
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -50,7 +55,8 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
       nextStep: nextStep || 'Check this item in the next shift.',
       tags: tagList,
       createdAt: new Date().toISOString(),
-      draft
+      draft,
+      attachments
     };
 
     if (editingLogId) {
@@ -72,6 +78,19 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
     setClientId(log.clientId);
     setTags(log.tags.join(', '));
     setDraft(log.draft);
+    setAttachments(log.attachments ?? []);
+  };
+
+  const handleAttachment = async (fileList: FileList | null) => {
+    const file = fileList?.[0];
+    if (!file) return;
+    try {
+      const attachment = await readSafeAttachment(file);
+      setAttachments((current) => [...current, attachment]);
+      setAttachmentStatus(`Attached ${attachment.name}.`);
+    } catch (error) {
+      setAttachmentStatus(error instanceof Error ? error.message : 'Could not attach file.');
+    }
   };
 
   return (
@@ -115,6 +134,22 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
             Tags
             <input value={tags} onChange={(event) => setTags(event.target.value)} placeholder="comma-separated" />
           </label>
+          <label>
+            Safe attachment
+            <input type="file" accept=".txt,.md,.json,.csv,.pdf,text/plain,text/markdown,application/json,text/csv,application/pdf" onChange={(event) => handleAttachment(event.target.files)} />
+          </label>
+          <p className="health-muted">{attachmentPolicyText()}</p>
+          {attachments.length > 0 && (
+            <ul>
+              {attachments.map((attachment) => (
+                <li key={attachment.id}>
+                  {attachment.name} ({Math.round(attachment.size / 1024)} KB)
+                  <button type="button" className="small-action" onClick={() => setAttachments((current) => current.filter((item) => item.id !== attachment.id))}>Remove</button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {attachmentStatus && <p className="health-muted">{attachmentStatus}</p>}
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <input type="checkbox" checked={draft} onChange={(event) => setDraft(event.target.checked)} />
             Draft (not complete)
@@ -143,6 +178,7 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
                     {client?.name} — {new Date(log.createdAt).toLocaleDateString()} {log.draft && '(draft)'}
                   </p>
                   <p>{log.summary}</p>
+                  {log.attachments?.length ? <p>{log.attachments.length} safe attachment(s)</p> : null}
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                     <button type="button" onClick={() => startEditing(log)}>
                       Edit

@@ -10,6 +10,8 @@ Required environment variables:
 
 - `GROQ_API_KEY` for AI coaching, stored server-side only
 - `GROQ_MODEL` optionally, if the default model should be changed
+- `RESEND_API_KEY` for optional Health & Outdoors email reminders
+- `HEALTH_REMINDER_FROM_EMAIL` for optional Health & Outdoors email reminders
 
 ## Build Settings
 
@@ -21,7 +23,7 @@ Required environment variables:
 
 - Do not add client data, credentials, screenshots, hostnames, or IP addresses to source control.
 - Keep environment variables in the hosting provider settings, not in the repo.
-- Keep Health & Outdoors email reminders copy/export only unless a server-side email endpoint is explicitly added later.
+- Keep Health & Outdoors email content generic. The server-side reminder endpoint must use server environment variables only.
 
 ## Local Static Option
 

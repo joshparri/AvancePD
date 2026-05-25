@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import SupabaseSyncPanel from './SupabaseSyncPanel';
 
 const storageKeys = [
   'avance-workLogs',
@@ -76,23 +77,26 @@ function DataBackupPanel() {
   };
 
   return (
-    <section className="card">
-      <h2>Backup & export</h2>
-      <p>Export local app data before browser changes or device moves. Keep backups private.</p>
-      <div className="status-button-row">
-        <button type="button" onClick={copyBackup}>Copy backup JSON</button>
-        <button type="button" className="small-action" onClick={downloadBackup}>Download backup</button>
-      </div>
-      <div className="quick-capture-form">
-        <label>
-          Restore from backup JSON
-          <textarea value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="Paste Avance backup JSON here" />
-        </label>
-        <button type="button" className="small-action" onClick={importBackup}>Import backup</button>
-      </div>
-      {status && <p className="health-muted">{status}</p>}
-      <div className="privacy-note">Backups can contain your local notes and progress. Do not paste them into public tools.</div>
-    </section>
+    <>
+      <section className="card">
+        <h2>Backup & export</h2>
+        <p>Export local app data before browser changes or device moves. Keep backups private.</p>
+        <div className="status-button-row">
+          <button type="button" onClick={copyBackup}>Copy backup JSON</button>
+          <button type="button" className="small-action" onClick={downloadBackup}>Download backup</button>
+        </div>
+        <div className="quick-capture-form">
+          <label>
+            Restore from backup JSON
+            <textarea value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="Paste Avance backup JSON here" />
+          </label>
+          <button type="button" className="small-action" onClick={importBackup}>Import backup</button>
+        </div>
+        {status && <p className="health-muted">{status}</p>}
+        <div className="privacy-note">Backups can contain your local notes and progress. Do not paste them into public tools.</div>
+      </section>
+      <SupabaseSyncPanel buildBackup={buildBackup} />
+    </>
   );
 }
 

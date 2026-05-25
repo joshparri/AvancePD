@@ -1,5 +1,6 @@
 import { FormEvent, useMemo, useState } from 'react';
-import type { KnowledgeEntry } from '../types';
+import type { KnowledgeEntry, SafeAttachment } from '../types';
+import { attachmentPolicyText, readSafeAttachment } from '../utils/attachments';
 
 type KnowledgeProps = {
   entries: KnowledgeEntry[];
@@ -22,6 +23,8 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
   const [sourceType, setSourceType] = useState<KnowledgeEntry['sourceType']>('personal');
   const [trusted, setTrusted] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [attachments, setAttachments] = useState<SafeAttachment[]>([]);
+  const [attachmentStatus, setAttachmentStatus] = useState('');
 
   const filteredEntries = entries.filter((entry) => {
     const haystack = [
@@ -46,6 +49,8 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
     setConfidence('medium');
     setSourceType('personal');
     setTrusted(true);
+    setAttachments([]);
+    setAttachmentStatus('');
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -68,7 +73,8 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
       clientId: undefined,
       sourceType,
       trusted,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      attachments
     };
 
     if (editingEntryId) {
@@ -91,6 +97,19 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
     setConfidence(entry.confidence);
     setSourceType(entry.sourceType);
     setTrusted(entry.trusted);
+    setAttachments(entry.attachments ?? []);
+  };
+
+  const handleAttachment = async (fileList: FileList | null) => {
+    const file = fileList?.[0];
+    if (!file) return;
+    try {
+      const attachment = await readSafeAttachment(file);
+      setAttachments((current) => [...current, attachment]);
+      setAttachmentStatus(`Attached ${attachment.name}.`);
+    } catch (error) {
+      setAttachmentStatus(error instanceof Error ? error.message : 'Could not attach file.');
+    }
   };
 
   return (
@@ -150,6 +169,22 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
             <input type="checkbox" checked={trusted} onChange={(event) => setTrusted(event.target.checked)} />
             Trusted
           </label>
+          <label>
+            Safe attachment
+            <input type="file" accept=".txt,.md,.json,.csv,.pdf,text/plain,text/markdown,application/json,text/csv,application/pdf" onChange={(event) => handleAttachment(event.target.files)} />
+          </label>
+          <p className="health-muted">{attachmentPolicyText()}</p>
+          {attachments.length > 0 && (
+            <ul>
+              {attachments.map((attachment) => (
+                <li key={attachment.id}>
+                  {attachment.name} ({Math.round(attachment.size / 1024)} KB)
+                  <button type="button" className="small-action" onClick={() => setAttachments((current) => current.filter((item) => item.id !== attachment.id))}>Remove</button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {attachmentStatus && <p className="health-muted">{attachmentStatus}</p>}
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             <button type="submit">{editingEntryId ? 'Save entry' : 'Add entry'}</button>
             {editingEntryId && (
@@ -177,6 +212,7 @@ function Knowledge({ entries, addEntry, updateEntry, deleteEntry }: KnowledgePro
                 </p>
                 {entry.noteType === 'learned today' && <span className="status-chip success">learned today</span>}
                 <p>{entry.summary}</p>
+                {entry.attachments?.length ? <p>{entry.attachments.length} safe attachment(s)</p> : null}
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                   <button type="button" onClick={() => startEditing(entry)}>
                     Edit

@@ -24,6 +24,8 @@ export type HealthSettings = {
   reminderSound: boolean;
   enableFaithPrompt: boolean;
   enableEmailSetup: boolean;
+  emailRemindersEnabled: boolean;
+  reminderEmailAddress: string;
 };
 
 export type HealthDayLog = {
@@ -134,7 +136,9 @@ export const defaultHealthSettings: HealthSettings = {
   mondayWednesdayOnly: true,
   reminderSound: false,
   enableFaithPrompt: true,
-  enableEmailSetup: true
+  enableEmailSetup: true,
+  emailRemindersEnabled: false,
+  reminderEmailAddress: ''
 };
 
 export const defaultHealthState: HealthState = {

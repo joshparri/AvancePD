@@ -29,16 +29,21 @@ The module stores data in browser localStorage under `avance-health-outdoors`:
 
 ## Email Reminder Architecture
 
-Phase 1 is intentionally local and copy/export only. The app can copy schedule text, calendar reminder text, and a Google Apps Script prompt.
+The app can copy schedule text, download calendar reminder text as an `.ics` file, and copy a Google Apps Script prompt.
 
-A static frontend cannot reliably send scheduled emails by itself. Future email reminders require one of:
+The app also includes `/api/send-health-reminder`, which sends email through Resend only when server-side environment variables are configured:
 
-- a backend endpoint such as `/api/send-health-reminder`
+- `RESEND_API_KEY`
+- `HEALTH_REMINDER_FROM_EMAIL`
+
+A static frontend still cannot reliably send fully unattended scheduled emails by itself. Unattended schedules require one of:
+
+- Vercel Cron calling the backend endpoint
 - Google Apps Script
 - Gmail automation
-- a scheduled service
+- another scheduled service
 
-Future implementation notes:
+Implementation notes:
 
 - Use server-side secrets only.
 - Never expose Gmail tokens or API keys in client code.

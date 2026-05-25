@@ -4,16 +4,16 @@ This roadmap holds optional or future work that should not block the current loc
 
 ## Low-Risk Future Work
 
-- Email-to-note import: support pasting a cleaned, generic communication summary into Quick Capture. Do not connect directly to email until privacy rules and consent are clear.
-- Calendar reminders: continue with copyable calendar text first. Add provider sync only with explicit opt-in.
-- Attachment support: prefer private backup/export first. Add attachments only with clear file-size limits and warnings against screenshots, credentials, ticket exports, or client-sensitive files.
-- Smarter suggestions: derive suggestions from local tags and categories only.
-- Mobile capture: keep improving Quick Capture layout, tap targets, and presets.
+- Email-to-note import: implemented as a cleaned communication-note Quick Capture preset. Direct inbox access remains deferred.
+- Calendar reminders: implemented as downloadable `.ics` reminders. Provider API sync remains deferred.
+- Attachment support: implemented for small safe local files on Work Logs and Knowledge. Cloud file sync remains deferred.
+- Smarter suggestions: implemented from local safe tags on Dashboard. Broader analytics remain deferred.
+- Mobile capture: quick-capture presets and stacked mobile controls are implemented. Native mobile/PWA capture remains deferred.
 
 ## Higher-Risk Future Work
 
 - Supabase or other cloud sync.
-- Email sending through `/api/send-health-reminder`.
+- Unattended email sending through `/api/send-health-reminder` plus a scheduler.
 - Direct Gmail or calendar API integrations.
 - PSA/RMM integrations.
 

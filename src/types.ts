@@ -36,6 +36,7 @@ export type WorkLog = {
   tags: string[];
   createdAt: string;
   draft: boolean;
+  attachments?: SafeAttachment[];
 };
 
 export type TaskStatus = 'open' | 'in progress' | 'blocked' | 'done';
@@ -66,6 +67,16 @@ export type KnowledgeEntry = {
   sourceType: 'personal' | 'public' | 'assumption' | 'tested fix';
   trusted: boolean;
   createdAt: string;
+  attachments?: SafeAttachment[];
+};
+
+export type SafeAttachment = {
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  dataUrl: string;
+  addedAt: string;
 };
 
 export type Playbook = {

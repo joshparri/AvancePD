@@ -26,6 +26,8 @@ The Health & Outdoors module adds local-first wellbeing support for Josh's Monda
 - Weekly Health Review
 - Manager-safe Evidence Pack summary text
 - Email Reminder Setup with copyable schedule, calendar text, and Google Apps Script prompt
+- Downloadable `.ics` calendar reminder file
+- Optional server-side email reminder endpoint via Resend
 
 ## Reminder Defaults
 
@@ -78,16 +80,14 @@ The app must not store client names, passwords, IP addresses, hostnames, screens
 
 ## Email Reminder Design
 
-No email is sent from the frontend. Phase 1 provides copy/export helpers only.
+The frontend never stores email API keys. Email sending is available only through `/api/send-health-reminder` when server-side environment variables are configured.
 
-Future email sending would require a backend or automation service, such as:
+Required server-side environment variables:
 
-- `/api/send-health-reminder`
-- Google Apps Script
-- Gmail automation
-- a scheduled service
+- `RESEND_API_KEY`
+- `HEALTH_REMINDER_FROM_EMAIL`
 
-Any future implementation must keep secrets server-side and must not expose Gmail credentials or API tokens in client code.
+When configured, the Health & Outdoors page can send a test reminder and can send reminder emails while the app is open. Fully unattended scheduled email still requires a hosting scheduler such as Vercel Cron or an external automation service.
 
 ## Build Verification
 
@@ -101,7 +101,7 @@ Result: TypeScript and Vite production build pass.
 
 ## Known Limitations
 
-- Email reminders are not sent automatically.
+- Fully unattended email reminders require server environment variables plus a scheduler.
 - Notifications are local browser notifications only, not push server notifications.
 - Browser notification behavior depends on browser permission settings.
-- Health data is local to the current browser profile unless manually exported.
+- Health data is local to the current browser profile unless manually exported or synced through the optional Supabase backup panel.

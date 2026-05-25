@@ -6,7 +6,7 @@ The app remains local-first. Sync is optional future work and should only be add
 
 1. Manual JSON backup and restore.
 2. Private Vercel deployment with browser localStorage.
-3. Optional Supabase sync after explicit opt-in.
+3. Optional Supabase backup sync after explicit opt-in from Dashboard.
 
 ## Requirements For Any Sync
 
@@ -15,6 +15,7 @@ The app remains local-first. Sync is optional future work and should only be add
 - Add export/delete controls before enabling sync.
 - Make sync opt-in per browser profile.
 - Keep Health & Outdoors data simple and non-medical.
+- Use a Supabase table with `payload jsonb`, `source text`, and `created_at timestamptz`.
 
 ## Candidate Data To Sync
 

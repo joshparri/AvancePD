@@ -86,4 +86,4 @@
 - [x] Add optional 2-minute reset with optional faith prompt
 - [x] Add weekly review, manager-safe evidence summary, export JSON, and reset health data actions
 - [x] Add email reminder setup copy/export helpers without storing API keys or Gmail credentials
-- [x] Future email reminder endpoint guardrails documented in `docs/ROADMAP.md`
+- [x] Add `/api/send-health-reminder` with server-side secrets only

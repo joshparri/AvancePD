@@ -74,7 +74,9 @@ function HealthOutdoors({ healthState, setHealthState }: HealthOutdoorsProps) {
   const [bannerReminder, setBannerReminder] = useState<HealthReminder | null>(null);
   const [showReset, setShowReset] = useState(false);
   const [copied, setCopied] = useState('');
+  const [emailStatus, setEmailStatus] = useState('');
   const notifiedKeys = useRef<Set<string>>(new Set());
+  const emailedKeys = useRef<Set<string>>(new Set());
   const today = getTodayLog(healthState);
   const reminders = useMemo(() => buildReminders(healthState.settings), [healthState.settings]);
   const nextReminder = getNextHealthReminder(new Date(), healthState.settings, today);
@@ -95,6 +97,11 @@ function HealthOutdoors({ healthState, setHealthState }: HealthOutdoorsProps) {
         new Notification(due.title, { body: due.notificationText, silent: !healthState.settings.reminderSound });
       } else {
         setBannerReminder(due);
+      }
+
+      if (healthState.settings.emailRemindersEnabled && healthState.settings.reminderEmailAddress && !emailedKeys.current.has(key)) {
+        emailedKeys.current.add(key);
+        void sendHealthEmail(due);
       }
     };
 
@@ -135,6 +142,35 @@ function HealthOutdoors({ healthState, setHealthState }: HealthOutdoorsProps) {
   const exportJson = () => {
     copyText(JSON.stringify(healthState, null, 2));
     setCopied('export');
+  };
+
+  const downloadIcs = () => {
+    const blob = new Blob([buildIcs(reminders)], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'avance-health-reminders.ics';
+    link.click();
+    URL.revokeObjectURL(url);
+    setCopied('ics download');
+  };
+
+  const sendHealthEmail = async (reminder: HealthReminder) => {
+    try {
+      const response = await fetch('/api/send-health-reminder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: healthState.settings.reminderEmailAddress,
+          subject: 'Avance health reset',
+          body: reminder.notificationText
+        })
+      });
+      const data = await response.json().catch(() => ({}));
+      setEmailStatus(response.ok && data.ok ? 'Health reminder email sent.' : data.message ?? 'Email reminder could not be sent.');
+    } catch {
+      setEmailStatus('Email reminder could not be sent.');
+    }
   };
 
   return (
@@ -275,9 +311,33 @@ function HealthOutdoors({ healthState, setHealthState }: HealthOutdoorsProps) {
             <div className="health-action-row">
               <button type="button" onClick={() => { copyText(reminders.map((r) => `${r.time} ${r.title}: ${r.notificationText}`).join('\n')); setCopied('schedule'); }}>Copy schedule text</button>
               <button type="button" className="small-action" onClick={() => { copyText(buildIcs(reminders)); setCopied('ics'); }}>Copy .ics calendar text</button>
+              <button type="button" className="small-action" onClick={downloadIcs}>Download .ics file</button>
               <button type="button" className="small-action" onClick={() => { copyText(`${emailReminderText}\n\n${appsScriptPrompt}`); setCopied('script'); }}>Copy Apps Script prompt</button>
             </div>
+            <div className="quick-capture-form">
+              <label>
+                Reminder email address
+                <input
+                  type="email"
+                  value={healthState.settings.reminderEmailAddress}
+                  onChange={(event) => setHealthState((state) => ({ ...state, settings: { ...state.settings, reminderEmailAddress: event.target.value } }))}
+                  placeholder="you@example.com"
+                />
+              </label>
+              <label className="checklist-item">
+                <input
+                  type="checkbox"
+                  checked={healthState.settings.emailRemindersEnabled}
+                  onChange={(event) => setHealthState((state) => ({ ...state, settings: { ...state.settings, emailRemindersEnabled: event.target.checked } }))}
+                />
+                Send email reminders while this app is open
+              </label>
+              <button type="button" className="small-action" onClick={() => nextReminder && sendHealthEmail(nextReminder)} disabled={!nextReminder}>
+                Send test email for next reminder
+              </button>
+            </div>
             {copied && <p className="health-muted">Copied {copied}. No API keys or Gmail credentials are stored in this app.</p>}
+            {emailStatus && <p className="health-muted">{emailStatus}</p>}
           </>
         ) : (
           <p>Email setup is disabled in settings.</p>
