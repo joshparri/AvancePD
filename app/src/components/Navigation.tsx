@@ -14,7 +14,9 @@ import {
   Map,
   Brain,
   Lightbulb,
-  NotebookText
+  NotebookText,
+  Wrench,
+  HeartPulse
 } from 'lucide-react';
 
 const navigation = [
@@ -25,8 +27,10 @@ const navigation = [
   { name: 'MSP Scenarios', href: '/msp-scenarios', icon: ClipboardList },
   { name: 'MSP Quiz', href: '/msp-quiz', icon: Brain },
   { name: 'Learning Cockpit', href: '/learning-cockpit', icon: Lightbulb },
+  { name: 'Tool Primers', href: '/tool-primers', icon: Wrench },
   { name: 'Ticket Notes', href: '/ticket-notes', icon: ClipboardCheck },
   { name: 'Evidence Pack', href: '/evidence-pack', icon: Archive },
+  { name: 'Health & Outdoors', href: '/health-outdoors', icon: HeartPulse },
   { name: 'MSP Roadmap', href: '/msp-roadmap', icon: Map },
 ];
 
