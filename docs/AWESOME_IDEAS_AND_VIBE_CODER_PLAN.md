@@ -8,6 +8,8 @@ These are not commitments to build everything at once. Treat them as scoped opti
 
 ### 1. Shift Command Center
 
+Status: done in `src/pages/ShiftCommandCenter.tsx`.
+
 Create a single focused shift screen that combines open follow-ups, today's focus, next health action, current PD suggestion, and shutdown checklist.
 
 Vibe coder implementation:
@@ -19,6 +21,8 @@ Vibe coder implementation:
 - Keep the first screen action-focused: "Now", "Next", "Later", "Shutdown".
 
 ### 2. Focus Mode Timer
+
+Status: done in `src/components/FocusModePanel.tsx`.
 
 Add a gentle focus timer for ticket blocks with built-in break prompts and urgent-ticket quiet mode.
 

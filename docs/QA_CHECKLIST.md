@@ -11,6 +11,7 @@ Use this checklist before release or deployment changes.
 
 - Dashboard opens.
 - Search opens and returns local results.
+- Command Center opens and shows Now, Focus Mode, Health, Later, and Shutdown sections.
 - Avance Workday opens.
 - Weekly Review opens and shows scorecard plus copyable manager-safe summary.
 - Health & Outdoors opens.
@@ -35,6 +36,7 @@ Use this checklist before release or deployment changes.
 - Knowledge and Playbooks search by title, tags, checks, symptoms, and category.
 - Time page shows billable totals and invoice preview.
 - Quick Capture presets reduce typing during busy states.
+- Focus Mode starts, counts down, and resets.
 - Work Logs and Knowledge accept only small safe local attachments.
 - Pressing `?` opens the keyboard shortcut overlay, and Escape closes it.
 - Delete actions ask for confirmation before removing local data.

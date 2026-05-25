@@ -21,6 +21,7 @@ import Search from './pages/Search';
 import ShortcutOverlay from './components/ShortcutOverlay';
 import SkillTracks from './pages/SkillTracks';
 import WeeklyReview from './pages/WeeklyReview';
+import ShiftCommandCenter from './pages/ShiftCommandCenter';
 import type { MspSkillReadiness } from './data/mspSkills';
 import {
   incrementTicketNotePractice as incrementTicketNotePracticeProgress,
@@ -58,6 +59,7 @@ const pages = [
   { id: 'pd', label: 'PD' },
   { id: 'weeklyReview', label: 'Weekly Review' },
   { id: 'avanceWorkday', label: 'Avance Workday' },
+  { id: 'shiftCommandCenter', label: 'Command Center' },
   { id: 'healthOutdoors', label: 'Health & Outdoors' },
   { id: 'skillTracks', label: 'Skill Tracks' },
   { id: 'mspSkills', label: 'MSP Skills' },
@@ -82,6 +84,7 @@ type PageId =
   | 'pd'
   | 'weeklyReview'
   | 'avanceWorkday'
+  | 'shiftCommandCenter'
   | 'healthOutdoors'
   | 'skillTracks'
   | 'mspSkills'
@@ -350,6 +353,16 @@ function App() {
             healthState={healthState}
             setHealthState={setHealthState}
             onNavigateHealth={() => setCurrentPage('healthOutdoors')}
+          />
+        )}
+        {currentPage === 'shiftCommandCenter' && (
+          <ShiftCommandCenter
+            tasks={tasks}
+            workLogs={workLogs}
+            learningItems={learningItems}
+            healthState={healthState}
+            setHealthState={setHealthState}
+            onNavigate={(page) => setCurrentPage(page as PageId)}
           />
         )}
         {currentPage === 'healthOutdoors' && <HealthOutdoors healthState={healthState} setHealthState={setHealthState} />}
