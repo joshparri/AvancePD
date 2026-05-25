@@ -19,6 +19,7 @@ Avance PD is a local-first professional development app for practising MSP help 
 - Developer guide: `docs/DEVELOPER_README.md`
 - Product vision: `docs/vision.md`
 - Deployment: `docs/DEPLOYMENT.md`
+- Roadmap: `docs/ROADMAP.md`
 - Project tracker: `TODO.md`
 - Health & Outdoors implementation note: `HEALTH_OUTDOORS_IMPLEMENTATION.md`
 

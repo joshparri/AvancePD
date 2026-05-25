@@ -118,6 +118,9 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
         <button type="button" className="small-action" onClick={() => applyPreset('work log', 'Quick shift note', 'Generic note captured during shift.', 'shift-note')}>
           Shift note
         </button>
+        <button type="button" className="small-action" onClick={() => applyPreset('learning', 'Communication note', 'Paste a cleaned, generic summary only. Remove names, ticket text, signatures, IPs, hostnames, and screenshots.')}>
+          Communication note
+        </button>
       </div>
       <div className="capture-tabs">
         {captureOptions.map((option) => (

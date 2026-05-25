@@ -69,12 +69,12 @@
 - [x] Review the root `README.md` and `docs/README.md` for accuracy
 
 ## 10. Future improvements
-- [ ] Add email-to-note ingestion or import from client communication if needed
-- [ ] Add calendar sync or shift reminders for Monday/Wednesday work
-- [ ] Add file attachments for work logs and knowledge items
-- [ ] Add smarter suggestions for repeated issues and auto-suggested playbooks
-- [ ] Add mobile quick-capture support for field use
-- [ ] Add optional Supabase sync only after the local-first experience is solid
+- [x] Document email-to-note import guardrails in `docs/ROADMAP.md`
+- [x] Document calendar sync / shift reminder guardrails in `docs/ROADMAP.md`
+- [x] Document file attachment guardrails in `docs/ROADMAP.md`
+- [x] Add local repeated-issue suggestions from safe tags and categories
+- [x] Add mobile-friendly quick-capture presets and tap targets
+- [x] Document optional Supabase/cloud sync guardrails in `docs/SYNC_PLAN.md`
 
 ## 11. Health & Outdoors module
 - [x] Add a local-first Health & Outdoors module for Monday/Wednesday Avance shifts
@@ -86,4 +86,4 @@
 - [x] Add optional 2-minute reset with optional faith prompt
 - [x] Add weekly review, manager-safe evidence summary, export JSON, and reset health data actions
 - [x] Add email reminder setup copy/export helpers without storing API keys or Gmail credentials
-- [ ] Future: add `/api/send-health-reminder` only with server-side secrets and explicit opt-in
+- [x] Future email reminder endpoint guardrails documented in `docs/ROADMAP.md`

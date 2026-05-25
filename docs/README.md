@@ -17,3 +17,4 @@ Private operational notes, client details, credentials, archives, raw references
 - `DEPLOYMENT.md` - private deployment and local preview guidance
 - `SYNC_PLAN.md` - optional low-risk sync plan
 - `QA_CHECKLIST.md` - build, navigation, persistence, and privacy checks
+- `ROADMAP.md` - deferred future work and guardrails

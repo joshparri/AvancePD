@@ -45,6 +45,7 @@ function Dashboard({
   const openTasks = tasks.filter((task) => task.status === 'open');
   const recentLogs = workLogs.slice(0, 3);
   const invoiceHours = timeEntries.reduce((sum, entry) => sum + (entry.billable ? entry.hours : 0), 0);
+  const repeatedTags = getRepeatedTags(workLogs);
 
   const hasData = tasks.length > 0 || workLogs.length > 0 || timeEntries.length > 0;
 
@@ -157,9 +158,46 @@ function Dashboard({
         )}
       </section>
 
+      <section className="card">
+        <h2>Repeated issue suggestions</h2>
+        {repeatedTags.length ? (
+          <div className="health-plan-grid">
+            {repeatedTags.map((tag) => (
+              <article key={tag.label} className="mini-card">
+                <h3>{tag.label}</h3>
+                <p>Seen {tag.count} times in local work logs. Consider turning this into a generic playbook or knowledge note.</p>
+                <div className="status-button-row">
+                  <button type="button" onClick={() => onNavigate('playbooks')}>Open Playbooks</button>
+                  <button type="button" className="small-action" onClick={() => onNavigate('knowledge')}>Open Knowledge</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p>No repeated safe tags yet. Add generic tags in Quick capture to surface patterns over time.</p>
+        )}
+      </section>
+
       <DataBackupPanel />
     </div>
   );
+}
+
+function getRepeatedTags(workLogs: WorkLog[]) {
+  const counts = workLogs.reduce<Record<string, number>>((acc, log) => {
+    log.tags.forEach((tag) => {
+      const normalized = tag.trim().toLowerCase();
+      if (!normalized) return;
+      acc[normalized] = (acc[normalized] ?? 0) + 1;
+    });
+    return acc;
+  }, {});
+
+  return Object.entries(counts)
+    .filter(([, count]) => count > 1)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([label, count]) => ({ label, count }));
 }
 
 export default Dashboard;

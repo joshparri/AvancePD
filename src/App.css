@@ -978,4 +978,14 @@ textarea:focus-visible {
   .card button {
     min-height: 44px;
   }
+
+  .status-button-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .capture-tabs {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
 }
