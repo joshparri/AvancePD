@@ -19,6 +19,8 @@ import MicroLearning from './pages/MicroLearning';
 import HealthOutdoors from './pages/HealthOutdoors';
 import Search from './pages/Search';
 import ShortcutOverlay from './components/ShortcutOverlay';
+import SkillTracks from './pages/SkillTracks';
+import WeeklyReview from './pages/WeeklyReview';
 import type { MspSkillReadiness } from './data/mspSkills';
 import {
   incrementTicketNotePractice as incrementTicketNotePracticeProgress,
@@ -54,8 +56,10 @@ const pages = [
   { id: 'playbooks', label: 'Playbooks' },
   { id: 'time', label: 'Time' },
   { id: 'pd', label: 'PD' },
+  { id: 'weeklyReview', label: 'Weekly Review' },
   { id: 'avanceWorkday', label: 'Avance Workday' },
   { id: 'healthOutdoors', label: 'Health & Outdoors' },
+  { id: 'skillTracks', label: 'Skill Tracks' },
   { id: 'mspSkills', label: 'MSP Skills' },
   { id: 'mspScenarios', label: 'MSP Scenarios' },
   { id: 'mspQuiz', label: 'Strict Quiz' },
@@ -76,8 +80,10 @@ type PageId =
   | 'playbooks'
   | 'time'
   | 'pd'
+  | 'weeklyReview'
   | 'avanceWorkday'
   | 'healthOutdoors'
+  | 'skillTracks'
   | 'mspSkills'
   | 'mspScenarios'
   | 'mspQuiz'
@@ -327,6 +333,15 @@ function App() {
             deleteLearningItem={deleteLearningItem}
           />
         )}
+        {currentPage === 'weeklyReview' && (
+          <WeeklyReview
+            progress={progress}
+            tasks={tasks}
+            workLogs={workLogs}
+            learningItems={learningItems}
+            healthState={healthState}
+          />
+        )}
         {currentPage === 'avanceWorkday' && (
           <AvanceWorkday
             progress={progress}
@@ -338,6 +353,7 @@ function App() {
           />
         )}
         {currentPage === 'healthOutdoors' && <HealthOutdoors healthState={healthState} setHealthState={setHealthState} />}
+        {currentPage === 'skillTracks' && <SkillTracks progress={progress} onNavigate={(page) => setCurrentPage(page as PageId)} />}
         {currentPage === 'mspSkills' && <MspSkills progress={progress} updateSkillReadiness={updateSkillReadiness} />}
         {currentPage === 'mspScenarios' && <MspScenarios progress={progress} updateScenarioProgress={updateScenarioStatus} />}
         {currentPage === 'mspQuiz' && (

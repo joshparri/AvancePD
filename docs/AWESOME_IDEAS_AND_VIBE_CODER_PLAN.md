@@ -32,6 +32,8 @@ Vibe coder implementation:
 
 ### 3. Weekly Reflection Dashboard
 
+Status: done in `src/pages/WeeklyReview.tsx`.
+
 Create a weekly view that brings together PD notes, scenario practice, health actions, repeated tags, and Evidence Pack snippets.
 
 Vibe coder implementation:
@@ -43,6 +45,8 @@ Vibe coder implementation:
 - Do not include private health details or client data.
 
 ### 4. Skill Quest Tracks
+
+Status: done in `src/pages/SkillTracks.tsx` and `src/data/skillTracks.ts`.
 
 Turn MSP growth into optional tracks, such as M365 Basics, Endpoint Triage, Network Foundations, Communication, and Documentation.
 
@@ -291,8 +295,8 @@ When implementing any idea above:
 2. Safer delete confirmations. Done.
 3. Global search. Done.
 4. Evidence Pack builder. Done.
-5. Weekly Reflection Dashboard.
-6. Skill Quest Tracks.
+5. Weekly Reflection Dashboard. Done.
+6. Skill Quest Tracks. Done.
 7. Scenario Step Trainer.
 8. Personal Playbook Generator.
 9. Health streaks without shame.

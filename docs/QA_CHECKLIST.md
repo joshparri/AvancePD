@@ -12,7 +12,9 @@ Use this checklist before release or deployment changes.
 - Dashboard opens.
 - Search opens and returns local results.
 - Avance Workday opens.
+- Weekly Review opens and shows scorecard plus copyable manager-safe summary.
 - Health & Outdoors opens.
+- Skill Tracks opens and shows progress by MSP growth track.
 - MSP Skills, Scenarios, Ticket Notes, Evidence Pack, and Micro-Learning open.
 - Evidence Pack shows deployment status for AI coach and Health email.
 
