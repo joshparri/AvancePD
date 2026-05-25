@@ -11,6 +11,7 @@ Avance PD is a local-first professional development app for practising MSP help 
 - Communication practice examples
 - MSP roadmap
 - Workday checklist and next-best-action recommendations
+- Health & Outdoors reminders for hydration, screen breaks, outdoor daylight, movement, and end-of-day shutdown
 
 ## Privacy
 

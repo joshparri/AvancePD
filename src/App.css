@@ -865,6 +865,78 @@ section {
   filter: none;
 }
 
+.health-panel {
+  border-left: 4px solid #0f766e;
+}
+
+.health-banner {
+  border-left: 4px solid #2563eb;
+  background: #eff6ff;
+}
+
+.health-plan-grid,
+.health-metrics-grid,
+.health-research-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-top: 14px;
+}
+
+.health-action-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.health-action-row .checklist-item {
+  margin: 0;
+}
+
+.health-muted {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.health-modal {
+  border: 2px solid #0f766e;
+}
+
+.health-modal li {
+  line-height: 1.6;
+}
+
+.reflection-list {
+  margin: 16px 0;
+}
+
+progress {
+  accent-color: #0f766e;
+  height: 12px;
+  width: 100%;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #38bdf8;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @media (max-width: 900px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -885,5 +957,24 @@ section {
 
   .ml-layout {
     grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+
+  .sidebar nav {
+    display: grid;
+    gap: 4px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  .main-content {
+    padding: 16px;
+  }
+
+  .health-action-row button,
+  .card button {
+    min-height: 44px;
   }
 }

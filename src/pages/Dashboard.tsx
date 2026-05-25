@@ -1,5 +1,7 @@
 import type { Client, LearningItem, Task, TimeEntry, WorkLog, Shift } from '../types';
 import QuickCapture from '../components/QuickCapture';
+import HealthyMspShiftPanel from '../components/HealthyMspShiftPanel';
+import type { HealthState } from '../utils/healthOutdoors';
 
 const PAGE_TITLE = 'Dashboard';
 
@@ -15,6 +17,9 @@ type DashboardProps = {
   addLearningItem: (item: LearningItem) => void;
   showOnboarding: boolean;
   completeOnboarding: () => void;
+  healthState: HealthState;
+  setHealthState: (updater: (state: HealthState) => HealthState) => void;
+  onNavigateHealth: () => void;
 };
 
 function Dashboard({
@@ -27,7 +32,10 @@ function Dashboard({
   addTask,
   addLearningItem,
   showOnboarding,
-  completeOnboarding
+  completeOnboarding,
+  healthState,
+  setHealthState,
+  onNavigateHealth
 }: DashboardProps) {
   const nextShift = shifts[0];
   const nextClient = clients.find((client) => client.id === nextShift?.clientId);
@@ -77,6 +85,13 @@ function Dashboard({
           <button onClick={completeOnboarding}>Got it — hide this tip</button>
         </section>
       )}
+
+      <HealthyMspShiftPanel
+        healthState={healthState}
+        setHealthState={setHealthState}
+        onNavigate={onNavigateHealth}
+        onReset={onNavigateHealth}
+      />
 
       <QuickCapture
         clients={clients}

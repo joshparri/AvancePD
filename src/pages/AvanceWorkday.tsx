@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
+import HealthyMspShiftPanel from '../components/HealthyMspShiftPanel';
 import { getQuietWindowSuggestion, type QuietWindowDuration } from '../utils/nextBestAction';
+import type { HealthState } from '../utils/healthOutdoors';
 import type { AvanceProgress } from '../utils/progressStorage';
 
 const startChecklist = ['HaloPSA', '3CX', 'Datto RMM', 'Google Chat', 'Gmail', 'Keeper / Google Drive where needed'];
@@ -43,9 +45,12 @@ type AvanceWorkdayProps = {
   progress: AvanceProgress;
   updateWorkday: (workdayFocus: string, quickSupportMode: string) => void;
   onNavigate: (page: string) => void;
+  healthState: HealthState;
+  setHealthState: (updater: (state: HealthState) => HealthState) => void;
+  onNavigateHealth: () => void;
 };
 
-function AvanceWorkday({ progress, updateWorkday, onNavigate }: AvanceWorkdayProps) {
+function AvanceWorkday({ progress, updateWorkday, onNavigate, healthState, setHealthState, onNavigateHealth }: AvanceWorkdayProps) {
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
   const [workdayFocus, setWorkdayFocus] = useState(progress.workdayFocus ?? '');
   const [quickSupportMode, setQuickSupportMode] = useState(progress.quickSupportMode ?? supportModes[0]);
@@ -68,6 +73,13 @@ function AvanceWorkday({ progress, updateWorkday, onNavigate }: AvanceWorkdayPro
         <p>A calm Monday/Wednesday start point for support readiness, safe focus tracking, and quiet-time PD.</p>
         <div className="privacy-note">Keep client data out of this app. Use generic focus areas, broad categories, and ticket IDs only.</div>
       </section>
+
+      <HealthyMspShiftPanel
+        healthState={healthState}
+        setHealthState={setHealthState}
+        onNavigate={onNavigateHealth}
+        onReset={onNavigateHealth}
+      />
 
       <section className="card">
         <h2>Start-of-day checklist</h2>

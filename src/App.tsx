@@ -16,6 +16,7 @@ import MspRoadmap from './pages/MspRoadmap';
 import AvanceWorkday from './pages/AvanceWorkday';
 import EvidencePack from './pages/EvidencePack';
 import MicroLearning from './pages/MicroLearning';
+import HealthOutdoors from './pages/HealthOutdoors';
 import type { MspSkillReadiness } from './data/mspSkills';
 import {
   incrementTicketNotePractice as incrementTicketNotePracticeProgress,
@@ -27,6 +28,7 @@ import {
   updateWorkdayProgress,
   type ScenarioStatus
 } from './utils/progressStorage';
+import { loadHealthState, saveHealthState, type HealthState } from './utils/healthOutdoors';
 import {
   clients as sampleClients,
   shifts as sampleShifts,
@@ -50,6 +52,7 @@ const pages = [
   { id: 'time', label: 'Time' },
   { id: 'pd', label: 'PD' },
   { id: 'avanceWorkday', label: 'Avance Workday' },
+  { id: 'healthOutdoors', label: 'Health & Outdoors' },
   { id: 'mspSkills', label: 'MSP Skills' },
   { id: 'mspScenarios', label: 'MSP Scenarios' },
   { id: 'mspQuiz', label: 'Strict Quiz' },
@@ -70,6 +73,7 @@ type PageId =
   | 'time'
   | 'pd'
   | 'avanceWorkday'
+  | 'healthOutdoors'
   | 'mspSkills'
   | 'mspScenarios'
   | 'mspQuiz'
@@ -100,6 +104,7 @@ function App() {
   const [learningItems, setLearningItems] = useState<LearningItem[]>(() => loadPersisted('avance-learningItems', sampleLearningItems));
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>(() => loadPersisted('avance-timeEntries', sampleTimeEntries));
   const [progress, setProgress] = useState(loadProgress);
+  const [healthState, setHealthState] = useState<HealthState>(loadHealthState);
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem('avance-onboarded') !== 'true';
@@ -132,6 +137,10 @@ function App() {
   useEffect(() => {
     saveProgress(progress);
   }, [progress]);
+
+  useEffect(() => {
+    saveHealthState(healthState);
+  }, [healthState]);
 
   useEffect(() => {
     window.localStorage.setItem('avance-onboarded', showOnboarding ? 'false' : 'true');
@@ -201,6 +210,9 @@ function App() {
             addLearningItem={addLearningItem}
             showOnboarding={showOnboarding}
             completeOnboarding={() => setShowOnboarding(false)}
+            healthState={healthState}
+            setHealthState={setHealthState}
+            onNavigateHealth={() => setCurrentPage('healthOutdoors')}
           />
         )}
         {currentPage === 'shifts' && <ShiftScheduler shifts={sampleShifts} clients={sampleClients} />}
@@ -259,8 +271,12 @@ function App() {
             progress={progress}
             updateWorkday={updateWorkday}
             onNavigate={(page) => setCurrentPage(page as PageId)}
+            healthState={healthState}
+            setHealthState={setHealthState}
+            onNavigateHealth={() => setCurrentPage('healthOutdoors')}
           />
         )}
+        {currentPage === 'healthOutdoors' && <HealthOutdoors healthState={healthState} setHealthState={setHealthState} />}
         {currentPage === 'mspSkills' && <MspSkills progress={progress} updateSkillReadiness={updateSkillReadiness} />}
         {currentPage === 'mspScenarios' && <MspScenarios progress={progress} updateScenarioProgress={updateScenarioStatus} />}
         {currentPage === 'mspQuiz' && (

@@ -75,3 +75,15 @@
 - [ ] Add smarter suggestions for repeated issues and auto-suggested playbooks
 - [ ] Add mobile quick-capture support for field use
 - [ ] Add optional Supabase sync only after the local-first experience is solid
+
+## 11. Health & Outdoors module
+- [x] Add a local-first Health & Outdoors module for Monday/Wednesday Avance shifts
+- [x] Add gentle reminders for hydration, 20-20-20 eye breaks, posture, movement, outdoor daylight, lunch away from screen, stressful-ticket reset, and end-of-day shutdown
+- [x] Add editable reminder schedule, shift days, quiet mode, snooze, skip, and notification permission handling
+- [x] Add browser notification support with in-app banner fallback and no repeated permission prompts after denial
+- [x] Add a research-backed "Why this helps" card library with plain-English summaries and source links
+- [x] Add a Healthy MSP Shift panel to Dashboard and Avance Workday
+- [x] Add optional 2-minute reset with optional faith prompt
+- [x] Add weekly review, manager-safe evidence summary, export JSON, and reset health data actions
+- [x] Add email reminder setup copy/export helpers without storing API keys or Gmail credentials
+- [ ] Future: add `/api/send-health-reminder` only with server-side secrets and explicit opt-in
