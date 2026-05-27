@@ -16,6 +16,7 @@ import EventBanner from './components/EventBanner';
 import FomoBanner from './components/FomoBanner';
 import FriendLeaderboard from './components/FriendLeaderboard';
 import SocialShare from './components/SocialShare';
+import SpinWidget from './components/SpinWidget';
 import { EngagementLoops } from './components/EngagementLoops';
 import { GameToast } from './components/GameToast';
 import { GhostLeaderboard } from './components/GhostLeaderboard';
@@ -223,10 +224,8 @@ export default function AvanceGamePage() {
                   <p className="font-semibold text-yellow-800 dark:text-yellow-200">Spin for Bonus</p>
                   <p className="text-xs text-muted-foreground">Try your luck — small XP, chance for shields, or a rare scenario. Mystery meter fills with each spin.</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button size="sm" onClick={handleSpin} disabled={spinning}>
-                    {spinning ? 'Spinning...' : 'Spin now'}
-                  </Button>
+                <div className="flex items-center gap-3">
+                  <SpinWidget onSpin={handleSpin} rewardState={reward} />
                   <SocialShare userId="local_user" />
                 </div>
               </CardContent>
