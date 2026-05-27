@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { mspSkillCategories, mspSkills, type MspSkillLevel, type MspSkillReadiness } from '../data/mspSkills';
+import { getRelevantExternalResources } from '../features/external-learning/externalLearningMatcher';
 import type { AvanceProgress } from '../utils/progressStorage';
 import { getEffectiveSkillReadiness } from '../utils/nextBestAction';
 
@@ -152,6 +153,23 @@ function MspSkills({ progress, updateSkillReadiness }: MspSkillsProps) {
                       <li key={practice}>{practice}</li>
                     ))}
                   </ul>
+                  {getRelevantExternalResources({
+                    searchText: [skill.title, skill.category, skill.description, skill.relatedTools.join(' ')].join(' ')
+                  }).slice(0, 2).length > 0 && (
+                    <div>
+                      <h4>Study this next</h4>
+                      <ul>
+                        {getRelevantExternalResources({
+                          searchText: [skill.title, skill.category, skill.description, skill.relatedTools.join(' ')].join(' ')
+                        }).slice(0, 2).map((resource) => (
+                          <li key={resource.id}>
+                            <a href={resource.url} target="_blank" rel="noreferrer">{resource.title}</a>
+                            <span className="status-chip info" style={{ marginLeft: '0.5rem' }}>{resource.provider}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   <h4>Evidence examples</h4>
                   <ul>
                     {skill.evidenceExamples.slice(0, 2).map((evidence) => (
