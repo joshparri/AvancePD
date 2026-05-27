@@ -17,6 +17,7 @@ import MspRoadmap from './pages/MspRoadmap';
 import AvanceWorkday from './pages/AvanceWorkday';
 import EvidencePack from './pages/EvidencePack';
 import MicroLearning from './pages/MicroLearning';
+import AvancePDGames from './pages/AvancePDGames';
 import HealthOutdoors from './pages/HealthOutdoors';
 import Search from './pages/Search';
 import ShortcutOverlay from './components/ShortcutOverlay';
@@ -74,7 +75,8 @@ const pages = [
   { id: 'communicationPractice', label: 'Communication Practice' },
   { id: 'mspRoadmap', label: 'MSP Roadmap' },
   { id: 'evidencePack', label: 'Evidence Pack' },
-  { id: 'microLearning', label: 'Micro-Learning' }
+  { id: 'microLearning', label: 'Micro-Learning' },
+  { id: 'avancePDGames', label: 'AvancePD Games' }
 ];
 
 type PageId =
@@ -101,7 +103,8 @@ type PageId =
   | 'communicationPractice'
   | 'mspRoadmap'
   | 'evidencePack'
-  | 'microLearning';
+  | 'microLearning'
+  | 'avancePDGames';
 
 function loadPersisted<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') {
@@ -425,6 +428,7 @@ function App() {
             onNavigate={(page) => setCurrentPage(page as PageId)}
           />
         )}
+        {currentPage === 'avancePDGames' && <AvancePDGames />}
       </main>
       <MobileBottomActions onNavigate={(page) => setCurrentPage(page as PageId)} />
     </div>
