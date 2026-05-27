@@ -10,6 +10,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ExternalLearningLinks } from '@/components/ExternalLearningLinks';
+import { SaveStatus } from '@/components/SaveStatus';
+import { useSaveStatus } from '@/hooks/useSaveStatus';
+import {
+  recordKbFlashcardEvidence,
+  recordKbReflectionEvidence,
+  recordKbReviewEvidence,
+  recordKbScenarioEvidence,
+  recordKbTicketNoteEvidence,
+} from '@/lib/learningEvidence';
 import {
   kbConfidenceLabels,
   kbFieldCards,
@@ -98,6 +107,11 @@ export default function KbLearningMachinePage() {
   const [ticketNote, setTicketNote] = useState<TicketNoteDraft>(emptyTicketNote);
   const [reflectionText, setReflectionText] = useState('');
   const [saveMessage, setSaveMessage] = useState('');
+  const reviewSaveStatus = useSaveStatus();
+  const scenarioSaveStatus = useSaveStatus();
+  const ticketSaveStatus = useSaveStatus();
+  const reflectionSaveStatus = useSaveStatus();
+  const flashcardSaveStatus = useSaveStatus();
 
   const selectedCard = cards.find((card) => card.id === selectedCardId) ?? cards[0];
   const selectedProgress = selectedCard ? progress[selectedCard.id] : undefined;
@@ -159,7 +173,18 @@ export default function KbLearningMachinePage() {
 
   const handleReview = (rating: KbReviewRating) => {
     if (!selectedCard) return;
-    refreshProgress(recordKbReview(selectedCard.id, rating), `Review saved: ${rating}`);
+    void reviewSaveStatus.runSave(async () => {
+      const nextProgress = recordKbReview(selectedCard.id, rating);
+      setProgress({ ...nextProgress });
+      recordKbReviewEvidence({
+        cardId: selectedCard.id,
+        title: selectedCard.title,
+        skill: selectedCard.relatedSkill,
+        rating,
+      });
+      setSaveMessage(`Review saved: ${rating}`);
+      window.setTimeout(() => setSaveMessage(''), 1800);
+    });
   };
 
   const handleConfidenceChange = (confidence: KbConfidence) => {
@@ -169,17 +194,65 @@ export default function KbLearningMachinePage() {
 
   const handleSaveScenario = () => {
     if (!selectedCard || !scenarioResponse.trim()) return;
-    refreshProgress(saveKbScenarioPractice(selectedCard.id, scenarioResponse), 'Scenario evidence saved');
+    void scenarioSaveStatus.runSave(async () => {
+      const nextProgress = saveKbScenarioPractice(selectedCard.id, scenarioResponse);
+      setProgress({ ...nextProgress });
+      recordKbScenarioEvidence({
+        cardId: selectedCard.id,
+        title: selectedCard.title,
+        skill: selectedCard.relatedSkill,
+        notes: scenarioResponse,
+      });
+      setSaveMessage('Scenario evidence saved');
+      window.setTimeout(() => setSaveMessage(''), 1800);
+    });
   };
 
   const handleSaveTicketNote = () => {
     if (!selectedCard) return;
-    refreshProgress(saveKbTicketNotePractice(selectedCard.id, ticketNote), 'Ticket note saved');
+    void ticketSaveStatus.runSave(async () => {
+      const nextProgress = saveKbTicketNotePractice(selectedCard.id, ticketNote);
+      setProgress({ ...nextProgress });
+      recordKbTicketNoteEvidence({
+        cardId: selectedCard.id,
+        title: selectedCard.title,
+        skill: selectedCard.relatedSkill,
+        notes: toTicketNoteMarkdown(ticketNote),
+      });
+      setSaveMessage('Ticket note saved');
+      window.setTimeout(() => setSaveMessage(''), 1800);
+    });
   };
 
   const handleSaveReflection = () => {
     if (!selectedCard || !reflectionText.trim()) return;
-    refreshProgress(saveKbReflection(selectedCard.id, reflectionText), 'Reflection saved');
+    void reflectionSaveStatus.runSave(async () => {
+      const nextProgress = saveKbReflection(selectedCard.id, reflectionText);
+      setProgress({ ...nextProgress });
+      recordKbReflectionEvidence({
+        cardId: selectedCard.id,
+        title: selectedCard.title,
+        skill: selectedCard.relatedSkill,
+        notes: reflectionText,
+      });
+      setSaveMessage('Reflection saved');
+      window.setTimeout(() => setSaveMessage(''), 1800);
+    });
+  };
+
+  const handleFlashcardScore = (result: 'right' | 'wrong') => {
+    if (!selectedCard) return;
+    void flashcardSaveStatus.runSave(async () => {
+      recordKbFlashcardEvidence({
+        cardId: selectedCard.id,
+        title: selectedCard.title,
+        skill: selectedCard.relatedSkill,
+        flashcardIndex: activeFlashcardIndex,
+        result,
+      });
+      setSaveMessage(result === 'right' ? 'Flashcard marked correct' : 'Flashcard marked for review');
+      window.setTimeout(() => setSaveMessage(''), 1800);
+    });
   };
 
   return (
@@ -455,6 +528,7 @@ export default function KbLearningMachinePage() {
                     </div>
 
                     {saveMessage && <p className="text-sm text-green-600">{saveMessage}</p>}
+                    <SaveStatus status={reviewSaveStatus.status} />
                     <ExternalLearningLinks
                       skill={selectedCard.relatedSkill}
                       activityTitle={selectedCard.title}
@@ -491,7 +565,18 @@ export default function KbLearningMachinePage() {
                     <div className="rounded-lg border p-4">
                       <p className="text-sm font-semibold">{activeFlashcard?.question}</p>
                       {showFlashcardAnswer ? (
-                        <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">{activeFlashcard?.answer}</p>
+                        <>
+                          <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">{activeFlashcard?.answer}</p>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <Button size="sm" onClick={() => handleFlashcardScore('right')}>
+                              I was right
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => handleFlashcardScore('wrong')}>
+                              I was wrong
+                            </Button>
+                          </div>
+                          <SaveStatus status={flashcardSaveStatus.status} />
+                        </>
                       ) : (
                         <Button className="mt-3" size="sm" onClick={() => setShowFlashcardAnswer(true)}>
                           Show answer
@@ -521,6 +606,7 @@ export default function KbLearningMachinePage() {
                     <Button onClick={handleSaveScenario} disabled={!scenarioResponse.trim()}>
                       Save scenario evidence
                     </Button>
+                    <SaveStatus status={scenarioSaveStatus.status} />
                     {selectedProgress?.scenarioPractice && (
                       <p className="text-xs text-muted-foreground">Saved scenario evidence for this card.</p>
                     )}
@@ -558,6 +644,7 @@ export default function KbLearningMachinePage() {
                       {toTicketNoteMarkdown(ticketNote)}
                     </div>
                     <Button onClick={handleSaveTicketNote}>Save ticket-note practice</Button>
+                    <SaveStatus status={ticketSaveStatus.status} />
                   </CardContent>
                 </Card>
 
@@ -581,6 +668,7 @@ export default function KbLearningMachinePage() {
                     <Button onClick={handleSaveReflection} disabled={!reflectionText.trim()}>
                       Save reflection
                     </Button>
+                    <SaveStatus status={reflectionSaveStatus.status} />
                   </CardContent>
                 </Card>
               </div>

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { mspQuizQuestions, MspQuizQuestion, MspQuizDomain } from '@/data/mspQuizQuestions';
 import { getStoredQuizAttempts, saveQuizAttempt, getBestQuizScore, MspQuizAttempt } from '@/lib/mspQuizProgress';
+import { SaveStatus } from '@/components/SaveStatus';
 import { CheckCircle2, XCircle, Trophy, Target, TrendingUp } from 'lucide-react';
 
 const domainLabels: Record<MspQuizDomain, string> = {
@@ -51,6 +52,7 @@ export default function MspQuizPage() {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [shuffledQuestions, setShuffledQuestions] = useState<MspQuizQuestion[]>([]);
+  const [quizSavedStatus, setQuizSavedStatus] = useState<'idle' | 'saved'>('idle');
 
   const filteredQuestions = useMemo(() => {
     let questions = mspQuizQuestions;
@@ -131,6 +133,7 @@ export default function MspQuizPage() {
       };
 
       saveQuizAttempt(attempt);
+      setQuizSavedStatus('saved');
       setQuizState('result');
     } else {
       setCurrentQuestionIndex(prev => prev + 1);
@@ -159,6 +162,7 @@ export default function MspQuizPage() {
     setSelectedAnswer(null);
     setShowFeedback(false);
     setShuffledQuestions([]);
+    setQuizSavedStatus('idle');
   };
 
   const correctCount = answers.filter(a => a.isCorrect).length + (showFeedback && selectedAnswer === currentQuizQuestion?.correctAnswerIndex ? 1 : 0);
@@ -262,7 +266,11 @@ export default function MspQuizPage() {
               </Card>
             </div>
 
-            <div className="text-center">
+            <div className="text-center space-y-2">
+              <SaveStatus
+                status={quizSavedStatus === 'saved' ? 'saved' : 'idle'}
+                savedMessage="Quiz saved to Evidence Pack"
+              />
               <Button onClick={handleRestart} size="lg">
                 Take Another Quiz
               </Button>

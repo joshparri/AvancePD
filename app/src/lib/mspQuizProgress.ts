@@ -1,3 +1,5 @@
+import { recordQuizAttemptEvidence } from '@/lib/learningEvidence';
+
 export type MspQuizAttempt = {
   id: string;
   date: string;
@@ -30,6 +32,16 @@ export function saveQuizAttempt(attempt: MspQuizAttempt): void {
       attempts.splice(10);
     }
     localStorage.setItem(QUIZ_ATTEMPTS_KEY, JSON.stringify(attempts));
+
+    const weakest = attempt.weakestDomains?.[0];
+    recordQuizAttemptEvidence({
+      attemptId: attempt.id,
+      title: `MSP Quiz — ${attempt.percentage}%`,
+      score: attempt.correct,
+      maxScore: attempt.totalQuestions,
+      domain: weakest,
+      notes: weakest ? `Weakest domains: ${attempt.weakestDomains.join(', ')}` : undefined,
+    });
   } catch {
     // Ignore localStorage errors
   }

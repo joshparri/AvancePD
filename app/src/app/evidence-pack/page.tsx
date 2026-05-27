@@ -24,6 +24,11 @@ import { mspLearningActivities } from '@/data/mspLearningActivities';
 import { getKbEvidenceSummary, mergeKbCardsWithProgress } from '@/lib/kbLearningProgress';
 import { Archive, ClipboardCheck, FileText, Target, TrendingUp, Brain } from 'lucide-react';
 import { ExternalLearningLinks } from '@/components/ExternalLearningLinks';
+import {
+  getEvidenceSummary,
+  type LearningEvidenceItem,
+  type LearningEvidenceSource,
+} from '@/lib/learningEvidence';
 
 const countBy = <T,>(items: T[], getKey: (item: T) => string) =>
   items.reduce<Record<string, number>>((counts, item) => {
@@ -33,6 +38,26 @@ const countBy = <T,>(items: T[], getKey: (item: T) => string) =>
   }, {});
 
 const formatList = (items: string[]) => items.map((item) => `- ${item}`).join('\n');
+
+const sourceLabels: Record<LearningEvidenceSource, string> = {
+  'learning-cockpit': 'Learning Cockpit',
+  'kb-learning-machine': 'KB Learning Machine',
+  'msp-quiz': 'Quiz',
+  'msp-skills': 'MSP Skills',
+  external: 'External study',
+};
+
+const formatEvidenceDate = (iso: string) =>
+  new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+const formatEvidenceResult = (item: LearningEvidenceItem) => {
+  if (item.score !== undefined && item.maxScore !== undefined) {
+    const pct = Math.round((item.score / item.maxScore) * 100);
+    return `${item.score}/${item.maxScore} (${pct}%)`;
+  }
+  if (item.result) return item.result;
+  return item.status;
+};
 
 export default function EvidencePackPage() {
   const [skillReadiness] = useState<MspSkillReadinessById>(() => getStoredSkillReadiness());
@@ -69,6 +94,7 @@ export default function EvidencePackPage() {
   const quizAttempts = getStoredQuizAttempts();
   const bestQuizScore = getBestQuizScore();
   const bestQuizAttempt = quizAttempts.find(a => a.percentage === bestQuizScore?.percentage);
+  const evidenceSummary = getEvidenceSummary();
 
   // Learning activities data
   const completedActivities = mspLearningActivities.filter(activity => 
@@ -197,35 +223,49 @@ ${formatList(practicalOutputs)}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-6">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-8">
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Skills practised</p>
-                <p className="text-2xl font-bold">{practisedSkills.length}</p>
+                <p className="text-xs text-muted-foreground">Activities completed</p>
+                <p className="text-2xl font-bold">{evidenceSummary.activitiesCompleted}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Early-stage skills</p>
-                <p className="text-2xl font-bold">{lowReadinessSkills.length}</p>
+                <p className="text-xs text-muted-foreground">KB reviews</p>
+                <p className="text-2xl font-bold">{evidenceSummary.kbReviews}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Scenarios saved</p>
-                <p className="text-2xl font-bold">{reviewedScenarios.length}</p>
+                <p className="text-xs text-muted-foreground">Quiz attempts</p>
+                <p className="text-2xl font-bold">{evidenceSummary.quizAttempts}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Activities done</p>
-                <p className="text-2xl font-bold">{completedActivities.length}</p>
+                <p className="text-xs text-muted-foreground">Avg quiz score</p>
+                <p className="text-2xl font-bold">
+                  {evidenceSummary.averageQuizScore !== null ? `${evidenceSummary.averageQuizScore}%` : 'N/A'}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <p className="text-xs text-muted-foreground">Ticket notes</p>
+                <p className="text-2xl font-bold">{evidenceSummary.ticketNotesPractised}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <p className="text-xs text-muted-foreground">Reflections saved</p>
+                <p className="text-2xl font-bold">{evidenceSummary.reflectionsSaved}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
                 <p className="text-xs text-muted-foreground">Minutes logged</p>
-                <p className="text-2xl font-bold">{learningStats.totalMinutes}</p>
+                <p className="text-2xl font-bold">{evidenceSummary.minutesLogged || learningStats.totalMinutes}</p>
               </CardContent>
             </Card>
             <Card>
@@ -234,10 +274,75 @@ ${formatList(practicalOutputs)}
                 <p className="text-2xl font-bold">{bestQuizScore ? `${bestQuizScore.percentage}%` : 'N/A'}</p>
               </CardContent>
             </Card>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card>
-              <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">KB reviews</p>
-                <p className="text-2xl font-bold">{kbEvidenceSummary.reviewsCompleted}</p>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Brain className="h-5 w-5" />
+                  Recent evidence
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {evidenceSummary.recentItems.length > 0 ? (
+                  evidenceSummary.recentItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="rounded-md border border-gray-100 p-3 dark:border-gray-800"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">{item.title}</p>
+                        <Badge variant="outline" className="text-xs capitalize">
+                          {item.type.replace(/-/g, ' ')}
+                        </Badge>
+                      </div>
+                      <div className="mt-1 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                        {item.source && <span>{sourceLabels[item.source]}</span>}
+                        <span>{formatEvidenceResult(item)}</span>
+                        <span>{formatEvidenceDate(item.updatedAt)}</span>
+                      </div>
+                      {item.notes && (
+                        <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{item.notes}</p>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No unified evidence yet. Complete a Cockpit activity, KB drill, or quiz to populate this list.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Target className="h-5 w-5" />
+                  Gaps and next actions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Evidence by category</h2>
+                  <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    {(Object.entries(evidenceSummary.bySource) as [LearningEvidenceSource, number][]).map(
+                      ([source, count]) => (
+                        <li key={source}>
+                          - {sourceLabels[source]}: {count}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Suggested next actions</h2>
+                  <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    {evidenceSummary.nextActions.map((action) => (
+                      <li key={action}>- {action}</li>
+                    ))}
+                  </ul>
+                </div>
               </CardContent>
             </Card>
           </div>

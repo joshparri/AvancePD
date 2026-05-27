@@ -25,6 +25,9 @@ import { InteractiveScenario } from '@/components/learning/InteractiveScenario';
 import { MultipleChoiceQuiz } from '@/components/learning/MultipleChoiceQuiz';
 import { RolePlayChat } from '@/components/learning/RolePlayChat';
 import { ExternalLearningLinks } from '@/components/ExternalLearningLinks';
+import { SaveStatus } from '@/components/SaveStatus';
+import { useSaveStatus } from '@/hooks/useSaveStatus';
+import { recordLearningActivityEvidence } from '@/lib/learningEvidence';
 import { 
   Brain, 
   Target, 
@@ -73,6 +76,7 @@ export default function LearningCockpit() {
   const [filterDifficulty, setFilterDifficulty] = useState<string>('all');
   const [reflectionText, setReflectionText] = useState('');
   const [showFlashcardAnswer, setShowFlashcardAnswer] = useState(false);
+  const reflectionSaveStatus = useSaveStatus();
 
   const { recommendations, todayPractice } = useMemo(() => {
     const quizAttempts = getStoredQuizAttempts();
@@ -164,13 +168,29 @@ export default function LearningCockpit() {
       const newProgress = markActivityComplete(activity.id, activity.activityType, activity.domain, activity.estimatedMinutes);
       setCompletedIds(newProgress.completedActivityIds);
       setStats(getLearningStats());
+      recordLearningActivityEvidence({
+        activityId: activity.id,
+        title: activity.title,
+        domain: activity.domainLabel,
+        minutes: activity.estimatedMinutes,
+        status: 'completed',
+      });
     }
   };
 
   const handleSaveReflection = () => {
-    if (selectedActivity && reflectionText.trim()) {
+    if (!selectedActivity || !reflectionText.trim()) return;
+    void reflectionSaveStatus.runSave(async () => {
       saveActivityReflection(selectedActivity.id, reflectionText);
-    }
+      recordLearningActivityEvidence({
+        activityId: selectedActivity.id,
+        title: selectedActivity.title,
+        domain: selectedActivity.domainLabel,
+        minutes: selectedActivity.estimatedMinutes,
+        status: 'completed',
+        notes: reflectionText,
+      });
+    });
   };
 
   const handleInteractiveComplete = (
@@ -196,6 +216,18 @@ export default function LearningCockpit() {
     }
 
     setStats(getLearningStats());
+
+    recordLearningActivityEvidence({
+      activityId: activity.id,
+      title: activity.title,
+      domain: activity.domainLabel,
+      minutes: activity.estimatedMinutes,
+      status: 'completed',
+      result: result.selfScore,
+      score: result.score,
+      maxScore: result.maxScore,
+      notes: result.ticketNote ?? result.learnerAnswer,
+    });
   };
 
   const getRecommendedActivities = () => {
@@ -323,6 +355,7 @@ export default function LearningCockpit() {
             <Button onClick={handleSaveReflection} disabled={!reflectionText.trim()}>
               Save Reflection
             </Button>
+            <SaveStatus status={reflectionSaveStatus.status} />
           </div>
         );
       
