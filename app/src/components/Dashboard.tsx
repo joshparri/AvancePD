@@ -17,6 +17,7 @@ import { HealthyShiftCard } from '@/components/HealthyShiftCard';
 import { HeroPanel, PageShell, SectionHeader, StatCard } from '@/components/academy';
 import { LearningIllustration } from '@/components/learning/LearningIllustration';
 import { LearningDiagram } from '@/components/learning/LearningDiagram';
+import { EducationalGamesSection } from '@/components/EducationalGamesSection';
 
 export function Dashboard() {
   const [nextShift, setNextShift] = useState<Shift | null>(null);
@@ -355,6 +356,8 @@ export function Dashboard() {
             </CardContent>
           </Card>
         </div>
+
+        <EducationalGamesSection />
     </PageShell>
   );
 }
