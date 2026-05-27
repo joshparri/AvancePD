@@ -144,11 +144,10 @@ export const educationalGamePlatforms: EducationalGamePlatform[] = [
     description:
       'Built-in sub-app combining the Hook Model (trigger, action, variable reward, investment) with IT skill trees, daily streaks, XP, and modes inspired by Duolingo, GeoGuessr, Elevate, Khan Academy, Coolmath, CMD Challenge, and SadServers.',
     gameplayHighlights: [
-      'Recall Rush — active recall and spaced-style review',
-      'Ticket Detective — deduce root cause from ticket clues',
-      'Flow Drill — difficulty adapts to your session streak',
-      'Logic Sprint, Command Line, and Break-Fix Lab for MSP drills',
-      'Links to TryHackMe, Codewars, SadServers, and Hack The Box when you want more',
+      'XP bar, levels, variable bonus rewards, and streak shields',
+      'Gated skill tree with boss challenges and daily 6-mode chain',
+      'Ghost leaderboard and six MSP game modes',
+      'External labs unlock after your first boss victory',
     ],
     bestFor: 'Daily 5-minute IT habit loops without leaving Avance Professional Development.',
     platforms: ['Built into Avance PD'],
