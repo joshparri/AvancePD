@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { ExternalLearningLinks } from '@/components/ExternalLearningLinks';
 import {
   kbConfidenceLabels,
   kbFieldCards,
@@ -261,6 +262,16 @@ export default function KbLearningMachinePage() {
             </CardContent>
           </Card>
 
+          {dailyScenarioCard && (
+            <ExternalLearningLinks
+              skill={dailyScenarioCard.relatedSkill}
+              activityTitle={dailyScenarioCard.title}
+              heading="Optional 10-20 min external booster"
+              limit={1}
+              compact
+            />
+          )}
+
           <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
             <div className="space-y-6">
               <Card>
@@ -444,6 +455,13 @@ export default function KbLearningMachinePage() {
                     </div>
 
                     {saveMessage && <p className="text-sm text-green-600">{saveMessage}</p>}
+                    <ExternalLearningLinks
+                      skill={selectedCard.relatedSkill}
+                      activityTitle={selectedCard.title}
+                      heading="Go deeper with free learning"
+                      limit={3}
+                      compact
+                    />
                   </CardContent>
                 </Card>
 

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { mspScenarios } from '@/data/mspScenarios';
 import { mspSkills } from '@/data/mspSkills';
 import { getMspNextBestActions } from '@/lib/mspNextBestAction';
+import { ExternalLearningLinks } from '@/components/ExternalLearningLinks';
 import { ArrowRight, CheckCircle2, Map, Target } from 'lucide-react';
 
 interface RoadmapStage {
@@ -340,6 +341,15 @@ export default function MspRoadmapPage() {
                           </div>
                         ))}
                       </div>
+                    </div>
+                    <div className="lg:col-span-2">
+                      <ExternalLearningLinks
+                        skill={linkedSkills[0]?.title ?? stage.summary}
+                        activityTitle={stage.title}
+                        heading="External learning booster"
+                        limit={2}
+                        compact
+                      />
                     </div>
                   </CardContent>
                 </Card>

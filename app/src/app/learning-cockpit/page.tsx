@@ -24,6 +24,7 @@ import { InteractiveFlashcard } from '@/components/learning/InteractiveFlashcard
 import { InteractiveScenario } from '@/components/learning/InteractiveScenario';
 import { MultipleChoiceQuiz } from '@/components/learning/MultipleChoiceQuiz';
 import { RolePlayChat } from '@/components/learning/RolePlayChat';
+import { ExternalLearningLinks } from '@/components/ExternalLearningLinks';
 import { 
   Brain, 
   Target, 
@@ -236,6 +237,7 @@ export default function LearningCockpit() {
 
   const weaknessCoaching = getWeaknessCoaching();
   const recommendedActivities = getRecommendedActivities();
+  const optionalExternalBooster = todayPractice[0];
 
   const renderActivityInteraction = (activity: MspLearningActivity) => {
     const interactiveResult = getLearningProgress().interactiveResults[activity.id];
@@ -569,6 +571,18 @@ export default function LearningCockpit() {
           </CardContent>
         </Card>
 
+        {optionalExternalBooster && (
+          <div className="mb-6">
+            <ExternalLearningLinks
+              domain={optionalExternalBooster.domainLabel}
+              activityTitle={optionalExternalBooster.title}
+              heading="Optional 10-20 min external booster"
+              limit={1}
+              compact
+            />
+          </div>
+        )}
+
         {/* Today's Mixed Practice */}
         <Card className="mb-6">
           <CardHeader>
@@ -661,6 +675,15 @@ export default function LearningCockpit() {
                     )}
                   </div>
                 ))}
+              </div>
+              <div className="mt-4">
+                <ExternalLearningLinks
+                  domain={weaknessCoaching.domainLabel}
+                  activityTitle={`Weak area coaching ${weaknessCoaching.domainLabel}`}
+                  heading="Targeted external resource recommendations"
+                  limit={2}
+                  compact
+                />
               </div>
             </CardContent>
           </Card>
@@ -826,6 +849,14 @@ export default function LearningCockpit() {
                   </div>
                   
                   {renderActivityInteraction(selectedActivity)}
+
+                  <ExternalLearningLinks
+                    domain={selectedActivity.domainLabel}
+                    activityTitle={selectedActivity.title}
+                    heading="Go deeper"
+                    limit={3}
+                    compact
+                  />
                   
                   <div>
                     <h3 className="font-medium mb-2 text-gray-900 dark:text-white">Evidence Examples</h3>

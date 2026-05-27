@@ -14,6 +14,7 @@ import {
   setStoredSkillReadiness,
 } from '@/lib/mspProgress';
 import { Search, Target, TrendingUp } from 'lucide-react';
+import { ExternalLearningLinks } from '@/components/ExternalLearningLinks';
 
 const readinessLabels: Record<MspReadiness, string> = {
   unseen: 'Unseen',
@@ -247,6 +248,15 @@ export default function MspSkillsPage() {
                         <p className="mt-1 text-sm text-muted-foreground">{skill.relatedTools.join(', ')}</p>
                       </div>
 
+                      <ExternalLearningLinks
+                        skill={skill.title}
+                        domain={skill.category}
+                        activityTitle={skill.title}
+                        heading="Best free course for this skill"
+                        limit={1}
+                        compact
+                      />
+
                       <div>
                         <label
                           htmlFor={`readiness-${skill.id}`}
@@ -305,6 +315,16 @@ export default function MspSkillsPage() {
                       <p className="mt-1 text-xs text-muted-foreground">{skill.suggestedPractice[0]}</p>
                     </div>
                   ))}
+                  {practiseNext[0] && (
+                    <ExternalLearningLinks
+                      skill={practiseNext[0].title}
+                      domain={practiseNext[0].category}
+                      activityTitle={practiseNext[0].title}
+                      heading="Weak area coaching booster"
+                      limit={2}
+                      compact
+                    />
+                  )}
                 </CardContent>
               </Card>
 

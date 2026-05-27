@@ -23,6 +23,7 @@ import { getLearningProgress, getLearningStats } from '@/lib/mspLearningProgress
 import { mspLearningActivities } from '@/data/mspLearningActivities';
 import { getKbEvidenceSummary, mergeKbCardsWithProgress } from '@/lib/kbLearningProgress';
 import { Archive, ClipboardCheck, FileText, Target, TrendingUp, Brain } from 'lucide-react';
+import { ExternalLearningLinks } from '@/components/ExternalLearningLinks';
 
 const countBy = <T,>(items: T[], getKey: (item: T) => string) =>
   items.reduce<Record<string, number>>((counts, item) => {
@@ -76,7 +77,7 @@ export default function EvidencePackPage() {
   const activityTypeCounts = learningStats.activityTypeCounts;
   const domainCounts = learningStats.domainCounts;
   const activityTypesCompleted = Object.entries(activityTypeCounts)
-    .filter(([_, count]) => count > 0)
+    .filter(([, count]) => count > 0)
     .map(([type, count]) => `${type}: ${count}`);
   const domainsCompleted = Object.entries(domainCounts)
     .map(([domain, count]) => `${domain}: ${count}`);
@@ -122,7 +123,7 @@ export default function EvidencePackPage() {
       await navigator.clipboard.writeText(markdownSummary);
       setCopyMessage('Summary copied!');
       setTimeout(() => setCopyMessage(''), 2000);
-    } catch (error) {
+    } catch {
       setCopyMessage('Failed to copy');
       setTimeout(() => setCopyMessage(''), 2000);
     }
@@ -272,6 +273,27 @@ ${formatList(practicalOutputs)}
                 ) : (
                   <p className="text-sm text-muted-foreground">No quiz attempts yet. Complete a quiz to see your performance here.</p>
                 )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Archive className="h-5 w-5" />
+                  External study evidence
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Future versions will allow marking external resources as saved, started, or completed to include
+                  them in this evidence pack.
+                </p>
+                <ExternalLearningLinks
+                  activityTitle={recommendations[0]?.title ?? 'microsoft 365 admin'}
+                  heading="Suggested external study this week"
+                  limit={2}
+                  compact
+                />
               </CardContent>
             </Card>
 
