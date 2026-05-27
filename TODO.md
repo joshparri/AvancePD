@@ -2,114 +2,28 @@
 # Avance Work Companion TODO
 
 ## 1. Product definition & validation
-- [x] Confirm the core user: Josh as a single-user MSP operator
-- [x] Validate the Monday/Wednesday shift rhythm and recurring shift needs
-- [x] Finalize MVP scope around dashboard, shift prep, work logs, tasks, knowledge, playbooks, time logging, and learning tracker
-- [x] Define clear success metrics for the app (time-to-context, quick log speed, task follow-through, invoice prep)
-- [x] Review and align on the product principles in `docs/vision.md`
 
 ## 2. App architecture & data model
-- [x] Design the data model for shifts, work logs, tasks, knowledge entries, playbooks, clients, time entries, and learning items
-- [x] Decide on storage strategy: local-first persistence plus optional Supabase or export/import
-- [x] Define the page/section structure for dashboard, shift view, notes, tasks, knowledge, playbooks, time, and PD
-- [x] Add search/index architecture to support fast retrieval of logs, notes, playbooks, and knowledge
-- [x] Add security guidance to prevent storing credentials or sensitive data
 
 ## 3. Core feature implementation
-- [x] Build the dashboard with today/next shift, priorities, open follow-ups, recent handover, quick capture, and invoice-cycle summary
-- [x] Build the shift scheduler/prep module with recurring Mon/Wed support, exceptions, priorities, prep checklist, and handover links
-- [x] Build quick work logging with timestamp, client, summary, actions, result, next step, tags, and draft support
-- [x] Build task management with status, due date, priority, client link, work log link, and carry-forward behaviour
-- [x] Build the knowledge base with title, body, tags, confidence, last verified, category, source type, draft/trusted states, and search
-- [x] Build playbooks for issue triage, symptoms, checks, escalation, and field notes
-- [x] Build time logging and invoice preview support with billable entries, totals, unbilled/billed/paid state, and export-ready line items
-- [x] Build the learning tracker with topic, confidence score, "seen in real work", ask-team flag, and next review date
 
 ## 4. User experience & UI work
-- [x] Implement the calm, readable UI style described in `docs/UI_UX_AND_TONE_GUIDE.md`
-- [x] Add keyboard shortcuts or quick-capture affordances for busy work states
-- [x] Build clear status chips and colour semantics for urgent, review, trusted, and billed states
-- [x] Create empty-state guidance for all core modules
-- [x] Ensure the app loads quickly and displays key context in under 60 seconds
-- [x] Add explicit warnings about not storing passwords or sensitive information
 
 ## 5. Documentation & onboarding
-- [x] Keep `docs/vision.md` up to date with any scope or feature changes
-- [x] Create a short in-app onboarding flow for first-time use
-- [x] Add a user guide or quick-start page for daily shift routine and PD habits
-- [x] Build a developer-facing README describing how to run and extend the app
-- [x] Add an accessible `docs/TODO.md` or project tracker for ongoing priorities
 
 ## 6. Professional development / MSP growth
-- [x] Add PD-specific workflows in the app for learning goals and shift review
-- [x] Integrate the PD checklist from `docs/PROFESSIONAL_DEVELOPMENT.md` into shift wrap-up or dashboard prompts
-- [x] Add a "learned today" tag or note type in the knowledge base
-- [x] Add a review cadence for learning entries and confidence updates
-- [x] Include communication, security, endpoint, and network troubleshooting guidance as reference templates
 
 ## 7. Testing, validation & polish
-- [x] Populate the app with sample seed data for early testing (`docs/SAMPLE_SEED_DATA.md`)
-- [x] Test that the dashboard surfaces the right context after a gap between shifts
-- [x] Validate that follow-ups and tasks survive shift transitions
-- [x] Verify that knowledge and playbooks are searchable and discoverable
-- [x] Test invoice preview generation and time tracking summaries
-- [x] Run usability checks for quick capture under pressure
-- [x] Fix any UI/UX friction that prevents fast note capture or task creation
 
 ## 8. Deployment & support
-- [x] Choose a runnable deployment method for a private web app (local static site, desktop wrapper, or simple hosted app)
-- [x] Document launch instructions for Josh and how to open the app each shift
-- [x] Add backup/export functionality so app data can be preserved
-- [x] Add an optional sync plan only if it stays low-risk and optional
 
 ## 9. Cleanup & repo health
-- [x] Keep the repo organized with the current folder structure and doc index files
-- [x] Remove any remaining duplicate or unused draft files
-- [x] Archive legacy ZIPs and raw downloads in `archives/`
-- [x] Keep `references/` as read-only raw source materials only
-- [x] Review the root `README.md` and `docs/README.md` for accuracy
 
 ## 10. Future improvements
-- [x] Document email-to-note import guardrails in `docs/ROADMAP.md`
-- [x] Document calendar sync / shift reminder guardrails in `docs/ROADMAP.md`
-- [x] Document file attachment guardrails in `docs/ROADMAP.md`
-- [x] Add local repeated-issue suggestions from safe tags and categories
-- [x] Add mobile-friendly quick-capture presets and tap targets
-- [x] Document optional Supabase/cloud sync guardrails in `docs/SYNC_PLAN.md`
 
 ## 11. Health & Outdoors module
-- [x] Add a local-first Health & Outdoors module for Monday/Wednesday Avance shifts
-- [x] Add gentle reminders for hydration, 20-20-20 eye breaks, posture, movement, outdoor daylight, lunch away from screen, stressful-ticket reset, and end-of-day shutdown
-- [x] Add editable reminder schedule, shift days, quiet mode, snooze, skip, and notification permission handling
-- [x] Add browser notification support with in-app banner fallback and no repeated permission prompts after denial
-- [x] Add a research-backed "Why this helps" card library with plain-English summaries and source links
-- [x] Add a Healthy MSP Shift panel to Dashboard and Avance Workday
-- [x] Add optional 2-minute reset with optional faith prompt
-- [x] Add weekly review, manager-safe evidence summary, export JSON, and reset health data actions
-- [x] Add email reminder setup copy/export helpers without storing API keys or Gmail credentials
-- [x] Add `/api/send-health-reminder` with server-side secrets only
 
 ## 12. Prompt packs, AI coaching, and learning machine backlog
-- [x] Convert the local prompt-pack source into repo-safe docs in `docs/VIBE_CODER_PROMPT_PACKS.md`
-- [x] Add implementation-sized TODOs in `docs/LEARNING_MACHINE_TODO.md`
-- [x] Add prompt guidance for Avance Work Companion and Avance PD without committing raw private prompt exports
-- [ ] Fix browser tab titles and app metadata for App 1 (Avance Work Companion) and App 2 (Avance PD)
-- [ ] Add prompt-driven features for Daily Briefing, Health Check, Repeated Issue Coach, Micro-Learning Booster, and Backup Reminder
-- [ ] Add prompt-driven features for PD Focus Overview, Weekly Retrospective, Task Breakdown, Follow-Up Triage, Learning Cockpit Navigator, and Shift Health Monitor
-- [ ] App 2: create the KB Learning Machine shell with navigation and dashboard card
-- [ ] App 2: build KB Map and editable field cards
-- [ ] App 2: add spaced repetition reviews and active recall flashcards
-- [ ] App 2: add scenario-first learning mode and ticket-note drill scoring
-- [ ] App 2: upgrade Evidence Pack around learning proof and weekly PD review
-- [ ] App 1: upgrade Quick Capture with ticket-note builder and learning-seed fields
-- [ ] App 1: add After Action Review on work logs
-- [ ] App 1: add local KB hints without scraping private Drive or KB content
-- [ ] App 1: add Change Guardrail for risky work
-- [ ] App 1/App 2: add local privacy/safety linting for user-entered notes and evidence
-- [ ] Use the prompt packs to guide small UI improvements in dashboard visibility, follow-up triage, and PD progress flows
-- [ ] Add `docs/KB_LEARNING_GUIDE.md` to explain how the local Avance KB supports App 1 and App 2 without publishing private content
-- [ ] Update `docs/USER_GUIDE.md` with a KB workflow section
-- [ ] Keep AI prompt features aligned with local-first privacy and avoid overbuilding into a full PSA
 =======
 # Avance Work Companion - TODO List
 
@@ -120,19 +34,9 @@ This TODO list outlines all remaining tasks to build and optimize the Avance Wor
 
 ### 1.1 Initialize Next.js Project
 - [x] Create new Next.js project with TypeScript
-- [x] Configure Tailwind CSS and shadcn/ui
-- [x] Set up project structure (app/, components/, lib/, types/)
-- [x] Configure local storage (IndexedDB/Dexie) for data persistence
-- [x] Set up PWA capabilities for offline use
-- [x] Configure dark mode support
-
 ### 1.2 Data Models & Schema
 - [x] Define TypeScript interfaces for all entities:
-  - Shift, WorkLog, Task, KnowledgeEntry, Playbook, Client, LearningItem, Invoice
 - [x] Set up Zod schemas for validation
-- [x] Implement local database layer with Dexie
-- [x] Create seed data based on `docs/guides/sample_seed_data.md`
-
 <<<<<<< HEAD
 # Avance Work Companion TODO
 
@@ -294,6 +198,26 @@ This file includes the core TODOs and a more detailed phased plan pulled from up
 - [ ] Add simple rule-based next best action recommendations
 - [ ] Connect completed scenarios, notes, and evidence outputs to existing learning/PD records where practical
 - [ ] Update app navigation with MSP professional development sections
+
+### 4.4 Prompt Pack & Coaching Improvements
+- [ ] Create `docs/guides/prompt_pack_recommendations.md` to capture AI prompt packs and enhancement ideas for both Avance apps
+- [ ] Update the browser title for Avance Work Companion from the placeholder label to `Avance Work Companion`
+- [ ] Update the browser title for Avance PD from `Create Next App` to `Avance PD`
+- [ ] Add visual overdue indicators for follow-ups and pending tasks across dashboards
+- [ ] Add quick-add buttons for common log types such as ticket notes, client calls, and learning actions
+- [ ] Add a daily briefing flow summarising next shift, open follow-ups, pending tasks, and recent work logs
+- [ ] Add a healthy-shift coaching flow for water, eye breaks, outdoor minutes, and quick reset suggestions
+- [ ] Add a repeat-issue coach flow to identify recurring problems and propose playbooks or knowledge notes
+- [ ] Add a work log summariser to convert raw capture into concise ticket notes with actions and tags
+- [ ] Add a micro-learning booster to recommend relevant learning content based on current tasks
+- [ ] Add a backup reminder flow for export and Supabase sync with weekly prompts
+- [ ] Add a PD focus overview flow summarising learning progress, hours, targets, and the next best move
+- [ ] Add a weekly retrospective flow that reviews recent logs, pending tasks, and improvement suggestions
+- [ ] Add a task breakdown flow that turns pending tasks into smaller steps with estimated durations
+- [ ] Add a follow-up triage flow for client/third-party tickets with concise action suggestions or message templates
+- [ ] Add a learning cockpit navigator to recommend modules aligned with current tasks or gaps
+- [ ] Add a progress analytics flow showing hours worked, tasks completed, and skills practised
+- [ ] Add feature ideas for weekly calendar view, task-to-learning linking, and simple analytics
 
 ## Phase 5: Advanced Features & Integration
 

@@ -59,6 +59,22 @@ Getting Started
 2. Review `docs/vision/` and `docs/requirements/` for scope and specs.
 3. Run the app locally via `app/`.
 
+<<<<<<< HEAD
 Notes
 -----
 - Keep the app local-first and avoid storing client-sensitive data inside the app or repo.
+=======
+## Getting Started
+1. Read `VISION.md`
+2. Review `docs/vision/` and `docs/requirements/`
+3. Review `docs/professional_development/msp_skills_academy.md`
+5. Review `docs/guides/prompt_pack_recommendations.md` for AI coaching and prompt pack guidance
+6. Use `build/master_prompt.md` with Claude Code to build the app
+7. Follow `docs/guides/` for usage and planning
+
+## Maintenance
+- Update documents as Josh learns more about Avance
+- Add new research or guides to appropriate `docs/` subfolders
+- Build app code in `app/` directory
+- Archive outdated materials in `archive/`
+>>>>>>> af1407d (Add prompt pack recommendations and AI coaching tasks to docs and TODO list)
