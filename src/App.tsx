@@ -12,6 +12,7 @@ import MspScenarios from './pages/MspScenarios';
 import MspQuiz from './pages/MspQuiz';
 import TicketNotes from './pages/TicketNotes';
 import CommunicationPractice from './pages/CommunicationPractice';
+import KBLearning from './pages/KBLearning';
 import MspRoadmap from './pages/MspRoadmap';
 import AvanceWorkday from './pages/AvanceWorkday';
 import EvidencePack from './pages/EvidencePack';
@@ -60,6 +61,7 @@ const pages = [
   { id: 'playbooks', label: 'Playbooks' },
   { id: 'time', label: 'Time' },
   { id: 'pd', label: 'PD' },
+  { id: 'kbLearning', label: 'KB Learning Machine' },
   { id: 'weeklyReview', label: 'Weekly Review' },
   { id: 'avanceWorkday', label: 'Avance Workday' },
   { id: 'shiftCommandCenter', label: 'Command Center' },
@@ -86,6 +88,7 @@ type PageId =
   | 'playbooks'
   | 'time'
   | 'pd'
+  | 'kbLearning'
   | 'weeklyReview'
   | 'avanceWorkday'
   | 'shiftCommandCenter'
@@ -275,6 +278,7 @@ function App() {
             workLogs={workLogs}
             timeEntries={timeEntries}
             learningItems={learningItems}
+            progress={progress}
             addWorkLog={addWorkLog}
             addTask={addTask}
             addLearningItem={addLearningItem}
@@ -350,6 +354,13 @@ function App() {
             updateLearningItem={updateLearningItem}
             deleteLearningItem={deleteLearningItem}
             addKnowledgeEntry={addKnowledgeEntry}
+          />
+        )}
+        {currentPage === 'kbLearning' && (
+          <KBLearning
+            progress={progress}
+            learningItems={learningItems}
+            onNavigate={(page) => setCurrentPage(page as PageId)}
           />
         )}
         {currentPage === 'weeklyReview' && (

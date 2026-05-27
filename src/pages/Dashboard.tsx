@@ -6,6 +6,8 @@ import type { HealthState } from '../utils/healthOutdoors';
 import { getTodayLog } from '../utils/healthOutdoors';
 import { mspScenarios } from '../data/mspScenarios';
 import { microLearningCards } from '../data/microLearning';
+import { getKbLearningMetrics } from '../data/kbLearning';
+import type { AvanceProgress } from '../utils/progressStorage';
 
 const PAGE_TITLE = 'Dashboard';
 
@@ -16,6 +18,7 @@ type DashboardProps = {
   workLogs: WorkLog[];
   timeEntries: TimeEntry[];
   learningItems: LearningItem[];
+  progress: AvanceProgress;
   addWorkLog: (log: WorkLog) => void;
   addTask: (task: Task) => void;
   addLearningItem: (item: LearningItem) => void;
@@ -33,6 +36,8 @@ function Dashboard({
   tasks,
   workLogs,
   timeEntries,
+  learningItems,
+  progress,
   addWorkLog,
   addTask,
   addLearningItem,
@@ -54,6 +59,7 @@ function Dashboard({
   const isAvanceDay = [1, 3].includes(new Date().getDay());
   const scenarioOfWeek = mspScenarios[getWeekNumber() % mspScenarios.length];
   const microCardOfDay = microLearningCards[new Date().getDay() % microLearningCards.length];
+  const kbMetrics = getKbLearningMetrics(undefined, progress, learningItems);
 
   return (
     <div>
@@ -129,6 +135,17 @@ function Dashboard({
       <section className="card">
         <h2>Today's tiny practice</h2>
         <div className="health-plan-grid">
+          <article className="mini-card">
+            <h3>KB Learning Machine</h3>
+            <p>Turn KBs into recall, scenarios, ticket-note practice, and evidence.</p>
+            <div className="metric-row">
+              <span className="status-chip info">{kbMetrics.kbCards} KB cards</span>
+              <span className="status-chip warn">{kbMetrics.reviewsDue} reviews due</span>
+              <span className="status-chip success">{kbMetrics.scenariosCompleted} scenarios completed</span>
+              <span className="status-chip info">{kbMetrics.evidenceItems} evidence items</span>
+            </div>
+            <button type="button" onClick={() => onNavigate('kbLearning')}>Open KB Learning Machine</button>
+          </article>
           <article className="mini-card">
             <h3>Scenario of the week</h3>
             <p>{scenarioOfWeek.title}</p>

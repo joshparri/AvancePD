@@ -7,6 +7,7 @@ const storageKeys = [
   'avance-knowledgeEntries',
   'avance-playbooks',
   'avance-learningItems',
+  'avancepd.kbFieldCards',
   'avance-timeEntries',
   'avance-msp-progress',
   'avance-health-outdoors',
