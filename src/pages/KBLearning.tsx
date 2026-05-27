@@ -212,22 +212,24 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
 
   return (
     <div>
-      <section className="card kb-session-card">
+      <section className="card kb-session-card learning-hero-card">
         <div className="skill-card-header">
           <div>
             <h1>What are we learning today?</h1>
-            <p>Pick one MSP skill, practise it, and link it to helpful resources.</p>
-            <p>Hi Josh. Today’s recommended topic is <strong>{recommendedCard?.title ?? 'your first KB field card'}</strong>.</p>
+            <p className="page-subtitle">Pick one MSP skill, practise it, and follow a clear learning path.</p>
+            <p className="page-help">Hi Josh. Today’s recommended topic is <strong>{recommendedCard?.title ?? 'your first KB field card'}</strong>.</p>
           </div>
-          <span className="status-chip info">{recommendedCard?.relatedSkill ?? 'KB Learning'}</span>
+          <div className="learning-hero-summary">
+            <span className="status-chip info">{recommendedCard?.relatedSkill ?? 'KB Learning'}</span>
+            <span className="status-chip success">{metrics.kbCards} cards</span>
+          </div>
         </div>
-        <p className="page-help">Pick one short activity. The app will save progress locally and move the topic to its next review stage.</p>
-        <div className="status-button-row">
+        <div className="learning-path-row status-button-row">
           {(Object.keys(activityLabels) as KbLearningActivity[]).map((activity) => (
             <button
               key={activity}
               type="button"
-              className={activeActivity === activity ? 'small-action active' : 'small-action'}
+              className={activeActivity === activity ? 'small-action active primary-action' : 'small-action secondary-action'}
               onClick={() => setActiveActivity(activity)}
             >
               {activityLabels[activity]}
@@ -235,20 +237,19 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
           ))}
         </div>
         <div className="metric-row">
-          <span className="status-chip info">{metrics.kbCards} KB cards</span>
-          <span className="status-chip warn">{metrics.reviewsDue} reviews due</span>
+          <span className="status-chip info">{metrics.reviewsDue} reviews due</span>
           <span className="status-chip success">{metrics.scenariosCompleted} scenarios completed</span>
           <span className="status-chip info">{metrics.evidenceItems} evidence items</span>
         </div>
         {topExternalResources.length > 0 && (
-          <div className="mini-card" style={{ marginTop: '1rem' }}>
-            <h3>Recommended external resources</h3>
-            <p className="page-help">These links match the recommended KB topic and MSP skill.</p>
+          <div className="mini-card learning-support-card" style={{ marginTop: '1rem' }}>
+            <h3>Helpful learning support</h3>
+            <p className="page-help">These resources are curated to match today’s recommended topic.</p>
             <ul>
               {topExternalResources.map((resource) => (
-                <li key={resource.id} style={{ marginBottom: '0.5rem' }}>
+                <li key={resource.id} style={{ marginBottom: '0.65rem' }}>
                   <a href={resource.url} target="_blank" rel="noreferrer">{resource.title}</a>
-                  <span className="status-chip info" style={{ marginLeft: '0.5rem' }}>{resource.provider}</span>
+                  <span className="status-chip info" style={{ marginLeft: '0.6rem' }}>{resource.provider}</span>
                 </li>
               ))}
             </ul>

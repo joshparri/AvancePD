@@ -1,6 +1,7 @@
+import { useMemo } from 'react';
 import type { Client, LearningItem, Task, TimeEntry, WorkLog, Shift } from '../types';
-import QuickCapture from '../components/QuickCapture';
 import HealthyMspShiftPanel from '../components/HealthyMspShiftPanel';
+import QuickCapture from '../components/QuickCapture';
 import DataBackupPanel from '../components/DataBackupPanel';
 import type { HealthState } from '../utils/healthOutdoors';
 import { getTodayLog } from '../utils/healthOutdoors';
@@ -63,16 +64,28 @@ function Dashboard({
 
   return (
     <div>
-      <section className="card">
-        <h1>{PAGE_TITLE}</h1>
-        {isAvanceDay && <div className="privacy-note">Today is an Avance day. Keep notes generic, protect client details, and use tiny resets.</div>}
-        {hasData ? (
-          <p>Welcome back, Josh. Your next shift is:</p>
-        ) : (
-          <p>Welcome to your Avance Work Companion! Start by capturing your first work log or task below.</p>
-        )}
+      <section className="card dashboard-hero-card">
+        <div className="dashboard-hero">
+          <div>
+            <h1>{PAGE_TITLE}</h1>
+            {isAvanceDay && <div className="privacy-note">Today is an Avance day. Keep notes generic, protect client details, and use tiny resets.</div>}
+            <p className="page-subtitle">
+              {hasData
+                ? 'Welcome back, Josh. Use this cockpit to move quickly between capture, learning, and health resets.'
+                : 'Welcome to your Avance Work Companion. Start with a quick capture or a short KB practice session.'}
+            </p>
+          </div>
+          <div className="dashboard-hero-actions">
+            <button type="button" className="primary-action" onClick={() => onNavigate('kbLearning')}>Open KB Learning</button>
+            <button type="button" className="secondary-action" onClick={() => document.getElementById('quick-capture-title')?.focus()}>Quick capture</button>
+            <button type="button" className="secondary-action" onClick={onNavigateHealth}>Health reset</button>
+          </div>
+        </div>
+      </section>
+
+      <section className="card dashboard-summary-card">
         <div className="card-grid">
-          <div className="card">
+          <div className="mini-card dashboard-summary-tile">
             <h2>Next shift</h2>
             {nextShift ? (
               <>
@@ -84,7 +97,7 @@ function Dashboard({
               <p>No upcoming shifts scheduled. Add shifts in the Shifts section.</p>
             )}
           </div>
-          <div className="card">
+          <div className="mini-card dashboard-summary-tile">
             <h2>Invoice cycle</h2>
             {timeEntries.length > 0 ? (
               <p>{invoiceHours.toFixed(1)} billable hours logged</p>
