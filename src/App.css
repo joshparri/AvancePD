@@ -560,6 +560,17 @@ section {
   box-shadow: 0 10px 24px rgba(37, 99, 235, 0.12);
 }
 
+.mission-outcome {
+  margin-top: 8px;
+  color: #475569;
+  font-size: 0.96rem;
+}
+
+.game-note {
+  margin-top: 10px;
+  color: #475569;
+}
+
 .game-insight ul {
   display: grid;
   gap: 12px;

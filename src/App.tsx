@@ -428,7 +428,9 @@ function App() {
             onNavigate={(page) => setCurrentPage(page as PageId)}
           />
         )}
-        {currentPage === 'avancePDGames' && <AvancePDGames />}
+        {currentPage === 'avancePDGames' && (
+          <AvancePDGames onNavigate={(page) => setCurrentPage(page as PageId)} />
+        )}
       </main>
       <MobileBottomActions onNavigate={(page) => setCurrentPage(page as PageId)} />
     </div>
