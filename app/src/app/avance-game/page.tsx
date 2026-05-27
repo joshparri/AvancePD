@@ -149,6 +149,7 @@ export default function AvanceGamePage() {
       mode: activeMode,
       correct,
       xpEarned: currentChallenge.xpReward,
+      skillNode: currentChallenge.skillNode,
     });
     setLegacy(nextLegacy);
   };

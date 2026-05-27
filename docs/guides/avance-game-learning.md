@@ -7,8 +7,8 @@ This document describes the learning effectiveness changes added to the Avance g
 - Per-challenge attempt logging (`challengeStats`) stored in `AvanceGameProgress` (localStorage).
   - Fields: `attempts`, `correct`, `lastSeen`, `lastCorrect`.
 - Mastery heuristics.
-  - A challenge is considered "mastered" when either:
-    - `correct >= 3`, or
+  - Mastery is tracked per-skill (aggregated across challenges). A skill is considered `mastered` when either:
+    - `correct >= 5`, or
     - `attempts >= 5` and `correct / attempts >= 0.8`.
 - Spaced-repetition selection in `pickChallenge`.
   - The system prefers `reviewsDue` items first (items answered incorrectly earlier).
