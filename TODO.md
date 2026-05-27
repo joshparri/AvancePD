@@ -87,3 +87,11 @@
 - [x] Add weekly review, manager-safe evidence summary, export JSON, and reset health data actions
 - [x] Add email reminder setup copy/export helpers without storing API keys or Gmail credentials
 - [x] Add `/api/send-health-reminder` with server-side secrets only
+
+## 12. Prompt Pack and AI Coaching
+- [ ] Add `docs/PROMPT_PACKS.md` to capture prompt ideas for Avance Work Companion and Avance PD
+- [ ] Fix browser tab titles and app metadata for App 1 (Avance Work Companion) and App 2 (Avance PD)
+- [ ] Add prompt-driven features for Daily Briefing, Health Check, Repeated Issue Coach, Micro-Learning Booster, and Backup Reminder
+- [ ] Add prompt-driven features for PD Focus Overview, Weekly Retrospective, Task Breakdown, Follow-Up Triage, Learning Cockpit Navigator, and Shift Health Monitor
+- [ ] Use the prompt packs to guide small UI improvements in dashboard visibility, follow-up triage, and PD progress flows
+- [ ] Keep AI prompt features aligned with local-first privacy and avoid overbuilding into a full PSA

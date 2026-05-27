@@ -10,6 +10,7 @@ This file exists so documentation readers can find the project status without le
 - Keep privacy guidance visible in user-facing and developer-facing docs.
 - Avoid references to private planning folders or untracked local source material.
 - Add screenshots or deployment notes only after the chosen deployment target is confirmed.
+- Add `docs/PROMPT_PACKS.md` and keep the prompt-pack guidance in sync with the root TODO.
 
 ## Open Product Work
 
