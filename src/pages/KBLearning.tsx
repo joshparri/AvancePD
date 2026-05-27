@@ -1,14 +1,18 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import {
+  getAllKbCards,
   getKbLearningMetrics,
-  kbCategories,
+  saveUserKbCards,
+  scheduleNextKbReview,
+  todayIso
+} from '../features/kb-learning/kbLearningStorage';
+import {
   kbConfidenceLevels,
-  loadKbFieldCards,
-  saveUserKbFieldCards,
-  scheduleNextReview,
-  todayIso,
-  type KbFieldCard
-} from '../data/kbLearning';
+  kbFieldCardCategories,
+  type KbConfidence,
+  type KbFieldCard,
+  type KbFieldCardCategory
+} from '../features/kb-learning/kbLearningTypes';
 import type { AvanceProgress } from '../utils/progressStorage';
 import type { LearningItem } from '../types';
 
@@ -20,7 +24,7 @@ type KBLearningProps = {
 
 type FieldCardForm = {
   title: string;
-  category: string;
+  category: KbFieldCardCategory;
   whenToUse: string;
   prerequisites: string;
   firstChecks: string;
@@ -28,12 +32,12 @@ type FieldCardForm = {
   commonMistake: string;
   escalateIf: string;
   relatedSkill: string;
-  confidence: string;
+  confidence: KbConfidence;
 };
 
 const blankForm: FieldCardForm = {
   title: '',
-  category: 'Unknown',
+  category: 'General Troubleshooting',
   whenToUse: '',
   prerequisites: '',
   firstChecks: '',
@@ -41,27 +45,27 @@ const blankForm: FieldCardForm = {
   commonMistake: '',
   escalateIf: '',
   relatedSkill: '',
-  confidence: 'I recognise it'
+  confidence: 'low'
 };
 
 function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
-  const [fieldCards, setFieldCards] = useState<KbFieldCard[]>(loadKbFieldCards);
+  const [fieldCards, setFieldCards] = useState<KbFieldCard[]>(getAllKbCards);
   const [form, setForm] = useState<FieldCardForm>(blankForm);
   const [filter, setFilter] = useState('all');
   const [reviewMessage, setReviewMessage] = useState('');
 
   useEffect(() => {
-    saveUserKbFieldCards(fieldCards);
+    saveUserKbCards(fieldCards);
   }, [fieldCards]);
 
   const metrics = useMemo(() => getKbLearningMetrics(fieldCards, progress, learningItems), [fieldCards, learningItems, progress]);
-  const dueCards = useMemo(() => fieldCards.filter((card) => card.nextReviewAt <= todayIso()), [fieldCards]);
+  const dueCards = useMemo(() => fieldCards.filter((card) => card.nextReviewAt.slice(0, 10) <= todayIso()), [fieldCards]);
   const visibleCards = useMemo(
     () => filter === 'all' ? fieldCards : fieldCards.filter((card) => card.category === filter),
     [fieldCards, filter]
   );
 
-  const updateForm = (field: keyof FieldCardForm, value: string) => {
+  const updateForm = <K extends keyof FieldCardForm>(field: K, value: FieldCardForm[K]) => {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
@@ -97,7 +101,7 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
       return;
     }
 
-    setFieldCards((current) => current.map((item) => item.id === card.id ? scheduleNextReview(item) : item));
+    setFieldCards((current) => current.map((item) => item.id === card.id ? scheduleNextKbReview(item) : item));
     setReviewMessage(`${card.title} moved to the next review stage.`);
   };
 
@@ -122,7 +126,7 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
             Category
             <select value={filter} onChange={(event) => setFilter(event.target.value)}>
               <option value="all">All categories</option>
-              {kbCategories.map((category) => (
+              {kbFieldCardCategories.map((category) => (
                 <option key={category} value={category}>{category}</option>
               ))}
             </select>
@@ -189,15 +193,15 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
           <div className="filter-bar">
             <label>
               Category
-              <select value={form.category} onChange={(event) => updateForm('category', event.target.value)}>
-                {kbCategories.map((category) => (
+              <select value={form.category} onChange={(event) => updateForm('category', event.target.value as KbFieldCardCategory)}>
+                {kbFieldCardCategories.map((category) => (
                   <option key={category} value={category}>{category}</option>
                 ))}
               </select>
             </label>
             <label>
               Confidence
-              <select value={form.confidence} onChange={(event) => updateForm('confidence', event.target.value)}>
+              <select value={form.confidence} onChange={(event) => updateForm('confidence', event.target.value as KbConfidence)}>
                 {kbConfidenceLevels.map((confidence) => (
                   <option key={confidence} value={confidence}>{confidence}</option>
                 ))}

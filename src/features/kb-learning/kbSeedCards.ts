@@ -1,17 +1,17 @@
 import type { KbFieldCard } from './kbLearningTypes';
 
-const now = new Date().toISOString();
+const now = '2026-05-27T00:00:00.000Z';
 
 export const demoKbFieldCards: KbFieldCard[] = [
   {
     id: 'demo-1',
-    title: 'Enroll a new computer into Intune',
+    title: 'Enrolling a New Computer into Intune',
     category: 'Endpoint Management',
     whenToUse: 'Use when a new Windows or macOS device must be added to corporate Intune management.',
     prerequisites: 'Device is powered on, connected to the network, and has the correct enrollment account available.',
     firstChecks: [
       'Confirm the device is on the supported OS version.',
-      'Verify the user has the required enrollment credentials.',
+      'Verify the user has the required account access.',
       'Check that MDM enrollment is allowed in the tenant policy.'
     ],
     coreSteps: [
@@ -26,12 +26,12 @@ export const demoKbFieldCards: KbFieldCard[] = [
     reviewStage: 1,
     createdAt: now,
     updatedAt: now,
-    nextReviewAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    nextReviewAt: '2026-05-27',
     isDemo: true
   },
   {
     id: 'demo-2',
-    title: 'Migrate a local user account to an Entra account',
+    title: 'Migrating Local User Account to Entra Account',
     category: 'Identity & Access',
     whenToUse: 'Use when a device user moves from a local account to a managed Entra ID account.',
     prerequisites: 'The target Entra account exists and the device is joined or registered to the organization.',
@@ -41,7 +41,7 @@ export const demoKbFieldCards: KbFieldCard[] = [
       'Backup any local data that must be preserved.'
     ],
     coreSteps: [
-      'Sign out of the local account and sign in using the Entra credentials.',
+      'Sign out of the local account and sign in using the Entra account.',
       'Verify the user profile syncs and device policies apply.',
       'Confirm access to required apps and network resources.'
     ],
@@ -52,12 +52,12 @@ export const demoKbFieldCards: KbFieldCard[] = [
     reviewStage: 1,
     createdAt: now,
     updatedAt: now,
-    nextReviewAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    nextReviewAt: '2026-05-27',
     isDemo: true
   },
   {
     id: 'demo-3',
-    title: 'Import Office 365 or Google Workspace user into JumpCloud',
+    title: 'Importing Office 365 or Google GSuite User into JumpCloud',
     category: 'Endpoint Management',
     whenToUse: 'Use when a user account from a cloud directory needs to be onboarded in JumpCloud.',
     prerequisites: 'JumpCloud directory access is available and the source user provisioning settings are configured.',
@@ -71,19 +71,19 @@ export const demoKbFieldCards: KbFieldCard[] = [
       'Map the user attributes to JumpCloud fields.',
       'Complete the import and verify the account appears in JumpCloud.'
     ],
-    commonMistake: 'Importing without checking group assignment or password settings first.',
+    commonMistake: 'Importing without checking group assignment or access settings first.',
     escalateIf: 'The imported account cannot authenticate or access the expected resources.',
     relatedSkill: 'Cloud directory user onboarding',
     confidence: 'medium',
     reviewStage: 1,
     createdAt: now,
     updatedAt: now,
-    nextReviewAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    nextReviewAt: '2026-05-27',
     isDemo: true
   },
   {
     id: 'demo-4',
-    title: 'Turn on 2-factor authentication for a Google account',
+    title: 'Turning on 2 Factor Authentication for Google Account',
     category: 'Security & Authentication',
     whenToUse: 'Use when a user needs an additional authentication layer for a Google account.',
     prerequisites: 'The user can access the Google account and has a second authentication method available.',
@@ -104,12 +104,12 @@ export const demoKbFieldCards: KbFieldCard[] = [
     reviewStage: 1,
     createdAt: now,
     updatedAt: now,
-    nextReviewAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    nextReviewAt: '2026-05-27',
     isDemo: true
   },
   {
     id: 'demo-5',
-    title: 'Veeam agent recovery guide',
+    title: 'Veeam Agent Recovery Guide',
     category: 'Backup & Recovery',
     whenToUse: 'Use when a protected endpoint needs recovery from a Veeam backup.',
     prerequisites: 'A known backup point exists and the Veeam agent is installed on the protected device.',
@@ -130,12 +130,12 @@ export const demoKbFieldCards: KbFieldCard[] = [
     reviewStage: 1,
     createdAt: now,
     updatedAt: now,
-    nextReviewAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    nextReviewAt: '2026-05-27',
     isDemo: true
   },
   {
     id: 'demo-6',
-    title: 'Outlook opens links in Edge',
+    title: 'Outlook Opening Links in Edge',
     category: 'Email & Collaboration',
     whenToUse: 'Use when Outlook link behavior needs to be changed for a Windows user.',
     prerequisites: 'The user has Outlook installed and the desired browser is already configured.',
@@ -156,7 +156,7 @@ export const demoKbFieldCards: KbFieldCard[] = [
     reviewStage: 1,
     createdAt: now,
     updatedAt: now,
-    nextReviewAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    nextReviewAt: '2026-05-27',
     isDemo: true
   },
   {
@@ -182,12 +182,12 @@ export const demoKbFieldCards: KbFieldCard[] = [
     reviewStage: 1,
     createdAt: now,
     updatedAt: now,
-    nextReviewAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    nextReviewAt: '2026-05-27',
     isDemo: true
   },
   {
     id: 'demo-8',
-    title: 'Edit Exchange calendar permissions with PowerShell',
+    title: 'Editing Exchange Calendar Permissions with PowerShell',
     category: 'Email & Collaboration',
     whenToUse: 'Use when calendar permission changes must be scripted in Exchange Online.',
     prerequisites: 'Exchange Online PowerShell is available and the operator has permission to manage the mailbox.',
@@ -208,12 +208,12 @@ export const demoKbFieldCards: KbFieldCard[] = [
     reviewStage: 1,
     createdAt: now,
     updatedAt: now,
-    nextReviewAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    nextReviewAt: '2026-05-27',
     isDemo: true
   },
   {
     id: 'demo-9',
-    title: 'RDP not passing through USB drives',
+    title: 'RDP Not Passing Through USB Drives',
     category: 'Networking & Remote Access',
     whenToUse: 'Use when a remote desktop session needs access to local USB devices.',
     prerequisites: 'The client and remote host support device redirection.',
@@ -234,17 +234,17 @@ export const demoKbFieldCards: KbFieldCard[] = [
     reviewStage: 1,
     createdAt: now,
     updatedAt: now,
-    nextReviewAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    nextReviewAt: '2026-05-27',
     isDemo: true
   },
   {
     id: 'demo-10',
-    title: 'MHC printer configuration',
+    title: 'MHC Printer Configuration',
     category: 'Printing & Peripherals',
-    whenToUse: 'Use when a network printer for a healthcare client needs configuration in a secure environment.',
+    whenToUse: 'Use when a managed printer or print queue needs safe, generic configuration practice.',
     prerequisites: 'The printer is connected to the network and the correct driver is available.',
     firstChecks: [
-      'Verify the printer IP address and network connectivity.',
+      'Verify the printer network path and connectivity.',
       'Confirm the correct driver or universal printer driver is selected.',
       'Review any required security or privacy settings for the environment.'
     ],
@@ -253,14 +253,14 @@ export const demoKbFieldCards: KbFieldCard[] = [
       'Add the printer to the workstation and test a print page.',
       'Confirm print access and secure settings are applied.'
     ],
-    commonMistake: 'Using the wrong driver or domain credentials for the printer setup.',
+    commonMistake: 'Using the wrong driver or account context for the printer setup.',
     escalateIf: 'The printer remains unavailable or print jobs fail after configuration.',
     relatedSkill: 'Printer installation and configuration',
     confidence: 'medium',
     reviewStage: 1,
     createdAt: now,
     updatedAt: now,
-    nextReviewAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    nextReviewAt: '2026-05-27',
     isDemo: true
   }
 ];

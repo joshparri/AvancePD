@@ -41,3 +41,10 @@ export type KbFieldCard = {
   nextReviewAt: string;
   isDemo: boolean;
 };
+
+export type KbLearningMetrics = {
+  kbCards: number;
+  reviewsDue: number;
+  scenariosCompleted: number;
+  evidenceItems: number;
+};

@@ -6,7 +6,7 @@ import type { HealthState } from '../utils/healthOutdoors';
 import { getTodayLog } from '../utils/healthOutdoors';
 import { mspScenarios } from '../data/mspScenarios';
 import { microLearningCards } from '../data/microLearning';
-import { getKbLearningMetrics } from '../data/kbLearning';
+import { getKbLearningMetrics } from '../features/kb-learning/kbLearningStorage';
 import type { AvanceProgress } from '../utils/progressStorage';
 
 const PAGE_TITLE = 'Dashboard';

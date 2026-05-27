@@ -1,6 +1,9 @@
-import type { KbFieldCard, KbConfidence } from './kbLearningTypes';
+import type { LearningItem } from '../../types';
+import type { AvanceProgress } from '../../utils/progressStorage';
+import { demoKbFieldCards } from './kbSeedCards';
+import type { KbFieldCard, KbLearningMetrics } from './kbLearningTypes';
 
-const STORAGE_KEY = 'avancepd.kbFieldCards';
+export const kbFieldCardsStorageKey = 'avancepd.kbFieldCards';
 
 function createId(prefix: string) {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -14,7 +17,7 @@ export function loadUserKbCards(): KbFieldCard[] {
     return [];
   }
 
-  const raw = window.localStorage.getItem(STORAGE_KEY);
+  const raw = window.localStorage.getItem(kbFieldCardsStorageKey);
   if (!raw) {
     return [];
   }
@@ -22,7 +25,7 @@ export function loadUserKbCards(): KbFieldCard[] {
   try {
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
-      return parsed;
+      return parsed.filter((card) => !card.isDemo).map(normalizeUserCard);
     }
   } catch {
     // ignore invalid data
@@ -36,7 +39,7 @@ export function saveUserKbCards(cards: KbFieldCard[]): void {
     return;
   }
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+  window.localStorage.setItem(kbFieldCardsStorageKey, JSON.stringify(cards.filter((card) => !card.isDemo).map(normalizeUserCard)));
 }
 
 export function createKbFieldCard(data: Omit<KbFieldCard, 'id' | 'createdAt' | 'updatedAt' | 'isDemo'>): KbFieldCard {
@@ -50,7 +53,7 @@ export function createKbFieldCard(data: Omit<KbFieldCard, 'id' | 'createdAt' | '
   };
 }
 
-export function getAllKbCards(demoCards: KbFieldCard[] = []): KbFieldCard[] {
+export function getAllKbCards(demoCards: KbFieldCard[] = demoKbFieldCards): KbFieldCard[] {
   const userCards = loadUserKbCards();
   return [...demoCards, ...userCards];
 }
@@ -74,4 +77,58 @@ export function addUserKbCard(card: Omit<KbFieldCard, 'id' | 'createdAt' | 'upda
 export function deleteUserKbCard(cardId: string): void {
   const cards = loadUserKbCards();
   saveUserKbCards(cards.filter((item) => item.id !== cardId));
+}
+
+export function scheduleNextKbReview(card: KbFieldCard): KbFieldCard {
+  const nextStage = Math.min(card.reviewStage + 1, 5);
+  const intervals = [1, 3, 7, 14, 30, 45];
+  const nextDate = new Date();
+  nextDate.setDate(nextDate.getDate() + intervals[nextStage]);
+
+  return {
+    ...card,
+    reviewStage: nextStage,
+    updatedAt: new Date().toISOString(),
+    nextReviewAt: nextDate.toISOString().slice(0, 10)
+  };
+}
+
+export function getKbLearningMetrics(
+  cards: KbFieldCard[] = getAllKbCards(),
+  progress?: AvanceProgress,
+  learningItems: LearningItem[] = []
+): KbLearningMetrics {
+  const today = todayIso();
+  const reviewsDue = cards.filter((card) => card.nextReviewAt.slice(0, 10) <= today).length;
+  const scenariosCompleted = progress
+    ? Object.values(progress.scenarioProgress).filter((item) => item.status === 'practised' || item.status === 'confident').length
+    : 0;
+  const evidenceItems = learningItems.filter((item) => item.evidenceWorthy).length + (progress?.ticketNotePracticeCount ?? 0);
+
+  return {
+    kbCards: cards.length,
+    reviewsDue,
+    scenariosCompleted,
+    evidenceItems
+  };
+}
+
+export function todayIso() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function normalizeUserCard(card: KbFieldCard): KbFieldCard {
+  return {
+    ...card,
+    id: card.id || createId('kbcard'),
+    title: card.title || 'Untitled KB field card',
+    firstChecks: Array.isArray(card.firstChecks) ? card.firstChecks : [],
+    coreSteps: Array.isArray(card.coreSteps) ? card.coreSteps : [],
+    confidence: card.confidence || 'low',
+    reviewStage: Number.isFinite(card.reviewStage) ? card.reviewStage : 0,
+    createdAt: card.createdAt || new Date().toISOString(),
+    updatedAt: card.updatedAt || new Date().toISOString(),
+    nextReviewAt: card.nextReviewAt || todayIso(),
+    isDemo: false
+  };
 }
