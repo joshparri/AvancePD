@@ -71,8 +71,8 @@ export function Navigation() {
               })}
             </div>
           </div>
-          <div className="flex items-center">
-            <DarkModeToggle />
+          <div className="ml-3 flex shrink-0 items-center border-l border-slate-200 pl-3 dark:border-slate-700">
+            <DarkModeToggle showLabel />
           </div>
         </div>
       </div>

@@ -41,7 +41,7 @@ function TrainingSection({
   icon: React.ReactNode;
 }) {
   return (
-    <Card>
+    <Card className="dark:border-slate-700">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           {icon}
@@ -49,7 +49,7 @@ function TrainingSection({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+        <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-200">
           {items.map((item) => (
             <li key={item}>- {item}</li>
           ))}
@@ -97,7 +97,7 @@ export default function MspScenariosPage() {
         <LearningDiagram variant="ticket-lifecycle" compact />
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[360px_1fr]">
-            <Card>
+            <Card className="dark:border-slate-700">
               <CardHeader>
                 <CardTitle className="text-lg">Select a scenario</CardTitle>
                 <p className="text-xs text-muted-foreground mt-2">Choose a ticket to practise. Each scenario includes good opening questions, expected checks, unsafe shortcuts, and escalation triggers.</p>
@@ -130,7 +130,7 @@ export default function MspScenariosPage() {
             </Card>
 
             <div className="space-y-6">
-              <Card>
+              <Card className="dark:border-slate-700">
                 <CardHeader>
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="flex items-start gap-4">
@@ -169,7 +169,7 @@ export default function MspScenariosPage() {
                           event.target.value as MspScenarioStatus
                         )
                       }
-                      className="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 dark:bg-white dark:text-slate-900 md:w-64"
+                      className="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 md:w-64"
                     >
                       {mspScenarioStatusOptions.map((option) => (
                         <option key={option} value={option}>
@@ -181,7 +181,7 @@ export default function MspScenariosPage() {
 
                   <div>
                     <h2 className="text-sm font-semibold text-gray-900 dark:text-white">The ticket</h2>
-                    <p className="mt-2 rounded-md border border-gray-200 bg-gray-50 p-4 text-sm text-gray-800 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                    <p className="academy-inset-panel mt-2 text-sm">
                       {selectedScenario.ticketText}
                     </p>
                   </div>

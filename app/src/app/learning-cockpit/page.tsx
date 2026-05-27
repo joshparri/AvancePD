@@ -295,8 +295,8 @@ export default function LearningCockpit() {
 
         return (
           <div className="space-y-4">
-            <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700">
-              <p className="font-medium">{activity.instructions}</p>
+            <div className="academy-inset-panel">
+              <p className="font-medium text-slate-900 dark:text-white">{activity.instructions}</p>
             </div>
             {!showFlashcardAnswer && (
               <Button onClick={() => setShowFlashcardAnswer(true)} variant="outline">
@@ -304,8 +304,8 @@ export default function LearningCockpit() {
               </Button>
             )}
             {showFlashcardAnswer && (
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-2 border-blue-200 dark:border-blue-800">
-                <p className="text-sm">{activity.successCriteria.join(', ')}</p>
+              <div className="rounded-lg border-2 border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/40">
+                <p className="text-sm text-slate-800 dark:text-slate-100">{activity.successCriteria.join(', ')}</p>
               </div>
             )}
           </div>
@@ -327,11 +327,11 @@ export default function LearningCockpit() {
           <div className="space-y-4">
             <p className="text-gray-600 dark:text-gray-400">{activity.instructions}</p>
             <div className="space-y-2">
-              <p className="font-medium">Success criteria:</p>
-              <ul className="text-sm space-y-1">
+              <p className="font-medium text-slate-900 dark:text-white">Success criteria:</p>
+              <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-200">
                 {activity.successCriteria.map((criteria, index) => (
                   <li key={index} className="flex items-start">
-                    <span className="text-green-500 mr-2">-</span>
+                    <span className="mr-2 text-green-500">-</span>
                     {criteria}
                   </li>
                 ))}
@@ -371,8 +371,8 @@ export default function LearningCockpit() {
             <p className="text-gray-600 dark:text-gray-400">{activity.instructions}</p>
             {activity.successCriteria.map((criteria, index) => (
               <div key={index} className="flex items-center space-x-2">
-                <input type="checkbox" className="rounded" />
-                <label className="text-sm">{criteria}</label>
+                <input type="checkbox" className="rounded border-slate-300 dark:border-slate-600" />
+                <label className="text-sm text-slate-700 dark:text-slate-200">{criteria}</label>
               </div>
             ))}
           </div>
@@ -393,16 +393,16 @@ export default function LearningCockpit() {
 
         return (
           <div className="space-y-4">
-            <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border-l-4 border-yellow-400">
-              <p className="font-medium">Scenario:</p>
-              <p className="text-sm mt-1">{activity.instructions}</p>
+            <div className="academy-inset-panel border-l-4 border-l-amber-400 dark:border-l-amber-500">
+              <p className="font-medium text-slate-900 dark:text-white">Scenario:</p>
+              <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">{activity.instructions}</p>
             </div>
             <div className="space-y-2">
-              <p className="font-medium">Key considerations:</p>
-              <ul className="text-sm space-y-1">
+              <p className="font-medium text-slate-900 dark:text-white">Key considerations:</p>
+              <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-200">
                 {activity.successCriteria.map((criteria, index) => (
                   <li key={index} className="flex items-start">
-                    <span className="text-yellow-500 mr-2">•</span>
+                    <span className="mr-2 text-amber-500">•</span>
                     {criteria}
                   </li>
                 ))}
@@ -442,16 +442,18 @@ export default function LearningCockpit() {
 
         return (
           <div className="space-y-4">
-            <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-              <p className="font-medium text-purple-800 dark:text-purple-300">User says:</p>
-              <p className="text-sm mt-1 italic">&quot;I don&apos;t understand why I need this MFA thing. It&apos;s so annoying!&quot;</p>
+            <div className="academy-inset-panel border-l-4 border-l-purple-400 dark:border-l-purple-500">
+              <p className="font-medium text-purple-900 dark:text-purple-200">User says:</p>
+              <p className="mt-1 text-sm italic text-slate-700 dark:text-slate-200">
+                &quot;I don&apos;t understand why I need this MFA thing. It&apos;s so annoying!&quot;
+              </p>
             </div>
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <p className="font-medium text-blue-800 dark:text-blue-300">Your response should:</p>
-              <ul className="text-sm mt-2 space-y-1">
+            <div className="academy-inset-panel">
+              <p className="font-medium text-slate-900 dark:text-white">Your response should:</p>
+              <ul className="mt-2 space-y-1 text-sm text-slate-700 dark:text-slate-200">
                 {activity.successCriteria.map((criteria, index) => (
                   <li key={index} className="flex items-start">
-                    <span className="text-blue-500 mr-2">•</span>
+                    <span className="mr-2 text-blue-500">•</span>
                     {criteria}
                   </li>
                 ))}
@@ -463,13 +465,13 @@ export default function LearningCockpit() {
       default:
         return (
           <div className="space-y-4">
-            <p className="text-gray-600 dark:text-gray-400">{activity.instructions}</p>
+            <p className="text-slate-600 dark:text-slate-300">{activity.instructions}</p>
             <div className="space-y-2">
-              <p className="font-medium">Success criteria:</p>
-              <ul className="text-sm space-y-1">
+              <p className="font-medium text-slate-900 dark:text-white">Success criteria:</p>
+              <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-200">
                 {activity.successCriteria.map((criteria, index) => (
                   <li key={index} className="flex items-start">
-                    <span className="text-green-500 mr-2">✓</span>
+                    <span className="mr-2 text-green-500">✓</span>
                     {criteria}
                   </li>
                 ))}

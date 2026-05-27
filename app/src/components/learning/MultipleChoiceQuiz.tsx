@@ -35,10 +35,13 @@ export function MultipleChoiceQuiz({
 
   return (
     <div className="space-y-4">
-      <p className="text-sm font-semibold">{question}</p>
+      <p className="text-sm font-semibold text-slate-900 dark:text-white">{question}</p>
       <div className="space-y-2">
         {choices.map((choice, index) => (
-          <label key={choice} className="flex cursor-pointer items-start gap-2 rounded-lg border p-3 text-sm">
+          <label
+            key={choice}
+            className="flex cursor-pointer items-start gap-2 rounded-lg border border-slate-200 p-3 text-sm text-slate-800 dark:border-slate-600 dark:text-slate-100"
+          >
             <input
               type="radio"
               name="interactive-quiz"
@@ -56,9 +59,9 @@ export function MultipleChoiceQuiz({
           Check answer
         </Button>
       ) : (
-        <div className="rounded-lg border bg-gray-50 p-4 text-sm dark:bg-gray-950">
+        <div className="academy-inset-panel text-sm">
           <Badge variant={isCorrect ? 'default' : 'secondary'}>{isCorrect ? 'Correct' : 'Review this'}</Badge>
-          <p className="mt-3 text-gray-700 dark:text-gray-300">{explanation}</p>
+          <p className="mt-3 text-slate-700 dark:text-slate-200">{explanation}</p>
         </div>
       )}
     </div>

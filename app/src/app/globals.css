@@ -68,7 +68,16 @@ body {
 }
 
 .academy-surface-muted {
-  @apply rounded-xl border border-slate-200/60 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-900/40;
+  @apply rounded-xl border border-slate-200/60 bg-slate-50/80 dark:border-slate-700 dark:bg-slate-800/50;
+}
+
+/* Readable inset panels in light and dark mode (scenarios, KB drills, modals) */
+.academy-inset-panel {
+  @apply rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-800 dark:border-slate-600 dark:bg-slate-800/90 dark:text-slate-100;
+}
+
+.academy-wellness-card {
+  @apply border-cyan-200/80 bg-cyan-50/60 dark:border-cyan-800/40 dark:bg-slate-900/90;
 }
 
 .academy-callout-safe {

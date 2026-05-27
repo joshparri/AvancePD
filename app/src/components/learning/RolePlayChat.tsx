@@ -63,7 +63,7 @@ export function RolePlayChat({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border bg-gray-50 p-3 text-xs text-muted-foreground dark:bg-gray-950">
+      <div className="academy-inset-panel text-xs text-slate-600 dark:text-slate-300">
         {systemInstructions}
       </div>
       <div className="space-y-3">
@@ -72,11 +72,11 @@ export function RolePlayChat({
             key={`${message.role}-${index}`}
             className={`rounded-lg border p-3 text-sm ${
               message.role === 'coach'
-                ? 'bg-blue-50 dark:bg-blue-950/30'
-                : 'ml-8 bg-white dark:bg-gray-950'
+                ? 'border-blue-200 bg-blue-50 text-slate-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-slate-100'
+                : 'ml-8 border-slate-200 bg-white text-slate-800 dark:border-slate-600 dark:bg-slate-800/90 dark:text-slate-100'
             }`}
           >
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               {message.role === 'coach' ? 'User / coach' : 'You'}
             </p>
             <p>{message.content}</p>

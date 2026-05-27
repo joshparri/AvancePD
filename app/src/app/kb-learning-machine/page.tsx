@@ -365,7 +365,7 @@ export default function KbLearningMachinePage() {
                         className={`w-full rounded-lg border p-4 text-left transition hover:border-blue-500 ${
                           selectedCard?.id === card.id
                             ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30'
-                            : 'border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950'
+                            : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/80'
                         }`}
                       >
                         <div className="flex items-start justify-between gap-3">
@@ -543,8 +543,8 @@ export default function KbLearningMachinePage() {
                         </Button>
                       ))}
                     </div>
-                    <div className="rounded-lg border p-4">
-                      <p className="text-sm font-semibold">{activeFlashcard?.question}</p>
+                    <div className="academy-inset-panel">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white">{activeFlashcard?.question}</p>
                       {showFlashcardAnswer ? (
                         <>
                           <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">{activeFlashcard?.answer}</p>
@@ -575,7 +575,7 @@ export default function KbLearningMachinePage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="rounded-lg border bg-gray-50 p-4 text-sm dark:bg-gray-950">
+                    <div className="academy-inset-panel">
                       {buildKbScenarioPrompt(selectedCard)}
                     </div>
                     <Textarea
@@ -621,7 +621,7 @@ export default function KbLearningMachinePage() {
                         </div>
                       ))}
                     </div>
-                    <div className="rounded-lg border bg-gray-50 p-3 text-sm whitespace-pre-wrap dark:bg-gray-950">
+                    <div className="academy-inset-panel whitespace-pre-wrap text-sm">
                       {toTicketNoteMarkdown(ticketNote)}
                     </div>
                     <Button onClick={handleSaveTicketNote}>Save ticket-note practice</Button>
@@ -664,23 +664,23 @@ export default function KbLearningMachinePage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 lg:grid-cols-3">
-              <div className="space-y-2 rounded-lg border p-4">
-                <p className="text-sm font-semibold">Activity</p>
+              <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-700 dark:bg-slate-800/60">
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">Activity</p>
                 <p className="text-sm text-muted-foreground">KBs studied: {evidenceSummary.kbsStudied}</p>
                 <p className="text-sm text-muted-foreground">Reviews completed: {evidenceSummary.reviewsCompleted}</p>
                 <p className="text-sm text-muted-foreground">Scenarios completed: {evidenceSummary.scenariosCompleted}</p>
                 <p className="text-sm text-muted-foreground">Ticket notes practised: {evidenceSummary.ticketNotesPractised}</p>
               </div>
-              <div className="space-y-2 rounded-lg border p-4">
-                <p className="text-sm font-semibold">Current gaps</p>
+              <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-700 dark:bg-slate-800/60">
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">Current gaps</p>
                 {evidenceSummary.currentGaps.map((gap) => (
                   <p key={gap} className="text-sm text-muted-foreground">
                     - {gap}
                   </p>
                 ))}
               </div>
-              <div className="space-y-2 rounded-lg border p-4">
-                <p className="text-sm font-semibold">Next goals</p>
+              <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-700 dark:bg-slate-800/60">
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">Next goals</p>
                 {evidenceSummary.nextGoals.map((goal) => (
                   <p key={goal} className="text-sm text-muted-foreground">
                     - {goal}

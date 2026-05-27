@@ -343,7 +343,7 @@ export default function HealthOutdoorsPage() {
             </div>
           </div>
 
-          <Card className="border-cyan-500/30 bg-cyan-500/5">
+          <Card className="academy-wellness-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl">
                 <HeartPulse className="h-5 w-5 text-cyan-600 dark:text-cyan-300" />

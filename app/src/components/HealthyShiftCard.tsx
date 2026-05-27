@@ -25,6 +25,9 @@ const phaseLabels: Record<HealthShiftPhase, string> = {
   'wrap-up': 'Wrap-up',
 };
 
+const outlineBtnClass =
+  'dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700';
+
 export function HealthyShiftCard() {
   const [settings, setSettings] = useState<HealthOutdoorsSettings | null>(null);
   const [dailyLog, setDailyLog] = useState<DailyHealthLog | null>(null);
@@ -49,17 +52,20 @@ export function HealthyShiftCard() {
     if (!settings || !now) {
       return 'off-shift' as HealthShiftPhase;
     }
-
     return getShiftPhase(now, settings);
   }, [now, settings]);
 
-  const nextAction = useMemo(() => {
-    if (!settings || !dailyLog || !now) {
-      return null;
-    }
-
-    return getDueReminder(now, settings, dailyLog) ?? getNextReminder(now, settings, dailyLog);
+  const dueReminder = useMemo(() => {
+    if (!settings || !dailyLog || !now) return null;
+    return getDueReminder(now, settings, dailyLog);
   }, [dailyLog, now, settings]);
+
+  const nextReminder = useMemo(() => {
+    if (!settings || !dailyLog || !now) return null;
+    return getNextReminder(now, settings, dailyLog);
+  }, [dailyLog, now, settings]);
+
+  const activeReminder = dueReminder ?? nextReminder;
 
   const handleWater = () => {
     setDailyLog(incrementWater());
@@ -75,44 +81,63 @@ export function HealthyShiftCard() {
 
   if (!settings || !dailyLog) {
     return (
-      <Card className="mb-6">
+      <Card className="academy-wellness-card">
         <CardContent className="p-6 text-sm text-muted-foreground">Loading healthy shift card...</CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="mb-6 border-cyan-500/30 bg-cyan-500/5">
+    <Card className="academy-wellness-card">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg">
+        <CardTitle className="flex items-center gap-2 text-lg text-slate-900 dark:text-white">
           <HeartPulse className="h-5 w-5 text-cyan-600 dark:text-cyan-300" />
           Healthy MSP Shift
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {activeReminder && (
+          <div className="academy-inset-panel space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                {dueReminder ? 'Due now' : 'Next micro-break'}
+              </p>
+              <Badge variant="outline" className="dark:border-slate-600 dark:text-slate-200">
+                {phaseLabels[phase]}
+              </Badge>
+            </div>
+            <h3 className="text-base font-semibold text-slate-900 dark:text-white">{activeReminder.title}</h3>
+            <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-200">{activeReminder.message}</p>
+            <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+              <span className="font-medium text-slate-800 dark:text-slate-100">Why it helps: </span>
+              {activeReminder.whyItHelps}
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
           <div>
             <p className="text-xs text-muted-foreground">Shift phase</p>
-            <Badge variant="outline" className="mt-1">
+            <Badge variant="outline" className="mt-1 dark:border-slate-600 dark:text-slate-200">
               {phaseLabels[phase]}
             </Badge>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Next health action</p>
             <p className="mt-1 text-sm font-medium text-slate-900 dark:text-white">
-              {nextAction?.title ?? 'No reminder due'}
+              {activeReminder?.title ?? 'No reminder due'}
             </p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Water check-ins</p>
-            <p className="mt-1 flex items-center gap-1 text-2xl font-bold">
+            <p className="mt-1 flex items-center gap-1 text-2xl font-bold text-slate-900 dark:text-white">
               <Droplets className="h-5 w-5 text-cyan-600 dark:text-cyan-300" />
               {dailyLog.waterCount}
             </p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Outdoor minutes</p>
-            <p className="mt-1 flex items-center gap-1 text-2xl font-bold">
+            <p className="mt-1 flex items-center gap-1 text-2xl font-bold text-slate-900 dark:text-white">
               <Footprints className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
               {dailyLog.outdoorMinutes}
             </p>
@@ -129,17 +154,17 @@ export function HealthyShiftCard() {
             onLogChange={setDailyLog}
             onSettingsChange={setSettings}
             trigger={
-              <Button type="button" size="sm" variant="outline">
+              <Button type="button" size="sm" variant="outline" className={outlineBtnClass}>
                 <Sparkles className="mr-2 h-4 w-4" />
                 2-minute reset
               </Button>
             }
           />
-          <Button type="button" size="sm" variant="outline" onClick={handleUrgentTicketMode}>
+          <Button type="button" size="sm" variant="outline" className={outlineBtnClass} onClick={handleUrgentTicketMode}>
             <Shield className="mr-2 h-4 w-4" />
             Urgent ticket mode
           </Button>
-          <Button asChild size="sm" variant="outline">
+          <Button asChild size="sm" variant="outline" className={outlineBtnClass}>
             <Link href="/health-outdoors">Open Health & Outdoors</Link>
           </Button>
         </div>
