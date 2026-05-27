@@ -21,6 +21,15 @@ import {
   type KbQuizAttempt
 } from '../features/kb-learning/kbLearningTypes';
 import { buildKbQuiz, scoreQuiz } from '../features/kb-learning/kbQuiz';
+import ExternalLearningLinks from '../features/external-learning/ExternalLearningLinks';
+import type { ExternalLearningProgress } from '../features/external-learning/externalLearningTypes';
+import { getResourcesForKbCard } from '../features/external-learning/externalLearningMatcher';
+import {
+  loadExternalLearningProgress,
+  markResourceCompleted,
+  markResourceSaved,
+  markResourceStarted
+} from '../features/external-learning/externalLearningProgress';
 import type { AvanceProgress } from '../utils/progressStorage';
 import type { LearningItem } from '../types';
 
@@ -74,6 +83,7 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
   const [textAnswer, setTextAnswer] = useState('');
   const [activityStatus, setActivityStatus] = useState('');
+  const [externalLearningProgress, setExternalLearningProgress] = useState<ExternalLearningProgress>(loadExternalLearningProgress);
 
   useEffect(() => {
     saveKbCards(fieldCards);
@@ -89,6 +99,10 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
   const selectedCard = fieldCards.find((card) => card.id === selectedCardId) ?? recommendedCard ?? fieldCards[0];
   const selectedProgress = selectedCard ? activityProgress[selectedCard.id] : undefined;
   const quizQuestions = useMemo(() => selectedCard ? buildKbQuiz(selectedCard) : [], [selectedCard]);
+  const externalResources = useMemo(
+    () => selectedCard ? getResourcesForKbCard(selectedCard) : [],
+    [selectedCard]
+  );
   const visibleCards = useMemo(
     () => filter === 'all' ? fieldCards : fieldCards.filter((card) => card.category === filter),
     [fieldCards, filter]
@@ -188,6 +202,10 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
     setActivityStatus(`${result.source === 'groq' ? 'Groq' : 'Local'} assessment saved.`);
   };
 
+  const markSavedResource = (resourceId: string) => setExternalLearningProgress(markResourceSaved(resourceId));
+  const markStartedResource = (resourceId: string) => setExternalLearningProgress(markResourceStarted(resourceId));
+  const markCompletedResource = (resourceId: string) => setExternalLearningProgress(markResourceCompleted(resourceId));
+
   const savedQuizAttempt = selectedProgress?.quizAttempt;
   const assessment = selectedProgress?.assessments[activeActivity];
 
@@ -254,6 +272,17 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
           )}
           {activityStatus && <p className="health-muted">{activityStatus}</p>}
         </section>
+      )}
+
+      {selectedCard && externalResources.length > 0 && (
+        <ExternalLearningLinks
+          resources={externalResources}
+          progress={externalLearningProgress}
+          onSave={markSavedResource}
+          onStart={markStartedResource}
+          onComplete={markCompletedResource}
+          title="Helpful external learning for this topic"
+        />
       )}
 
       <section className="card">
