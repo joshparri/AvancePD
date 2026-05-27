@@ -40,16 +40,16 @@ export function Navigation() {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+    <nav className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/90">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          <div className="flex">
+          <div className="flex min-w-0 flex-1">
             <div className="flex-shrink-0 flex items-center">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                Avance Companion
+              <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white sm:text-xl">
+                <span className="text-blue-600 dark:text-blue-400">Avance</span> Academy
               </h1>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-5 sm:overflow-x-auto">
+            <div className="hidden sm:ml-6 sm:flex sm:space-x-1 sm:overflow-x-auto">
               {navigation.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
@@ -58,10 +58,10 @@ export function Navigation() {
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium',
+                      'inline-flex items-center rounded-lg px-2.5 py-2 text-sm font-medium transition-colors',
                       isActive
-                        ? 'border-blue-500 text-gray-900 dark:text-white'
-                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                        ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
                     )}
                   >
                     <Icon className="w-4 h-4 mr-2" />

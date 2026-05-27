@@ -6,7 +6,7 @@ import { format, isToday, isTomorrow } from 'date-fns';
 import { db, initDatabase } from '@/lib/db';
 import { seedDatabase } from '@/lib/seed';
 import { Shift, WorkLog, Task } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, Plus, CheckSquare, TrendingUp, Lightbulb, BookOpen } from 'lucide-react';
@@ -14,6 +14,7 @@ import { mspLearningActivities, type MspLearningActivity } from '@/data/mspLearn
 import { getLearningStats, getDueReviewSuggestions } from '@/lib/mspLearningProgress';
 import { PendingActionTracker } from '@/components/PendingActionTracker';
 import { HealthyShiftCard } from '@/components/HealthyShiftCard';
+import { HeroPanel, PageShell, SectionHeader, StatCard } from '@/components/academy';
 
 export function Dashboard() {
   const [nextShift, setNextShift] = useState<Shift | null>(null);
@@ -134,113 +135,71 @@ export function Dashboard() {
   }
 
   return (
-    <div className="p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Avance Work Companion
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              {format(new Date(), 'EEEE, MMMM d, yyyy')}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button size="sm" asChild>
-              <Link href="/work-logs">
-                <Plus className="w-4 h-4 mr-2" />
-                New Log
-              </Link>
+    <PageShell
+      eyebrow="Today"
+      title="Command centre"
+      subtitle={format(new Date(), 'EEEE, MMMM d, yyyy')}
+      actions={
+        <>
+          <Button size="sm" asChild>
+            <Link href="/work-logs">
+              <Plus className="w-4 h-4 mr-2" />
+              New log
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm">
+            <CheckSquare className="w-4 h-4 mr-2" />
+            New task
+          </Button>
+        </>
+      }
+    >
+        <HeroPanel
+          title="One clear next step"
+          subtitle="Balance work, learning, wellbeing, and follow-up — start with PD focus or your next shift."
+          primaryAction={
+            nextBestActivity ? (
+              <Button size="sm" asChild>
+                <Link href="/learning-cockpit">Start: {nextBestActivity.title.slice(0, 36)}…</Link>
+              </Button>
+            ) : (
+              <Button size="sm" asChild>
+                <Link href="/learning-cockpit">Open Learning Cockpit</Link>
+              </Button>
+            )
+          }
+          secondaryAction={
+            <Button size="sm" variant="outline" asChild>
+              <Link href="/evidence-pack">View Evidence Pack</Link>
             </Button>
-            <Button variant="outline" size="sm">
-              <CheckSquare className="w-4 h-4 mr-2" />
-              New Task
-            </Button>
-          </div>
+          }
+          stats={[
+            { label: 'Learning done', value: learningStats.completedCount },
+            { label: 'Minutes', value: learningStats.totalMinutes },
+            { label: 'Pending tasks', value: pendingTasks.length },
+          ]}
+        />
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            icon={Calendar}
+            label="Next shift"
+            value={nextShift ? getShiftDisplayText(nextShift) : 'None'}
+            helper={nextShift ? `${nextShift.startTime} – ${nextShift.endTime}` : 'No upcoming shift'}
+          />
+          <StatCard icon={Clock} label="Hours this month" value={totalHoursThisMonth} helper="Target: 160h" />
+          <StatCard
+            icon={CheckSquare}
+            label="Pending tasks"
+            value={pendingTasks.length}
+            helper={`${pendingTasks.filter((t) => t.priority === 'urgent' || t.priority === 'high').length} high priority`}
+          />
+          <StatCard icon={TrendingUp} label="Recent logs" value={recentLogs.length} helper="Last entries" />
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          {/* Next Shift */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Next Shift</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {nextShift ? (
-                <div>
-                  <div className="text-2xl font-bold">
-                    {getShiftDisplayText(nextShift)}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {nextShift.startTime} - {nextShift.endTime}
-                  </p>
-                  {nextShift.location && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {nextShift.location}
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <div className="text-2xl font-bold text-muted-foreground">
-                  No shifts
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Hours This Month */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Hours This Month</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalHoursThisMonth}</div>
-              <p className="text-xs text-muted-foreground">
-                Target: 160 hours
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Pending Tasks */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Tasks</CardTitle>
-              <CheckSquare className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{pendingTasks.length}</div>
-              <p className="text-xs text-muted-foreground">
-                {pendingTasks.filter(t => t.priority === 'urgent' || t.priority === 'high').length} high priority
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Recent Logs</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{recentLogs.length}</div>
-              <p className="text-xs text-muted-foreground">
-                Last 7 days
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Today's PD Focus */}
-        <Card className="mb-6">
+        <Card className="border-blue-100/80 dark:border-blue-900/40">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="w-5 h-5" />
-              PD Focus Today
-            </CardTitle>
+            <SectionHeader icon={Lightbulb} title="PD focus today" description="Learning" />
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -306,25 +265,26 @@ export function Dashboard() {
           </CardContent>
         </Card>
 
-        <HealthyShiftCard />
+        <section className="space-y-4">
+          <SectionHeader title="Wellbeing" description="Healthy shift habits" />
+          <HealthyShiftCard />
+        </section>
 
-        <PendingActionTracker />
+        <section className="space-y-4">
+          <SectionHeader title="Follow-up" description="Pending actions and reminders" />
+          <PendingActionTracker />
+        </section>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Work Logs */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5" />
-                Recent Work Logs
-              </CardTitle>
+              <SectionHeader icon={BookOpen} title="Recent work logs" description="Work" />
             </CardHeader>
             <CardContent>
               {recentLogs.length > 0 ? (
                 <div className="space-y-3">
                   {recentLogs.map((log) => (
-                    <div key={log.id} className="flex items-start justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div key={log.id} className="flex items-start justify-between rounded-xl border border-slate-100 bg-slate-50/80 p-3 dark:border-slate-800 dark:bg-slate-900/50">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{log.description}</p>
                         <div className="flex items-center gap-2 mt-1">
@@ -355,19 +315,15 @@ export function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Pending Tasks */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckSquare className="w-5 h-5" />
-                Pending Tasks
-              </CardTitle>
+              <SectionHeader icon={CheckSquare} title="Pending tasks" />
             </CardHeader>
             <CardContent>
               {pendingTasks.length > 0 ? (
                 <div className="space-y-3">
                   {pendingTasks.map((task) => (
-                    <div key={task.id} className="flex items-start justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div key={task.id} className="flex items-start justify-between rounded-xl border border-slate-100 bg-slate-50/80 p-3 dark:border-slate-800 dark:bg-slate-900/50">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{task.title}</p>
                         <div className="flex items-center gap-2 mt-1">
@@ -395,7 +351,6 @@ export function Dashboard() {
             </CardContent>
           </Card>
         </div>
-      </div>
-    </div>
+    </PageShell>
   );
 }

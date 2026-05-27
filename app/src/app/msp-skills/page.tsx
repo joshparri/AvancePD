@@ -15,6 +15,7 @@ import {
 } from '@/lib/mspProgress';
 import { Search, Target, TrendingUp } from 'lucide-react';
 import { ExternalLearningLinks } from '@/components/ExternalLearningLinks';
+import { HeroPanel, PageShell, StatCard } from '@/components/academy';
 
 const readinessLabels: Record<MspReadiness, string> = {
   unseen: 'Unseen',
@@ -120,36 +121,26 @@ export default function MspSkillsPage() {
 
   return (
     <Layout>
-      <div className="p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">MSP Skills Matrix</h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-2 max-w-3xl">
-                A practical map of MSP skills that turn support into calm, safe, evidence-backed work. Search by skill name, tool, or practice. Use readiness levels to spot gaps. Plan your next study area based on what needs focus.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <Card>
-                <CardContent className="p-4">
-                  <p className="text-xs text-muted-foreground">Total skills</p>
-                  <p className="text-2xl font-bold">{skillsWithProgress.length}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <p className="text-xs text-muted-foreground">Need focus</p>
-                  <p className="text-2xl font-bold">{earlySkillsCount}</p>
-                </CardContent>
-              </Card>
-              <Card className="col-span-2 sm:col-span-1">
-                <CardContent className="p-4">
-                  <p className="text-xs text-muted-foreground">Work-ready+</p>
-                  <p className="text-2xl font-bold">{workReadyCount}</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+      <PageShell
+        eyebrow="Skills"
+        title="MSP Skills Matrix"
+        subtitle="A practical map of MSP skills — search, track readiness, and plan what to practise next."
+      >
+        <HeroPanel
+          title="Your progression map"
+          subtitle="Move skills from learning to work-ready with deliberate practice and evidence."
+          stats={[
+            { label: 'Total skills', value: skillsWithProgress.length },
+            { label: 'Need focus', value: earlySkillsCount },
+            { label: 'Work-ready+', value: workReadyCount },
+          ]}
+        />
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <StatCard icon={Target} label="Total skills" value={skillsWithProgress.length} />
+          <StatCard icon={Search} label="Need focus" value={earlySkillsCount} helper="unseen or learning" />
+          <StatCard icon={TrendingUp} label="Work-ready+" value={workReadyCount} />
+        </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
             <div className="space-y-6">
@@ -353,8 +344,7 @@ export default function MspSkillsPage() {
               </Card>
             </aside>
           </div>
-        </div>
-      </div>
+      </PageShell>
     </Layout>
   );
 }

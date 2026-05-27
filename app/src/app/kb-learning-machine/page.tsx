@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ExternalLearningLinks } from '@/components/ExternalLearningLinks';
 import { SaveStatus } from '@/components/SaveStatus';
 import { useSaveStatus } from '@/hooks/useSaveStatus';
+import { HeroPanel, PageShell, SectionHeader } from '@/components/academy';
 import {
   recordKbFlashcardEvidence,
   recordKbReflectionEvidence,
@@ -257,59 +258,34 @@ export default function KbLearningMachinePage() {
 
   return (
     <Layout>
-      <div className="p-6">
-        <div className="mx-auto max-w-7xl space-y-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">KB Learning Machine</h1>
-              <p className="mt-2 max-w-3xl text-gray-600 dark:text-gray-400">
-                Turn safe Avance KB topics into field cards, spaced reviews, flashcards, scenario practice,
-                ticket-note drills, and evidence of learning.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/learning-cockpit">Learning Cockpit</Link>
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/evidence-pack">Evidence Pack</Link>
-              </Button>
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Reviews due today</p>
-                <p className="mt-2 text-3xl font-bold">{dueCards.length}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">KB cards</p>
-                <p className="mt-2 text-3xl font-bold">{cards.length}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Scenario evidence</p>
-                <p className="mt-2 text-3xl font-bold">{evidenceSummary.scenariosCompleted}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Ticket notes practised</p>
-                <p className="mt-2 text-3xl font-bold">{evidenceSummary.ticketNotesPractised}</p>
-              </CardContent>
-            </Card>
-          </div>
+      <PageShell
+        eyebrow="KB study"
+        title="KB Learning Machine"
+        subtitle="Turn safe Avance KB topics into field cards, spaced reviews, flashcards, scenario practice, ticket-note drills, and evidence."
+        actions={
+          <>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/learning-cockpit">Learning Cockpit</Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/evidence-pack">Evidence Pack</Link>
+            </Button>
+          </>
+        }
+      >
+        <HeroPanel
+          title="Today's study cockpit"
+          subtitle="Review due cards, run flashcards, practise scenarios, and save ticket-note evidence."
+          stats={[
+            { label: 'Due today', value: dueCards.length },
+            { label: 'KB cards', value: cards.length },
+            { label: 'Scenarios saved', value: evidenceSummary.scenariosCompleted },
+          ]}
+        />
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5" />
-                Daily Learning Plan
-              </CardTitle>
+              <SectionHeader icon={Target} title="Daily learning plan" description="A simple rhythm for steady KB confidence." />
             </CardHeader>
             <CardContent className="grid gap-3 md:grid-cols-5">
               <div className="rounded-lg border p-3">
@@ -479,11 +455,11 @@ export default function KbLearningMachinePage() {
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
-                      <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-sm dark:border-yellow-900 dark:bg-yellow-950/30">
+                      <div className="academy-callout-caution text-sm">
                         <p className="font-semibold">Common mistake</p>
                         <p className="mt-1 text-gray-700 dark:text-gray-300">{selectedCard.commonMistake}</p>
                       </div>
-                      <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm dark:border-red-900 dark:bg-red-950/30">
+                      <div className="academy-callout-danger text-sm">
                         <p className="font-semibold">Escalate if</p>
                         <p className="mt-1 text-gray-700 dark:text-gray-300">{selectedCard.escalateIf}</p>
                       </div>
@@ -708,8 +684,7 @@ export default function KbLearningMachinePage() {
               </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
+      </PageShell>
     </Layout>
   );
 }

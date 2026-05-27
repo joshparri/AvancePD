@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { ClipboardCheck, FileText, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { HeroPanel, PageShell } from '@/components/academy';
 
 const noteStructure = [
   'Issue',
@@ -152,14 +153,15 @@ const beforeAfterRewrite = {
 export default function TicketNotesPage() {
   return (
     <Layout>
-      <div className="p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Ticket Notes Trainer</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2 max-w-3xl">
-              Write ticket notes that protect continuity and save time. Document the issue clearly, capture user impact, separate checks from actions, state the result, explain the next step, and flag escalation reasons. The next technician should understand the situation without asking.
-            </p>
-          </div>
+      <PageShell
+        eyebrow="Communication"
+        title="Ticket Notes Trainer"
+        subtitle="Write handover-ready notes: issue, impact, checks, action, result, next step, and escalation."
+      >
+        <HeroPanel
+          title="Ticket note writing workshop"
+          subtitle="Compare poor, okay, and excellent examples — then practise rewrites with a clear rubric."
+        />
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
             <Card>
@@ -368,8 +370,7 @@ export default function TicketNotesPage() {
               ))}
             </div>
           </div>
-        </div>
-      </div>
+      </PageShell>
     </Layout>
   );
 }

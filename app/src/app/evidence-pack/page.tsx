@@ -29,6 +29,7 @@ import {
   type LearningEvidenceItem,
   type LearningEvidenceSource,
 } from '@/lib/learningEvidence';
+import { HeroPanel, PageShell, SectionHeader } from '@/components/academy';
 
 const countBy = <T,>(items: T[], getKey: (item: T) => string) =>
   items.reduce<Record<string, number>>((counts, item) => {
@@ -213,15 +214,20 @@ ${formatList(practicalOutputs)}
 
   return (
     <Layout>
-      <div className="p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Evidence Pack</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2 max-w-3xl">
-              A manager-safe snapshot of MSP professional development: what has been practised, where
-              the gaps are, and what evidence should be created next.
-            </p>
-          </div>
+      <PageShell
+        eyebrow="Evidence"
+        title="Evidence Pack"
+        subtitle="A manager-safe snapshot of what you have practised, where the gaps are, and what proof to create next."
+      >
+        <HeroPanel
+          title="Your professional growth report"
+          subtitle="Evidence from Learning Cockpit, KB drills, and quizzes flows here as you study."
+          stats={[
+            { label: 'Activities', value: evidenceSummary.activitiesCompleted },
+            { label: 'KB reviews', value: evidenceSummary.kbReviews },
+            { label: 'Quiz avg', value: evidenceSummary.averageQuizScore ?? '—' },
+          ]}
+        />
 
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-8">
             <Card>
@@ -279,10 +285,7 @@ ${formatList(practicalOutputs)}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Brain className="h-5 w-5" />
-                  Recent evidence
-                </CardTitle>
+                <SectionHeader icon={Brain} title="Recent evidence" description="Latest saved study items" />
               </CardHeader>
               <CardContent className="space-y-3">
                 {evidenceSummary.recentItems.length > 0 ? (
@@ -595,8 +598,7 @@ ${formatList(practicalOutputs)}
               </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
+      </PageShell>
     </Layout>
   );
 }

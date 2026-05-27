@@ -28,6 +28,9 @@ import { ExternalLearningLinks } from '@/components/ExternalLearningLinks';
 import { SaveStatus } from '@/components/SaveStatus';
 import { useSaveStatus } from '@/hooks/useSaveStatus';
 import { recordLearningActivityEvidence } from '@/lib/learningEvidence';
+import { Layout } from '@/components/Layout';
+import { HeroPanel, LearningCard, PageShell, SectionHeader, StatCard } from '@/components/academy';
+import type { StatusBadgeVariant } from '@/components/academy/StatusBadge';
 import { 
   Brain, 
   Target, 
@@ -270,6 +273,7 @@ export default function LearningCockpit() {
   const weaknessCoaching = getWeaknessCoaching();
   const recommendedActivities = getRecommendedActivities();
   const optionalExternalBooster = todayPractice[0];
+  const recommendedIdSet = new Set(recommendations);
 
   const renderActivityInteraction = (activity: MspLearningActivity) => {
     const interactiveResult = getLearningProgress().interactiveResults[activity.id];
@@ -475,89 +479,43 @@ export default function LearningCockpit() {
   };
 
   return (
-    <div className="p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Learning Cockpit
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Your personalized MSP professional development coach
-            </p>
-          </div>
+    <Layout>
+      <PageShell
+        eyebrow="Learning"
+        title="Learning Cockpit"
+        subtitle="Your personalized MSP professional development coach — practise, reflect, and build evidence."
+        actions={
           <Button size="sm" asChild>
             <Link href="/kb-learning-machine">
-              <ArrowRight className="w-4 h-4 mr-2" /> Open KB Learning Machine
+              <ArrowRight className="w-4 h-4 mr-2" /> KB Learning Machine
             </Link>
           </Button>
+        }
+      >
+        <HeroPanel
+          title="Keep your momentum going"
+          subtitle="Start with the next best move, mix in today's practice, and save progress to your Evidence Pack."
+          stats={[
+            { label: 'Completed', value: stats.completedCount, helper: `of ${activities.length}` },
+            { label: 'Minutes', value: stats.totalMinutes, helper: `${Math.round(stats.totalMinutes / 60 * 10) / 10}h logged` },
+            { label: 'Domains', value: Object.keys(stats.domainCounts).length, helper: 'areas touched' },
+          ]}
+        />
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard icon={CheckCircle} label="Activities completed" value={stats.completedCount} helper={`of ${activities.length} total`} />
+          <StatCard icon={Clock} label="Minutes logged" value={stats.totalMinutes} helper={`${Math.round(stats.totalMinutes / 60 * 10) / 10} hours`} />
+          <StatCard icon={Brain} label="Activity types" value={Object.values(stats.activityTypeCounts).filter((c) => c > 0).length} helper="types practised" />
+          <StatCard icon={Target} label="Domains covered" value={Object.keys(stats.domainCounts).length} helper={`of ${new Set(activities.map((a) => a.domain)).size}`} />
         </div>
 
-        {/* Readiness Pulse */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Activities Completed</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.completedCount}</div>
-              <p className="text-xs text-muted-foreground">
-                of {activities.length} total
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Minutes Logged</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalMinutes}</div>
-              <p className="text-xs text-muted-foreground">
-                {Math.round(stats.totalMinutes / 60 * 10) / 10} hours
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Activity Types</CardTitle>
-              <Brain className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {Object.values(stats.activityTypeCounts).filter(count => count > 0).length}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                types practiced
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Domains Covered</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{Object.keys(stats.domainCounts).length}</div>
-              <p className="text-xs text-muted-foreground">
-                of {new Set(activities.map(a => a.domain)).size} domains
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Next Best Training Move */}
-        <Card className="mb-6">
+        <Card className="border-blue-100/80 dark:border-blue-900/40">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="w-5 h-5" />
-              Next Best Training Move
-            </CardTitle>
+            <SectionHeader
+              icon={Lightbulb}
+              title="Next best training move"
+              description="Curated from your progress, quiz gaps, and scenario practice."
+            />
           </CardHeader>
           <CardContent>
             {recommendedActivities.length > 0 ? (
@@ -616,13 +574,9 @@ export default function LearningCockpit() {
           </div>
         )}
 
-        {/* Today's Mixed Practice */}
-        <Card className="mb-6">
+        <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="w-5 h-5" />
-              Today&apos;s Mixed Practice
-            </CardTitle>
+            <SectionHeader icon={Target} title="Today's mixed practice" description="A balanced set for recall, scenarios, and communication." />
           </CardHeader>
           <CardContent>
             {todayPractice.length > 0 ? (
@@ -722,13 +676,9 @@ export default function LearningCockpit() {
           </Card>
         )}
 
-        {/* Learning Mode Selector */}
-        <Card className="mb-6">
+        <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="w-5 h-5" />
-              Learning Mode Selector
-            </CardTitle>
+            <SectionHeader icon={Filter} title="Browse activities" description="Filter by domain, type, or difficulty." />
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4 mb-4">
@@ -777,68 +727,31 @@ export default function LearningCockpit() {
           </CardContent>
         </Card>
 
-        {/* Activity Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredActivities.map(activity => {
-            const Icon = activityTypeIcons[activity.activityType];
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredActivities.map((activity) => {
             const isCompleted = completedIds.includes(activity.id);
-            
             return (
-              <Card key={activity.id} className={`relative ${isCompleted ? 'bg-green-50 dark:bg-green-900/10' : ''}`}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline" className="text-xs">
-                      {activity.activityType}
-                    </Badge>
-                    <Icon className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                  <CardTitle className="text-sm text-gray-900 dark:text-white">{activity.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Badge variant="outline" className="text-xs">
-                      {activity.domainLabel}
-                    </Badge>
-                    <span>{activity.estimatedMinutes} min</span>
-                    <Badge className={difficultyColors[activity.difficulty]}>
-                      {activity.difficulty}
-                    </Badge>
-                  </div>
-                  
-                  <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
-                    {activity.summary}
-                  </p>
-                  
-                  <p className="text-xs text-gray-500 dark:text-gray-500">
-                    {activity.whyItMatters}
-                  </p>
-                  
-                  <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={() => handleSelectActivity(activity)}
-                    >
-                      {isCompleted ? "Review" : "Start"}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={isCompleted ? "secondary" : "outline"}
-                      onClick={() => handleToggleComplete(activity)}
-                    >
-                      {isCompleted ? "✓" : "○"}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <LearningCard
+                key={activity.id}
+                activityType={activity.activityType}
+                title={activity.title}
+                domain={activity.domainLabel}
+                minutes={activity.estimatedMinutes}
+                difficulty={activity.difficulty as StatusBadgeVariant}
+                summary={activity.summary}
+                isCompleted={isCompleted}
+                isRecommended={recommendedIdSet.has(activity.id)}
+                onStart={() => handleSelectActivity(activity)}
+                onToggleComplete={() => handleToggleComplete(activity)}
+              />
             );
           })}
         </div>
+      </PageShell>
 
-        {/* Activity Detail Modal */}
         {selectedActivity && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
+            <div className="academy-modal-panel max-h-[85vh] w-full max-w-2xl overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedActivity.title}</h2>
@@ -881,7 +794,9 @@ export default function LearningCockpit() {
                     </p>
                   </div>
                   
-                  {renderActivityInteraction(selectedActivity)}
+                  <div className="academy-surface-muted p-4">
+                    {renderActivityInteraction(selectedActivity)}
+                  </div>
 
                   <ExternalLearningLinks
                     domain={selectedActivity.domainLabel}
@@ -926,7 +841,6 @@ export default function LearningCockpit() {
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </Layout>
   );
 }

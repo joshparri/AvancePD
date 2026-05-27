@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { mspQuizQuestions, MspQuizQuestion, MspQuizDomain } from '@/data/mspQuizQuestions';
 import { getStoredQuizAttempts, saveQuizAttempt, getBestQuizScore, MspQuizAttempt } from '@/lib/mspQuizProgress';
 import { SaveStatus } from '@/components/SaveStatus';
+import { HeroPanel, PageShell } from '@/components/academy';
 import { CheckCircle2, XCircle, Trophy, Target, TrendingUp } from 'lucide-react';
 
 const domainLabels: Record<MspQuizDomain, string> = {
@@ -393,14 +394,16 @@ export default function MspQuizPage() {
 
   return (
     <Layout>
-      <div className="p-6">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">MSP Quiz Trainer</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2 max-w-3xl">
-              Test your MSP knowledge across helpdesk, technical, and professional domains. Get instant feedback and track your improvement over time.
-            </p>
-          </div>
+      <PageShell
+        eyebrow="Quiz"
+        title="MSP Quiz Trainer"
+        subtitle="Test MSP knowledge across helpdesk, technical, and professional domains with instant feedback."
+      >
+        <HeroPanel
+          title="Benchmark your knowledge"
+          subtitle="Scores save to your Evidence Pack so you can track improvement over time."
+          stats={bestScore ? [{ label: 'Best score', value: `${bestScore.percentage}%` }] : undefined}
+        />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="lg:col-span-2">
@@ -493,8 +496,7 @@ export default function MspQuizPage() {
               </CardContent>
             </Card>
           </div>
-        </div>
-      </div>
+      </PageShell>
     </Layout>
   );
 }
