@@ -187,6 +187,7 @@ This file includes the core TODOs and a more detailed phased plan pulled from up
 ### 4.3 MSP Skills Academy Expansion
 - [x] Document MSP Skills Academy specification in `docs/professional_development/msp_skills_academy.md`
 - [x] Document MSP PD implementation checklist in `docs/professional_development/msp_pd_growth_todo.md`
+- [x] Document two-app prompt-pack roadmap in `docs/implementation-plans/two-app-prompt-pack-roadmap.md`
 - [ ] Create MSP skill taxonomy data file (`app/src/data/mspSkills.ts`)
 - [ ] Create realistic MSP scenario data file (`app/src/data/mspScenarios.ts`)
 - [ ] Add MSP Skills Matrix page (`/msp-skills`)
@@ -199,8 +200,41 @@ This file includes the core TODOs and a more detailed phased plan pulled from up
 - [ ] Connect completed scenarios, notes, and evidence outputs to existing learning/PD records where practical
 - [ ] Update app navigation with MSP professional development sections
 
-### 4.4 Prompt Pack & Coaching Improvements
-- [ ] Create `docs/guides/prompt_pack_recommendations.md` to capture AI prompt packs and enhancement ideas for both Avance apps
+### 4.4 Two-App Prompt Pack Backlog
+- [ ] Keep App 1 (`avance-pd.vercel.app`) positioned as the Avance Work Companion capture engine.
+- [ ] Keep App 2 (`avance-professional-development.vercel.app`) positioned as the Avance PD learning machine.
+- [ ] App 1: set title/metadata to `Avance Work Companion` and add the dashboard subtitle.
+- [ ] App 1: upgrade Quick Capture into a structured ticket note builder with quality checklist and copyable preview.
+- [ ] App 1: add follow-up triage statuses, due dates, next nudges, priorities, and editable wording templates.
+- [ ] App 1: turn repeated issue suggestions into editable playbook drafts.
+- [ ] App 1: improve Healthy MSP Shift into a mode-based rhythm coach with reset logging.
+- [ ] App 1: add change-management guardrails for risky work.
+- [ ] App 1: add learning seed fields to work logs.
+- [ ] App 1: add After Action Review for selected work logs.
+- [ ] App 1: add ticket-note drills from real work logs.
+- [ ] App 1: add local KB hints without scraping Drive or importing private KB content.
+- [ ] App 2: set title/metadata to `Avance PD` and clarify app purpose.
+- [ ] App 2: upgrade PD Focus Today into a deterministic next-best-action engine.
+- [ ] App 2: add scenario-to-ticket-note practice flow.
+- [ ] App 2: build manager-safe Evidence Pack copy/download/export.
+- [ ] App 2: add MSP skill map / mastery map.
+- [ ] App 2: improve follow-up area into operational discipline training.
+- [ ] App 2: add communication practice templates and tone checklist.
+- [ ] App 2: add onboarding-safe demo data badges and reset controls.
+- [ ] App 2: add privacy and safety linting for entries.
+- [ ] App 2: create manager-ready weekly PD review.
+- [ ] App 2: build KB Learning Machine shell.
+- [ ] App 2: build KB Map and field cards.
+- [ ] App 2: add spaced repetition scheduling.
+- [ ] App 2: build active recall flashcards from field cards.
+- [ ] App 2: build scenario-first learning mode.
+- [ ] App 2: add ticket-note drill scoring.
+- [ ] App 2: connect evidence to KB reviews, flashcards, scenarios, notes, field cards, and weekly reflections.
+- [ ] App 2: add Daily Learning Plan.
+- [ ] App 2: add Teach-back Mode.
+
+### 4.5 Prompt Pack & Coaching Improvements
+- [x] Create `docs/guides/prompt_pack_recommendations.md` to capture AI prompt packs and enhancement ideas for both Avance apps
 - [ ] Update the browser title for Avance Work Companion from the placeholder label to `Avance Work Companion`
 - [ ] Update the browser title for Avance PD from `Create Next App` to `Avance PD`
 - [ ] Add visual overdue indicators for follow-ups and pending tasks across dashboards

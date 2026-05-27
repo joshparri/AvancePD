@@ -5,10 +5,14 @@
 - [ ] Shift workflow defined
 - [ ] Work log flow defined
 - [ ] Knowledge model defined
+- [ ] KB Learning Machine model defined
+- [ ] Field card model defined
+- [ ] Spaced review model defined
 - [ ] Playbooks model defined
 - [ ] Client model defined
 - [ ] Time + invoice model defined
 - [ ] Learning model defined
+- [ ] Evidence Pack model defined
 
 ## Engineering
 - [ ] Next.js scaffolded
@@ -25,6 +29,10 @@
 - [ ] calm dashboard
 - [ ] strong empty states
 - [ ] quick capture
+- [ ] ticket note builder
+- [ ] follow-up triage
+- [ ] daily learning plan
+- [ ] teach-back mode
 - [ ] desktop-first polish
 - [ ] mobile usable
 - [ ] dark mode
@@ -34,3 +42,6 @@
 - [ ] sensitive data guidance included
 - [ ] no fake integrations implied
 - [ ] local-first default
+- [ ] privacy linting included
+- [ ] change-management guardrails included
+- [ ] manager-safe evidence export warning included

@@ -68,6 +68,7 @@ Notes
 1. Read `VISION.md`
 2. Review `docs/vision/` and `docs/requirements/`
 3. Review `docs/professional_development/msp_skills_academy.md`
+4. Review `docs/implementation-plans/two-app-prompt-pack-roadmap.md` for the App 1/App 2 prompt-pack backlog
 5. Review `docs/guides/prompt_pack_recommendations.md` for AI coaching and prompt pack guidance
 6. Use `build/master_prompt.md` with Claude Code to build the app
 7. Follow `docs/guides/` for usage and planning

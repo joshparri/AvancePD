@@ -19,10 +19,17 @@ This checklist turns the MSP Skills Academy specification into practical build w
 ## Phase 0: Product alignment
 - [x] Create MSP Skills Academy specification.
 - [x] Create MSP PD growth TODO.
+- [x] Create two-app prompt-pack implementation roadmap in `docs/implementation-plans/two-app-prompt-pack-roadmap.md`.
 - [ ] Review this plan against existing `docs/requirements/prd.md`.
 - [ ] Decide whether the generic `Learning` nav should become a group or remain a single page with links to MSP sections.
 - [ ] Decide whether MSP progress gets its own Dexie tables or maps into existing `LearningItem`, `PDGoal`, and `PDAchievement` records first.
 - [ ] Add acceptance criteria for each MSP Academy page to the PRD.
+
+## Phase 0.5: Two-app role split
+- [ ] Treat App 1 as the capture engine: work logs, follow-ups, ticket-note builder, after action reviews, health rhythm, change guardrails, and learning seeds.
+- [ ] Treat App 2 as the learning machine: KB cards, spaced reviews, flashcards, scenarios, ticket-note drills, skill map, teach-back, daily learning plan, and evidence pack.
+- [ ] Define a safe local handoff path from App 1 learning seeds to App 2 learning queue.
+- [ ] Ensure both apps warn against passwords, credentials, secrets, private emails, and client-sensitive detail.
 
 ## Phase 1: Data foundation
 - [ ] Create `app/src/types/msp.ts`.
@@ -52,6 +59,11 @@ This checklist turns the MSP Skills Academy specification into practical build w
 - [ ] Create `app/src/data/mspRoadmap.ts`.
 - [ ] Create `app/src/data/communicationPrompts.ts`.
 - [ ] Keep all data fictional, generic, and safe for a personal learning app.
+- [ ] Create KB field card types for title, category, when-to-use, prerequisites, first checks, core steps, common mistake, escalation point, related skill, confidence, and review date.
+- [ ] Create spaced review fields: createdAt, lastReviewedAt, nextReviewAt, reviewStage, easeRating, and confidence.
+- [ ] Create flashcard records linked to KB field cards.
+- [ ] Create evidence records that can reference KB reviews, flashcards, scenarios, ticket-note drills, weekly reflections, and learning seeds.
+- [ ] Create local KB hint seed data without importing private KB content.
 
 ## Phase 2: MSP Skills Matrix
 - [ ] Create route `app/src/app/msp-skills/page.tsx`.
@@ -138,8 +150,25 @@ This checklist turns the MSP Skills Academy specification into practical build w
 - [ ] Pull from existing `LearningItem`, `PDGoal`, and `PDAchievement` where possible.
 - [ ] Add simple manual evidence entries if automated data is not ready.
 - [ ] Add Markdown export.
+- [ ] Add copy-to-clipboard.
+- [ ] Add saved evidence snapshots.
+- [ ] Add weekly PD review output with skills practised, ticket-note quality improvements, follow-ups managed, blockers, support needed, and next week focus.
 - [ ] Keep export professional and manager-safe.
 - [ ] Avoid inflated wording or confidential client details.
+
+## Phase 6.5: KB Learning Machine
+- [ ] Add KB Learning Machine shell/page.
+- [ ] Add dashboard card for KB cards created, reviews due today, scenarios completed, and skills improving.
+- [ ] Add KB Map with category filters.
+- [ ] Add learning queue.
+- [ ] Add Today's Reviews.
+- [ ] Add field card create/edit/delete flow.
+- [ ] Add confidence selector from `I recognise it` to `I can teach it`.
+- [ ] Add review statuses: new, due, learning, confident, mastered.
+- [ ] Add spaced review buttons: Again, Hard, Good, Easy.
+- [ ] Add active recall flashcards generated from field-card fields.
+- [ ] Add teach-back mode and save attempts to evidence.
+- [ ] Add Daily Learning Plan using due reviews, weak skills, learning queue, scenarios, recent work logs, confidence, and last study date.
 
 ## Phase 7: MSP Roadmap
 - [ ] Create route `app/src/app/msp-roadmap/page.tsx`.
@@ -206,6 +235,19 @@ This checklist turns the MSP Skills Academy specification into practical build w
 - [ ] Check that no real client-sensitive information is seeded.
 
 ## Content backlog
+- [ ] Add seed KB field cards:
+  - Enrolling a New Computer into Intune.
+  - Migrating Local User Account to Entra Account.
+  - Importing Office 365 or Google GSuite User into JumpCloud.
+  - Turning on 2 Factor Authentication for Google Account.
+  - Veeam Agent Recovery Guide.
+  - Outlook Opening Links in Edge.
+  - Increase Outlook PST and OST capacity.
+  - Editing Exchange Calendar Permissions with PowerShell.
+  - RDP Not Passing Through USB Drives.
+  - MHC Printer Configuration.
+  - Adding a New Yealink Phone to Provisioning Server.
+  - Creating a Policy for Detecting Malicious Files in SharePoint and OneDrive.
 - [ ] Add more Microsoft 365 scenarios:
   - Mailbox delegation delay.
   - Distribution group membership issue.
