@@ -26,7 +26,9 @@ export default function EventBanner() {
             <p className="text-xs text-muted-foreground">Start a short double-XP event to boost engagement.</p>
           </div>
           <div>
-            <Button size="sm" onClick={() => { createEvent(2, 1.5, 'Weekend Wave'); setActive(getActiveEvent()); }}>Start 2h event</Button>
+            <Button size="sm" onClick={() => { createEvent(2, 1.5, 'Weekend Wave'); setActive(getActiveEvent()); }}>
+              Start 2h event
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -42,8 +44,8 @@ export default function EventBanner() {
     <Card className="border-amber-200/80 bg-gradient-to-r from-amber-50/60 to-yellow-50/40 dark:border-amber-900/30">
       <CardContent className="flex items-center justify-between p-3">
         <div>
-          <p className="font-semibold text-amber-800 dark:text-amber-200">{active.label} · {getMultiplier()}× XP</p>
-          <p className="text-xs text-muted-foreground">Ends in {hh}:{String(mm).padStart(2,'0')}:{String(ss).padStart(2,'0')}</p>
+          <p className="font-semibold text-amber-800 dark:text-amber-200">{active.label} - {getMultiplier()}x XP</p>
+          <p className="text-xs text-muted-foreground">Ends in {hh}:{String(mm).padStart(2, '0')}:{String(ss).padStart(2, '0')}</p>
         </div>
         <div className="flex gap-2">
           <Button size="sm" variant="outline" onClick={() => { clearEvent(); setActive(null); }}>End</Button>

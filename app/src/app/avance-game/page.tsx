@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Layout } from '@/components/Layout';
 import { HeroPanel, PageShell, SectionHeader, StatCard } from '@/components/academy';
@@ -13,6 +13,9 @@ import { getAvanceGameProgress, recordChallengeResult, type AvanceGameProgress }
 import { ArrowLeft, ArrowUpRight, Gamepad2, Trophy, Zap } from 'lucide-react';
 import { DailyChallenge } from './components/DailyChallenge';
 import EventBanner from './components/EventBanner';
+import FomoBanner from './components/FomoBanner';
+import FriendLeaderboard from './components/FriendLeaderboard';
+import SocialShare from './components/SocialShare';
 import { EngagementLoops } from './components/EngagementLoops';
 import { GameToast } from './components/GameToast';
 import { GhostLeaderboard } from './components/GhostLeaderboard';
@@ -173,14 +176,16 @@ export default function AvanceGamePage() {
     }
   };
 
-  // prompt for browser notifications for at-risk users (simple in-page prompt)
-  if (typeof window !== 'undefined' && atRisk && Notification && Notification.permission === 'default') {
+  useEffect(() => {
+    if (typeof window === 'undefined' || !atRisk || !('Notification' in window) || Notification.permission !== 'default') {
+      return;
+    }
     Notification.requestPermission().then((perm) => {
       if (perm === 'granted') {
         new Notification('Come back to Avance', { body: 'Quick 5-minute challenge will keep your streak alive!' });
       }
     });
-  }
+  }, [atRisk]);
 
   return (
     <Layout>
@@ -200,6 +205,7 @@ export default function AvanceGamePage() {
         <XpLevelBar xp={reward.xp} xpDelta={xpDelta} />
 
         <EventBanner />
+        <FomoBanner onJoin={() => startSuggestedMode()} />
         <EngagementLoops
           reward={reward}
           playedToday={playedToday}
@@ -215,17 +221,21 @@ export default function AvanceGamePage() {
               <CardContent className="flex items-center justify-between p-4">
                 <div>
                   <p className="font-semibold text-yellow-800 dark:text-yellow-200">Spin for Bonus</p>
-                  <p className="text-xs text-muted-foreground">Small variable XP plus a mystery meter for guaranteed drops.</p>
+                  <p className="text-xs text-muted-foreground">Try your luck — small XP, chance for shields, or a rare scenario. Mystery meter fills with each spin.</p>
                 </div>
-                <div>
+                <div className="flex items-center gap-2">
                   <Button size="sm" onClick={handleSpin} disabled={spinning}>
                     {spinning ? 'Spinning...' : 'Spin now'}
                   </Button>
+                  <SocialShare userId="local_user" />
                 </div>
               </CardContent>
             </Card>
           </div>
-          <StreakDisplay reward={reward} playedToday={playedToday} atRisk={atRisk} />
+          <div className="space-y-4">
+            <StreakDisplay reward={reward} playedToday={playedToday} atRisk={atRisk} />
+            <FriendLeaderboard />
+          </div>
         </div>
 
         <HeroPanel
