@@ -33,3 +33,6 @@ pnpm-debug.log*
 # Private/internal planning and operational notes
 docs/operations/
 docs/integration/
+
+# Raw local prompt-pack exports and agent transcripts
+*prompt packs*.txt

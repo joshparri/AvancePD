@@ -10,6 +10,14 @@ The PD workflow is designed to turn MSP work into manager-safe growth evidence.
 4. Add evidence only when it is privacy-safe.
 5. Review confidence and next action at the end of the week.
 
+## Learning Machine Loop
+
+The next product direction is:
+
+`work -> learning seed -> KB field card -> active recall -> scenario drill -> ticket note drill -> spaced review -> evidence`
+
+Use Work Companion to capture learning seeds during shifts. Use Avance PD as the learning cockpit for KB field cards, flashcards, scenario practice, ticket-note drills, confidence tracking, and manager-safe evidence.
+
 ## Avance Shift Review Prompts
 
 - What did I practise today?
@@ -37,6 +45,7 @@ Avoid:
 
 ## Future App Work
 
-- Add PD-specific workflows for learning goals and shift review.
-- Add a "learned today" note type or tag.
-- Add review cadence for learning entries and confidence updates.
+- Build the KB Learning Machine backlog from `LEARNING_MACHINE_TODO.md`.
+- Add learning-seed capture and After Action Review to Work Companion.
+- Add KB field cards, spaced review, active recall, scenario drills, ticket-note drills, teach-back mode, and Daily Learning Plan to Avance PD.
+- Keep all learning evidence generic and manager-safe.

@@ -10,7 +10,8 @@ This file exists so documentation readers can find the project status without le
 - Keep privacy guidance visible in user-facing and developer-facing docs.
 - Avoid references to private planning folders or untracked local source material.
 - Add screenshots or deployment notes only after the chosen deployment target is confirmed.
-- Add `docs/PROMPT_PACKS.md` and keep the prompt-pack guidance in sync with the root TODO.
+- Use `VIBE_CODER_PROMPT_PACKS.md` and `LEARNING_MACHINE_TODO.md` as the source of truth for the next learning-machine build sequence.
+- Keep `docs/VIBE_CODER_PROMPT_PACKS.md` and `docs/LEARNING_MACHINE_TODO.md` in sync with the root TODO.
 
 ## Open Product Work
 
@@ -18,10 +19,8 @@ See `../TODO.md` for the full checklist.
 
 Major remaining themes:
 
-- quick-capture affordances for busy work states
-- complete empty states across core modules
-- first-run onboarding
-- PD workflow improvements
-- validation and usability testing
-- deployment decision
-- backup/export and optional sync plan
+- KB Learning Machine shell, field cards, reviews, flashcards, scenarios, drills, and evidence
+- quick-capture learning seeds and After Action Review
+- ticket-note builder and local privacy/safety linting
+- follow-up triage and change-management guardrails
+- validation and usability testing after each implementation prompt

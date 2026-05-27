@@ -19,3 +19,5 @@ Private operational notes, client details, credentials, archives, raw references
 - `QA_CHECKLIST.md` - build, navigation, persistence, and privacy checks
 - `ROADMAP.md` - deferred future work and guardrails
 - `AWESOME_IDEAS_AND_VIBE_CODER_PLAN.md` - feature ideas, upgrades, and implementation guidance
+- `VIBE_CODER_PROMPT_PACKS.md` - detailed implementation prompts for Work Companion, Avance PD, and the KB Learning Machine
+- `LEARNING_MACHINE_TODO.md` - implementation backlog for learning seeds, KB field cards, reviews, scenarios, drills, and evidence

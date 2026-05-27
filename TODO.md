@@ -88,10 +88,22 @@
 - [x] Add email reminder setup copy/export helpers without storing API keys or Gmail credentials
 - [x] Add `/api/send-health-reminder` with server-side secrets only
 
-## 12. Prompt Pack and AI Coaching
-- [ ] Add `docs/PROMPT_PACKS.md` to capture prompt ideas for Avance Work Companion and Avance PD
+## 12. Prompt packs, AI coaching, and learning machine backlog
+- [x] Convert the local prompt-pack source into repo-safe docs in `docs/VIBE_CODER_PROMPT_PACKS.md`
+- [x] Add implementation-sized TODOs in `docs/LEARNING_MACHINE_TODO.md`
+- [x] Add prompt guidance for Avance Work Companion and Avance PD without committing raw private prompt exports
 - [ ] Fix browser tab titles and app metadata for App 1 (Avance Work Companion) and App 2 (Avance PD)
 - [ ] Add prompt-driven features for Daily Briefing, Health Check, Repeated Issue Coach, Micro-Learning Booster, and Backup Reminder
 - [ ] Add prompt-driven features for PD Focus Overview, Weekly Retrospective, Task Breakdown, Follow-Up Triage, Learning Cockpit Navigator, and Shift Health Monitor
+- [ ] App 2: create the KB Learning Machine shell with navigation and dashboard card
+- [ ] App 2: build KB Map and editable field cards
+- [ ] App 2: add spaced repetition reviews and active recall flashcards
+- [ ] App 2: add scenario-first learning mode and ticket-note drill scoring
+- [ ] App 2: upgrade Evidence Pack around learning proof and weekly PD review
+- [ ] App 1: upgrade Quick Capture with ticket-note builder and learning-seed fields
+- [ ] App 1: add After Action Review on work logs
+- [ ] App 1: add local KB hints without scraping private Drive or KB content
+- [ ] App 1: add Change Guardrail for risky work
+- [ ] App 1/App 2: add local privacy/safety linting for user-entered notes and evidence
 - [ ] Use the prompt packs to guide small UI improvements in dashboard visibility, follow-up triage, and PD progress flows
 - [ ] Keep AI prompt features aligned with local-first privacy and avoid overbuilding into a full PSA
