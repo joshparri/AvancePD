@@ -21,6 +21,7 @@ import {
 import { getStoredQuizAttempts, getBestQuizScore } from '@/lib/mspQuizProgress';
 import { getLearningProgress, getLearningStats } from '@/lib/mspLearningProgress';
 import { mspLearningActivities } from '@/data/mspLearningActivities';
+import { getKbEvidenceSummary, mergeKbCardsWithProgress } from '@/lib/kbLearningProgress';
 import { Archive, ClipboardCheck, FileText, Target, TrendingUp, Brain } from 'lucide-react';
 
 const countBy = <T,>(items: T[], getKey: (item: T) => string) =>
@@ -38,6 +39,8 @@ export default function EvidencePackPage() {
   const [copyMessage, setCopyMessage] = useState<string>('');
   const [learningProgress] = useState(() => getLearningProgress());
   const [learningStats] = useState(() => getLearningStats());
+  const [kbCards] = useState(() => mergeKbCardsWithProgress());
+  const [kbEvidenceSummary] = useState(() => getKbEvidenceSummary(kbCards));
 
   const skillsWithProgress = useMemo(
     () => mergeSkillsWithProgress(mspSkills, skillReadiness),
@@ -130,6 +133,7 @@ export default function EvidencePackPage() {
 ## Summary
 - Focus: Building practical MSP readiness across triage, endpoint support, Microsoft 365, networking, security, documentation, and escalation judgement.
 - Current evidence base: ${practisedSkills.length} skills at practised or stronger readiness, ${reviewedScenarios.length} scenarios marked reviewed/practised/confident, ${completedActivities.length} learning activities completed, and ticket note practice in place.
+- KB learning evidence: ${kbEvidenceSummary.kbsStudied} KB cards studied, ${kbEvidenceSummary.reviewsCompleted} reviews completed, ${kbEvidenceSummary.scenariosCompleted} KB scenario drills saved, and ${kbEvidenceSummary.ticketNotesPractised} KB ticket notes practised.
 - Learning progress: ${learningStats.totalMinutes} minutes logged across ${Object.keys(activityTypeCounts).length} learning activity types.
 - Current weak area pattern: ${weakAreas[0] ?? 'No weak area data available yet.'}
 
@@ -154,6 +158,15 @@ ${formatList(scenarioProgressList.length > 0 ? scenarioProgressList : ['No scena
 - Structure practised: Issue, user impact, checks performed, action taken, result, next step, and escalation reason.
 - Current output: Copy-ready ticket note template and poor/okay/excellent examples.
 - Next evidence target: Write one excellent ticket note from a scenario and one escalation-ready handover note.
+
+## KB Learning Machine
+- KBs studied: ${kbEvidenceSummary.kbsStudied}
+- Reviews completed: ${kbEvidenceSummary.reviewsCompleted}
+- KB scenarios completed: ${kbEvidenceSummary.scenariosCompleted}
+- KB ticket notes practised: ${kbEvidenceSummary.ticketNotesPractised}
+- Confidence changes: ${kbEvidenceSummary.confidenceChanges}
+- Current KB gaps: ${formatList(kbEvidenceSummary.currentGaps)}
+- Next KB goals: ${formatList(kbEvidenceSummary.nextGoals)}
 
 ## Quiz Performance
 - Quiz attempts completed: ${quizAttempts.length}
@@ -218,6 +231,12 @@ ${formatList(practicalOutputs)}
               <CardContent className="p-4">
                 <p className="text-xs text-muted-foreground">Best quiz score</p>
                 <p className="text-2xl font-bold">{bestQuizScore ? `${bestQuizScore.percentage}%` : 'N/A'}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <p className="text-xs text-muted-foreground">KB reviews</p>
+                <p className="text-2xl font-bold">{kbEvidenceSummary.reviewsCompleted}</p>
               </CardContent>
             </Card>
           </div>
@@ -384,6 +403,43 @@ ${formatList(practicalOutputs)}
                   <ul className="text-muted-foreground space-y-1">
                     {recentActivities.slice(0, 3).map((activity, index) => (
                       <li key={index} className="text-xs">- {activity}</li>
+                    ))}
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Archive className="h-5 w-5" />
+                  KB Learning Machine
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-md border p-3">
+                    <p className="text-xs text-muted-foreground">KBs studied</p>
+                    <p className="text-xl font-bold">{kbEvidenceSummary.kbsStudied}</p>
+                  </div>
+                  <div className="rounded-md border p-3">
+                    <p className="text-xs text-muted-foreground">Ticket notes</p>
+                    <p className="text-xl font-bold">{kbEvidenceSummary.ticketNotesPractised}</p>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Current KB gaps</p>
+                  <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    {kbEvidenceSummary.currentGaps.map((gap) => (
+                      <li key={gap}>- {gap}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Next KB goals</p>
+                  <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    {kbEvidenceSummary.nextGoals.map((goal) => (
+                      <li key={goal}>- {goal}</li>
                     ))}
                   </ul>
                 </div>

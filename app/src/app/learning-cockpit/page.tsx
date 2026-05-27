@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { mspLearningActivities, type MspLearningActivity, type MspLearningActivityType } from '@/data/mspLearningActivities';
 import { 
   getLearningProgress,
@@ -30,6 +31,7 @@ import {
   Zap,
   TrendingUp,
   Lightbulb,
+  ArrowRight,
   Filter
 } from 'lucide-react';
 
@@ -345,13 +347,20 @@ export default function LearningCockpit() {
     <div className="p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Learning Cockpit
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Your personalized MSP professional development coach
-          </p>
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Learning Cockpit
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Your personalized MSP professional development coach
+            </p>
+          </div>
+          <Button size="sm" asChild>
+            <Link href="/kb-learning-machine">
+              <ArrowRight className="w-4 h-4 mr-2" /> Open KB Learning Machine
+            </Link>
+          </Button>
         </div>
 
         {/* Readiness Pulse */}

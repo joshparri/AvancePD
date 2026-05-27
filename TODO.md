@@ -216,27 +216,27 @@ This file includes the core TODOs and a more detailed phased plan pulled from up
 - [ ] App 2: set title/metadata to `Avance PD` and clarify app purpose.
 - [ ] App 2: upgrade PD Focus Today into a deterministic next-best-action engine.
 - [ ] App 2: add scenario-to-ticket-note practice flow.
-- [ ] App 2: build manager-safe Evidence Pack copy/download/export.
+- [x] App 2: build manager-safe Evidence Pack copy/export.
 - [ ] App 2: add MSP skill map / mastery map.
 - [ ] App 2: improve follow-up area into operational discipline training.
 - [ ] App 2: add communication practice templates and tone checklist.
 - [ ] App 2: add onboarding-safe demo data badges and reset controls.
 - [ ] App 2: add privacy and safety linting for entries.
 - [ ] App 2: create manager-ready weekly PD review.
-- [ ] App 2: build KB Learning Machine shell.
-- [ ] App 2: build KB Map and field cards.
-- [ ] App 2: add spaced repetition scheduling.
-- [ ] App 2: build active recall flashcards from field cards.
-- [ ] App 2: build scenario-first learning mode.
-- [ ] App 2: add ticket-note drill scoring.
-- [ ] App 2: connect evidence to KB reviews, flashcards, scenarios, notes, field cards, and weekly reflections.
-- [ ] App 2: add Daily Learning Plan.
-- [ ] App 2: add Teach-back Mode.
+- [x] App 2: build KB Learning Machine shell.
+- [x] App 2: build KB Map and field cards.
+- [x] App 2: add spaced repetition scheduling.
+- [x] App 2: build active recall flashcards from field cards.
+- [x] App 2: build scenario-first learning mode.
+- [x] App 2: add ticket-note drill practice.
+- [x] App 2: connect evidence to KB reviews, scenarios, notes, field cards, and reflections.
+- [x] App 2: add Daily Learning Plan.
+- [x] App 2: add reflection-based Teach-back Mode.
 
 ### 4.5 Prompt Pack & Coaching Improvements
 - [x] Create `docs/guides/prompt_pack_recommendations.md` to capture AI prompt packs and enhancement ideas for both Avance apps
 - [ ] Update the browser title for Avance Work Companion from the placeholder label to `Avance Work Companion`
-- [ ] Update the browser title for Avance PD from `Create Next App` to `Avance PD`
+- [x] Update the browser title for Avance PD from `Create Next App` to `Avance PD`
 - [ ] Add visual overdue indicators for follow-ups and pending tasks across dashboards
 - [ ] Add quick-add buttons for common log types such as ticket notes, client calls, and learning actions
 - [ ] Add a daily briefing flow summarising next shift, open follow-ups, pending tasks, and recent work logs

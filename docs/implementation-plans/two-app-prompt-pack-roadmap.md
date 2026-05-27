@@ -57,16 +57,16 @@ Keep both apps local-first. Do not add auth, real PSA integrations, Google/Drive
 8. Add onboarding-safe demo data badges and reset controls.
 9. Add privacy and safety linting for entries.
 10. Create manager-ready weekly PD review.
-11. Create the KB Learning Machine shell.
-12. Build KB Map and field cards.
-13. Add spaced repetition review scheduling.
-14. Build active recall flashcards from field cards.
-15. Build scenario-first learning mode.
-16. Add ticket-note drill scoring.
+11. Create the KB Learning Machine shell. Done in Phase 1.
+12. Build KB Map and field cards. Done in Phase 1 with safe seed cards.
+13. Add spaced repetition review scheduling. Done in Phase 1 using localStorage.
+14. Build active recall flashcards from field cards. Done in Phase 1 with deterministic prompts.
+15. Build scenario-first learning mode. Done in Phase 1 with local scenario evidence.
+16. Add ticket-note drill practice. Done in Phase 1 with local ticket-note fields.
 17. Build skill tree / mastery map.
-18. Build Evidence Pack as proof of learning.
-19. Add Daily Learning Plan.
-20. Add Teach-back Mode.
+18. Build Evidence Pack as proof of learning. Partially done: KB evidence summary is linked into Evidence Pack.
+19. Add Daily Learning Plan. Done in Phase 1.
+20. Add Teach-back Mode. Partially done: reflection-based teach-back is saved locally.
 
 ## KB Learning Machine details
 

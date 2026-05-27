@@ -27,7 +27,7 @@ This checklist turns the MSP Skills Academy specification into practical build w
 
 ## Phase 0.5: Two-app role split
 - [ ] Treat App 1 as the capture engine: work logs, follow-ups, ticket-note builder, after action reviews, health rhythm, change guardrails, and learning seeds.
-- [ ] Treat App 2 as the learning machine: KB cards, spaced reviews, flashcards, scenarios, ticket-note drills, skill map, teach-back, daily learning plan, and evidence pack.
+- [x] Treat App 2 as the learning machine: KB cards, spaced reviews, flashcards, scenarios, ticket-note drills, skill map, teach-back, daily learning plan, and evidence pack.
 - [ ] Define a safe local handoff path from App 1 learning seeds to App 2 learning queue.
 - [ ] Ensure both apps warn against passwords, credentials, secrets, private emails, and client-sensitive detail.
 
@@ -59,10 +59,10 @@ This checklist turns the MSP Skills Academy specification into practical build w
 - [ ] Create `app/src/data/mspRoadmap.ts`.
 - [ ] Create `app/src/data/communicationPrompts.ts`.
 - [ ] Keep all data fictional, generic, and safe for a personal learning app.
-- [ ] Create KB field card types for title, category, when-to-use, prerequisites, first checks, core steps, common mistake, escalation point, related skill, confidence, and review date.
-- [ ] Create spaced review fields: createdAt, lastReviewedAt, nextReviewAt, reviewStage, easeRating, and confidence.
-- [ ] Create flashcard records linked to KB field cards.
-- [ ] Create evidence records that can reference KB reviews, flashcards, scenarios, ticket-note drills, weekly reflections, and learning seeds.
+- [x] Create KB field card types for title, category, when-to-use, prerequisites, first checks, core steps, common mistake, escalation point, related skill, confidence, and review date.
+- [x] Create spaced review fields for review due date, last reviewed date, review history, and confidence.
+- [x] Create deterministic flashcard prompts linked to KB field cards.
+- [x] Create local evidence summary records that can reference KB reviews, scenarios, ticket-note drills, and reflections.
 - [ ] Create local KB hint seed data without importing private KB content.
 
 ## Phase 2: MSP Skills Matrix
@@ -153,22 +153,23 @@ This checklist turns the MSP Skills Academy specification into practical build w
 - [ ] Add copy-to-clipboard.
 - [ ] Add saved evidence snapshots.
 - [ ] Add weekly PD review output with skills practised, ticket-note quality improvements, follow-ups managed, blockers, support needed, and next week focus.
+- [x] Add KB Learning Machine evidence summary into Evidence Pack.
 - [ ] Keep export professional and manager-safe.
 - [ ] Avoid inflated wording or confidential client details.
 
 ## Phase 6.5: KB Learning Machine
-- [ ] Add KB Learning Machine shell/page.
-- [ ] Add dashboard card for KB cards created, reviews due today, scenarios completed, and skills improving.
-- [ ] Add KB Map with category filters.
+- [x] Add KB Learning Machine shell/page.
+- [x] Add dashboard card for KB cards created, reviews due today, scenarios completed, and ticket notes practised.
+- [x] Add KB Map with category filters.
 - [ ] Add learning queue.
-- [ ] Add Today's Reviews.
+- [x] Add Today's Reviews.
 - [ ] Add field card create/edit/delete flow.
-- [ ] Add confidence selector from `I recognise it` to `I can teach it`.
+- [x] Add confidence selector from `I recognise it` to `I can teach it`.
 - [ ] Add review statuses: new, due, learning, confident, mastered.
-- [ ] Add spaced review buttons: Again, Hard, Good, Easy.
-- [ ] Add active recall flashcards generated from field-card fields.
-- [ ] Add teach-back mode and save attempts to evidence.
-- [ ] Add Daily Learning Plan using due reviews, weak skills, learning queue, scenarios, recent work logs, confidence, and last study date.
+- [x] Add spaced review buttons: Again, Hard, Good, Easy.
+- [x] Add active recall flashcards generated from field-card fields.
+- [x] Add teach-back reflection mode and save attempts to evidence.
+- [x] Add Daily Learning Plan using due reviews, weak skills, scenarios, confidence, and reflection prompt.
 
 ## Phase 7: MSP Roadmap
 - [ ] Create route `app/src/app/msp-roadmap/page.tsx`.
@@ -235,7 +236,7 @@ This checklist turns the MSP Skills Academy specification into practical build w
 - [ ] Check that no real client-sensitive information is seeded.
 
 ## Content backlog
-- [ ] Add seed KB field cards:
+- [x] Add seed KB field cards:
   - Enrolling a New Computer into Intune.
   - Migrating Local User Account to Entra Account.
   - Importing Office 365 or Google GSuite User into JumpCloud.
