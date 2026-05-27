@@ -148,7 +148,7 @@ function Dashboard({
       <section className="card">
         <h2>Today's tiny practice</h2>
         <div className="health-plan-grid">
-          <article className="mini-card">
+          <article className="mini-card icon-learning">
             <h3>KB Learning Machine</h3>
             <p>Turn KBs into recall, scenarios, ticket-note practice, and evidence.</p>
             <div className="metric-row">
@@ -159,17 +159,17 @@ function Dashboard({
             </div>
             <button type="button" onClick={() => onNavigate('kbLearning')}>Open KB Learning Machine</button>
           </article>
-          <article className="mini-card">
+          <article className="mini-card icon-focus">
             <h3>Scenario of the week</h3>
             <p>{scenarioOfWeek.title}</p>
             <button type="button" onClick={() => onNavigate('mspScenarios')}>Practise scenario</button>
           </article>
-          <article className="mini-card">
+          <article className="mini-card icon-capture">
             <h3>Micro-learning card</h3>
             <p>{microCardOfDay.topic}</p>
             <button type="button" onClick={() => onNavigate('microLearning')}>Read card</button>
           </article>
-          <article className="mini-card">
+          <article className="mini-card icon-health">
             <h3>Lunch away from screen</h3>
             <p>Mark lunch as a real pause if you can.</p>
             <button type="button" onClick={() => setHealthState((state) => {
@@ -196,9 +196,10 @@ function Dashboard({
             ))}
           </ul>
         ) : (
-          <div>
-            <p>🎉 No open follow-ups! All caught up.</p>
-            <p><em>Tasks you create will appear here to keep work visible across shifts.</em></p>
+          <div className="empty-state-card">
+            <p>No open follow-ups yet.</p>
+            <p><em>Keep work visible across shifts by creating a quick follow-up.</em></p>
+            <button type="button" className="secondary-action" onClick={() => document.getElementById('quick-capture-title')?.focus()}>Capture follow-up</button>
           </div>
         )}
       </section>
@@ -212,9 +213,10 @@ function Dashboard({
             ))}
           </ul>
         ) : (
-          <div>
+          <div className="empty-state-card">
             <p>No work logs yet.</p>
-            <p><em>Use quick capture above or visit the Work Logs page to document troubleshooting and fixes.</em></p>
+            <p><em>Use quick capture or the Work Logs page to document what matters.</em></p>
+            <button type="button" className="secondary-action" onClick={() => document.getElementById('quick-capture-title')?.focus()}>Add quick log</button>
           </div>
         )}
       </section>

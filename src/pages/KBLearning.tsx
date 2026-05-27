@@ -218,6 +218,13 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
             <h1>What are we learning today?</h1>
             <p className="page-subtitle">Pick one MSP skill, practise it, and follow a clear learning path.</p>
             <p className="page-help">Hi Josh. Today’s recommended topic is <strong>{recommendedCard?.title ?? 'your first KB field card'}</strong>.</p>
+            <div className="recommendation-callout">
+              <div className="recommendation-pill">
+                <span className="status-chip info">Recommended today</span>
+                <strong>{recommendedCard?.title ?? 'Select a KB field card to begin'}</strong>
+              </div>
+              <p className="page-help">Focus your next activity on this topic and build a clear review path.</p>
+            </div>
           </div>
           <div className="learning-hero-summary">
             <span className="status-chip info">{recommendedCard?.relatedSkill ?? 'KB Learning'}</span>
