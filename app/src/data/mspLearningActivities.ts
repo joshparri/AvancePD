@@ -16,6 +16,35 @@ export type MspLearningActivityType =
 
 export type MspLearningActivityDifficulty = 'easy' | 'medium' | 'hard';
 
+export interface InteractiveFlashcardMetadata {
+  prompt: string;
+  answer: string;
+}
+
+export interface InteractiveQuizMetadata {
+  question: string;
+  choices: string[];
+  correctChoiceIndex: number;
+  explanation: string;
+}
+
+export interface InteractiveScenarioStep {
+  question: string;
+  choices: string[];
+  correctChoiceIndex: number;
+  explanation?: string;
+}
+
+export interface InteractiveTroubleshootingMetadata {
+  scenarioDescription: string;
+  steps: InteractiveScenarioStep[];
+}
+
+export interface InteractiveRoleplayMetadata {
+  initialPrompt: string;
+  systemInstructions: string;
+}
+
 export interface MspLearningActivity {
   id: string;
   title: string;
@@ -32,6 +61,12 @@ export interface MspLearningActivity {
   relatedSkillIds?: string[];
   relatedScenarioIds?: string[];
   relatedQuizDomain?: string;
+  interactive?: {
+    flashcard?: InteractiveFlashcardMetadata;
+    quiz?: InteractiveQuizMetadata;
+    troubleshooting?: InteractiveTroubleshootingMetadata;
+    roleplay?: InteractiveRoleplayMetadata;
+  };
 }
 
 export const mspLearningActivities: MspLearningActivity[] = [
@@ -85,7 +120,13 @@ export const mspLearningActivities: MspLearningActivity[] = [
     successCriteria: ['Uses simple language', 'Acknowledges the user concern', 'Explains the security benefit clearly'],
     evidenceExamples: ['Roleplay script', 'Feedback note on communication approach'],
     relatedSkillIds: ['skill-mfa-education'],
-    relatedQuizDomain: 'cybersecurity'
+    relatedQuizDomain: 'cybersecurity',
+    interactive: {
+      roleplay: {
+        initialPrompt: 'I do not understand why I need MFA. It slows me down every time I sign in.',
+        systemInstructions: 'You are a friendly senior technician explaining MFA to a skeptical user. Ask follow-up questions and challenge the learner politely to acknowledge frustration, explain the security benefit, and give a clear next step.',
+      },
+    }
   },
   {
     id: 'activity-04',
@@ -101,7 +142,36 @@ export const mspLearningActivities: MspLearningActivity[] = [
     successCriteria: ['Lists the most likely cause', 'Includes safe next steps', 'Documents the checks completed'],
     evidenceExamples: ['Troubleshooting flow note', 'Problem statement and next step summary'],
     relatedSkillIds: ['skill-outlook-connectivity'],
-    relatedQuizDomain: 'email-dns'
+    relatedQuizDomain: 'email-dns',
+    interactive: {
+      troubleshooting: {
+        scenarioDescription: 'A user says Outlook desktop is stuck on send/receive and new mail is not appearing. Web access has not been checked yet.',
+        steps: [
+          {
+            question: 'What is the safest first check?',
+            choices: [
+              'Recreate the Outlook profile immediately.',
+              'Compare Outlook desktop with webmail and check whether the issue is one user or wider.',
+              'Delete the OST file before checking service status.',
+              'Change mailbox permissions.',
+            ],
+            correctChoiceIndex: 1,
+            explanation: 'Compare desktop Outlook with webmail and scope the issue before making local profile changes.',
+          },
+          {
+            question: 'Webmail works and only Outlook desktop is stale. What is the best next action?',
+            choices: [
+              'Check Outlook connection status, cached mode, add-ins, and profile health before rebuilding anything.',
+              'Escalate as a tenant-wide mail outage.',
+              'Tell the user to wait because Outlook always fixes itself.',
+              'Disable MFA for the user.',
+            ],
+            correctChoiceIndex: 0,
+            explanation: 'Once webmail works, focus on the local Outlook client path and document checks clearly.',
+          },
+        ],
+      },
+    }
   },
   {
     id: 'activity-05',
@@ -117,7 +187,13 @@ export const mspLearningActivities: MspLearningActivity[] = [
     successCriteria: ['Can recall at least three event sources', 'Understands which ones indicate app vs system issues'],
     evidenceExamples: ['Flashcard study notes', 'Quick reference list'],
     relatedSkillIds: ['skill-windows-events'],
-    relatedQuizDomain: 'windows-support'
+    relatedQuizDomain: 'windows-support',
+    interactive: {
+      flashcard: {
+        prompt: 'A Windows app crashes after launch. Which Event Viewer areas or sources would you check first?',
+        answer: 'Check Windows Logs > Application, Windows Logs > System, Application Error, .NET Runtime, Windows Error Reporting, and relevant service or driver events around the crash time.',
+      },
+    }
   },
   {
     id: 'activity-06',

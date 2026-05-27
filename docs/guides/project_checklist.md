@@ -33,6 +33,9 @@
 - [ ] follow-up triage
 - [ ] daily learning plan
 - [ ] teach-back mode
+- [x] interactive flashcards
+- [x] interactive troubleshooting drill
+- [x] role-play chat drill
 - [ ] desktop-first polish
 - [ ] mobile usable
 - [ ] dark mode

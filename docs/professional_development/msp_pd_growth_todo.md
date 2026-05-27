@@ -136,6 +136,17 @@ This checklist turns the MSP Skills Academy specification into practical build w
   - No blame.
   - No overpromising.
   - Clear next step.
+- [x] Add first interactive Learning Cockpit role-play chat UI for explaining MFA to a frustrated user.
+- [ ] Replace the local deterministic role-play coach with a safe LLM-backed service only after API and privacy design.
+
+## Phase 5.5: Interactive Learning Cockpit
+- [x] Add reusable interactive flashcard component.
+- [x] Add reusable multiple-choice quiz component.
+- [x] Add reusable step-by-step troubleshooting component.
+- [x] Add reusable role-play chat component.
+- [x] Wire interactive flashcard, troubleshooting, and role-play metadata into three sample learning activities.
+- [x] Persist interactive scores, notes, transcripts, confidence, and completion state locally.
+- [ ] Convert the remaining high-value activities from static modals into interactive drills.
 
 ## Phase 6: Evidence Pack
 - [ ] Create route `app/src/app/evidence-pack/page.tsx`.

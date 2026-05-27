@@ -253,6 +253,18 @@ This file includes the core TODOs and a more detailed phased plan pulled from up
 - [ ] Add a progress analytics flow showing hours worked, tasks completed, and skills practised
 - [ ] Add feature ideas for weekly calendar view, task-to-learning linking, and simple analytics
 
+### 4.6 Learning Cockpit Interactive Slice
+- [x] Add interactive flashcard component with free-text recall, answer reveal, self-score, and local persistence.
+- [x] Add reusable multiple-choice quiz component for future interactive activities.
+- [x] Add interactive troubleshooting component with step-by-step choices, feedback, score, and ticket-note capture.
+- [x] Add role-play chat UI with local deterministic coaching and saved transcript/confidence.
+- [x] Add interactive metadata to the Windows event-source flashcard activity.
+- [x] Add interactive metadata to the Outlook send/receive troubleshooting activity.
+- [x] Add interactive metadata to the MFA frustrated-user role-play activity.
+- [x] Store interactive results in the existing `avance:msp-learning-progress` localStorage record.
+- [ ] Convert remaining static Learning Cockpit activities into interactive variants.
+- [ ] Add real LLM-backed role-play only after a safe API route, environment variable handling, and privacy rules are designed.
+
 ## Phase 5: Advanced Features & Integration
 
 ### 5.1 Data Management

@@ -10,18 +10,27 @@ Overview
 Features
 --------
 - Dashboard with next shift, follow-ups, quick-capture and PD summary
-- MSP Skills Matrix and Scenario Trainer
-- Ticket Notes Trainer and Evidence Pack (manager-safe summaries)
+- MSP Skills Matrix: browse and track readiness across MSP skill categories
+- MSP Scenario Trainer: practice realistic ticket scenarios with feedback on troubleshooting and escalation
+- Interactive Learning Cockpit: free-text flashcards, step-by-step troubleshooting, and role-play drills
+- Ticket Notes Trainer: practice writing professional ticket notes with examples and a rubric
+- Evidence Pack: generate manager-safe PD summaries based on completed activities
 - Knowledge base, playbooks, and troubleshooting flows
 - Health & Outdoors reminders and microbreak flows
+Saved Local Progress: preferences and progress saved in browser localStorage for continuity
 
-<<<<<<< HEAD
 Current Implementation Status
 -----------------------------
 - The PD features (MSP Skills Matrix, Scenario Trainer, Ticket Notes Trainer, Evidence Pack) are implemented in the `app/` folder.
-- The KB Learning Machine (seeded field cards, local practice evidence) is present but currently operates with localStorage only; manual card management and import from private KB sources are future work.
+- The KB Learning Machine (seeded field cards and practice flows) is present but currently uses localStorage only; manual card management and import from private KB sources are planned work.
 - Other planned modules (Work Logs, Tasks, Knowledge Base, Playbooks, Clients, Learning Tracker) are documented in `TODO.md` and may return 404 until implemented.
 
+Known Issues
+------------
+- On the MSP Scenario Trainer page (`/msp-scenarios`), the "Scenario progress" select dropdown shows a dark background when opened, making options invisible (though selection still works).
+- The KB Learning Machine uses local storage only and does not import private KB PDFs yet.
+- The KB Learning Machine has seeded field cards and practice flows but lacks create/edit/delete UI for manual card management.
+- Learning Cockpit role-play currently uses a deterministic local coach; no GROQ/LLM API integration exists in this repo yet.
 Known Issues
 ------------
 - On the MSP Scenario Trainer page (`/msp-scenarios`), the "Scenario progress" select dropdown shows a dark background when opened, making options invisible (though selection still works).

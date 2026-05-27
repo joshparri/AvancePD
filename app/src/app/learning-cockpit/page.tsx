@@ -9,7 +9,9 @@ import {
   getDueReviewSuggestions,
   markActivityComplete,
   unmarkActivityComplete,
-  saveActivityReflection
+  saveActivityReflection,
+  saveInteractiveLearningResult,
+  type InteractiveLearningResult
 } from '@/lib/mspLearningProgress';
 import { getStoredQuizAttempts, getBestQuizScore } from '@/lib/mspQuizProgress';
 import { getStoredScenarioStatuses, getScenarioProgressStatus } from '@/lib/mspProgress';
@@ -18,6 +20,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { InteractiveFlashcard } from '@/components/learning/InteractiveFlashcard';
+import { InteractiveScenario } from '@/components/learning/InteractiveScenario';
+import { MultipleChoiceQuiz } from '@/components/learning/MultipleChoiceQuiz';
+import { RolePlayChat } from '@/components/learning/RolePlayChat';
 import { 
   Brain, 
   Target, 
@@ -166,6 +172,31 @@ export default function LearningCockpit() {
     }
   };
 
+  const handleInteractiveComplete = (
+    activity: MspLearningActivity,
+    result: Omit<InteractiveLearningResult, 'activityId' | 'activityType' | 'completedAt'>
+  ) => {
+    const progressAfterResult = saveInteractiveLearningResult({
+      activityId: activity.id,
+      activityType: activity.activityType,
+      ...result,
+    });
+
+    if (!completedIds.includes(activity.id)) {
+      const progressAfterComplete = markActivityComplete(
+        activity.id,
+        activity.activityType,
+        activity.domain,
+        activity.estimatedMinutes
+      );
+      setCompletedIds(progressAfterComplete.completedActivityIds);
+    } else {
+      setCompletedIds(progressAfterResult.completedActivityIds);
+    }
+
+    setStats(getLearningStats());
+  };
+
   const getRecommendedActivities = () => {
     return recommendations
       .slice(0, 3)
@@ -207,8 +238,21 @@ export default function LearningCockpit() {
   const recommendedActivities = getRecommendedActivities();
 
   const renderActivityInteraction = (activity: MspLearningActivity) => {
+    const interactiveResult = getLearningProgress().interactiveResults[activity.id];
+
     switch (activity.activityType) {
       case 'flashcard':
+        if (activity.interactive?.flashcard) {
+          return (
+            <InteractiveFlashcard
+              prompt={activity.interactive.flashcard.prompt}
+              answer={activity.interactive.flashcard.answer}
+              previousSelfScore={interactiveResult?.selfScore}
+              onComplete={(result) => handleInteractiveComplete(activity, result)}
+            />
+          );
+        }
+
         return (
           <div className="space-y-4">
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700">
@@ -224,6 +268,35 @@ export default function LearningCockpit() {
                 <p className="text-sm">{activity.successCriteria.join(', ')}</p>
               </div>
             )}
+          </div>
+        );
+
+      case 'quiz':
+        if (activity.interactive?.quiz) {
+          return (
+            <MultipleChoiceQuiz
+              question={activity.interactive.quiz.question}
+              choices={activity.interactive.quiz.choices}
+              correctChoiceIndex={activity.interactive.quiz.correctChoiceIndex}
+              explanation={activity.interactive.quiz.explanation}
+              onComplete={(result) => handleInteractiveComplete(activity, result)}
+            />
+          );
+        }
+        return (
+          <div className="space-y-4">
+            <p className="text-gray-600 dark:text-gray-400">{activity.instructions}</p>
+            <div className="space-y-2">
+              <p className="font-medium">Success criteria:</p>
+              <ul className="text-sm space-y-1">
+                {activity.successCriteria.map((criteria, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-green-500 mr-2">-</span>
+                    {criteria}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         );
       
@@ -265,6 +338,18 @@ export default function LearningCockpit() {
         );
       
       case 'scenario':
+      case 'troubleshooting-flow':
+        if (activity.interactive?.troubleshooting) {
+          return (
+            <InteractiveScenario
+              scenarioDescription={activity.interactive.troubleshooting.scenarioDescription}
+              steps={activity.interactive.troubleshooting.steps}
+              previousTicketNote={interactiveResult?.ticketNote}
+              onComplete={(result) => handleInteractiveComplete(activity, result)}
+            />
+          );
+        }
+
         return (
           <div className="space-y-4">
             <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border-l-4 border-yellow-400">
@@ -303,6 +388,17 @@ export default function LearningCockpit() {
         );
       
       case 'roleplay':
+        if (activity.interactive?.roleplay) {
+          return (
+            <RolePlayChat
+              initialPrompt={activity.interactive.roleplay.initialPrompt}
+              systemInstructions={activity.interactive.roleplay.systemInstructions}
+              previousTranscript={interactiveResult?.transcript}
+              onComplete={(result) => handleInteractiveComplete(activity, result)}
+            />
+          );
+        }
+
         return (
           <div className="space-y-4">
             <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">

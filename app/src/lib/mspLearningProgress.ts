@@ -8,6 +8,19 @@ export interface MspLearningActivityAttempt {
   minutesLogged: number;
 }
 
+export interface InteractiveLearningResult {
+  activityId: string;
+  activityType: MspLearningActivityType;
+  completedAt: string;
+  score?: number;
+  maxScore?: number;
+  selfScore?: 'right' | 'wrong';
+  learnerAnswer?: string;
+  ticketNote?: string;
+  transcript?: Array<{ role: 'coach' | 'learner'; content: string }>;
+  confidence?: 'low' | 'medium' | 'high';
+}
+
 export interface MspLearningProgress {
   completedActivityIds: string[];
   activityAttempts: Record<string, MspLearningActivityAttempt>;
@@ -17,6 +30,7 @@ export interface MspLearningProgress {
   activityTypeCounts: Record<MspLearningActivityType, number>;
   domainCounts: Record<string, number>;
   reflections: Record<string, string>;
+  interactiveResults: Record<string, InteractiveLearningResult>;
 }
 
 const LEARNING_PROGRESS_KEY = 'avance:msp-learning-progress';
@@ -45,6 +59,7 @@ const defaultProgress: MspLearningProgress = {
   },
   domainCounts: {},
   reflections: {},
+  interactiveResults: {},
 };
 
 const readProgress = (): MspLearningProgress => {
@@ -74,6 +89,7 @@ const readProgress = (): MspLearningProgress => {
       activityMetadata: parsed.activityMetadata ?? {},
       domainCounts: parsed.domainCounts ?? {},
       reflections: parsed.reflections ?? {},
+      interactiveResults: parsed.interactiveResults ?? {},
     };
   } catch {
     return defaultProgress;
@@ -231,3 +247,22 @@ export const saveActivityReflection = (activityId: string, note: string): MspLea
   writeProgress(nextProgress);
   return nextProgress;
 };
+
+export const saveInteractiveLearningResult = (
+  result: Omit<InteractiveLearningResult, 'completedAt'>
+): MspLearningProgress => {
+  const progress = getLearningProgress();
+  const interactiveResults = {
+    ...progress.interactiveResults,
+    [result.activityId]: {
+      ...result,
+      completedAt: new Date().toISOString(),
+    },
+  };
+  const nextProgress = { ...progress, interactiveResults };
+  writeProgress(nextProgress);
+  return nextProgress;
+};
+
+export const getInteractiveLearningResult = (activityId: string): InteractiveLearningResult | undefined =>
+  getLearningProgress().interactiveResults[activityId];
