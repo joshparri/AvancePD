@@ -2,9 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { format, isToday, isTomorrow, isPast } from 'date-fns';
+import { format, isToday, isTomorrow } from 'date-fns';
 import { db, initDatabase } from '@/lib/db';
 import { Shift, PrepChecklistItem } from '@/types';
+import {
+  endShiftSession,
+  formatSessionTime,
+  getShiftDisplayStatus,
+  getShiftSession,
+  startShiftSession,
+} from '@/lib/shiftSessions';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,6 +42,7 @@ export default function ShiftDetailPage() {
   const [shift, setShift] = useState<Shift | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [sessionTick, setSessionTick] = useState(0);
 
   useEffect(() => {
     const loadShift = async () => {
@@ -56,25 +64,17 @@ export default function ShiftDetailPage() {
     }
   }, [shiftId]);
 
-  const getShiftDateTime = (shift: Shift, time: string) => {
-    const [hours, minutes] = time.split(':').map(Number);
-    const date = new Date(shift.date);
-    date.setHours(hours, minutes, 0, 0);
-    return date;
-  };
-
   const getShiftStatus = (shift: Shift): { status: string; color: BadgeProps['variant'] } => {
-    const now = new Date();
-    const shiftStart = getShiftDateTime(shift, shift.startTime);
-    const shiftEnd = getShiftDateTime(shift, shift.endTime);
+    const session = getShiftSession(shift.id);
+    const displayStatus = getShiftDisplayStatus(shift, session);
 
-    if (isPast(shiftEnd)) {
+    if (displayStatus === 'completed') {
       return { status: 'completed', color: 'secondary' };
-    } else if (now >= shiftStart && now <= shiftEnd) {
-      return { status: 'in-progress', color: 'default' };
-    } else {
-      return { status: 'scheduled', color: 'outline' };
     }
+    if (displayStatus === 'in-progress') {
+      return { status: 'in-progress', color: 'default' };
+    }
+    return { status: 'scheduled', color: 'outline' };
   };
 
   const getShiftDisplayText = (shift: Shift) => {
@@ -123,8 +123,8 @@ export default function ShiftDetailPage() {
 
     setIsUpdating(true);
     try {
-      // TODO: Implement shift start logic
-      console.log('Starting shift:', shiftId);
+      startShiftSession(shiftId);
+      setSessionTick((t) => t + 1);
     } catch (error) {
       console.error('Failed to start shift:', error);
     } finally {
@@ -137,8 +137,8 @@ export default function ShiftDetailPage() {
 
     setIsUpdating(true);
     try {
-      // TODO: Implement shift end logic
-      console.log('Ending shift:', shiftId);
+      endShiftSession(shiftId);
+      setSessionTick((t) => t + 1);
     } catch (error) {
       console.error('Failed to end shift:', error);
     } finally {
@@ -214,7 +214,11 @@ export default function ShiftDetailPage() {
     );
   }
 
+  void sessionTick;
   const { status, color } = getShiftStatus(shift);
+  const session = getShiftSession(shift.id);
+  const actualStart = formatSessionTime(session?.actualStartAt);
+  const actualEnd = formatSessionTime(session?.actualEndAt);
   const completedItems = shift.prepChecklist.filter(item => item.completed).length;
   const totalItems = shift.prepChecklist.length;
 
@@ -249,9 +253,9 @@ export default function ShiftDetailPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Shift Details */}
-            <Card>
+            <Card className="border-slate-200 dark:border-slate-700">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
                   <Calendar className="w-5 h-5" />
                   Shift Information
                 </CardTitle>
@@ -278,6 +282,14 @@ export default function ShiftDetailPage() {
                       {shift.notes}
                     </p>
                   </div>
+                )}
+
+                {(actualStart || actualEnd) && (
+                  <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                    {actualStart && `Clocked in at ${actualStart}`}
+                    {actualStart && actualEnd && ' · '}
+                    {actualEnd && `Clocked out at ${actualEnd}`}
+                  </p>
                 )}
 
                 <Separator />
@@ -310,9 +322,9 @@ export default function ShiftDetailPage() {
             </Card>
 
             {/* Prep Checklist */}
-            <Card>
+            <Card className="border-slate-200 dark:border-slate-700">
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
+                <CardTitle className="flex items-center justify-between text-slate-900 dark:text-white">
                   <span className="flex items-center gap-2">
                     <CheckCircle2 className="w-5 h-5" />
                     Pre-Shift Checklist

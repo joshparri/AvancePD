@@ -18,6 +18,11 @@ import { HeroPanel, PageShell, SectionHeader, StatCard } from '@/components/acad
 import { LearningIllustration } from '@/components/learning/LearningIllustration';
 import { LearningDiagram } from '@/components/learning/LearningDiagram';
 import { EducationalGamesSection } from '@/components/EducationalGamesSection';
+import { DailyBriefing } from '@/components/DailyBriefing';
+import { PdQuickLinks } from '@/components/PdQuickLinks';
+import { QuickTaskDialog } from '@/components/QuickTaskDialog';
+import { TaskStatus } from '@/types';
+import { isPast } from 'date-fns';
 
 export function Dashboard() {
   const [nextShift, setNextShift] = useState<Shift | null>(null);
@@ -27,6 +32,15 @@ export function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [learningStats, setLearningStats] = useState(getLearningStats());
   const [nextBestActivity, setNextBestActivity] = useState<MspLearningActivity | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const reloadTasks = async () => {
+    const pendingTasksData = await db.tasks
+      .where('status')
+      .anyOf('todo', 'in_progress')
+      .sortBy('priority');
+    setPendingTasks(pendingTasksData.slice(0, 5));
+  };
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -97,7 +111,14 @@ export function Dashboard() {
     };
 
     loadDashboardData();
-  }, []);
+  }, [refreshKey]);
+
+  const markTaskDone = async (taskId: string) => {
+    const task = await db.tasks.get(taskId);
+    if (!task) return;
+    await db.tasks.update(taskId, { status: TaskStatus.DONE, updatedAt: new Date() });
+    await reloadTasks();
+  };
 
   const getShiftDisplayText = (shift: Shift) => {
     const shiftDate = new Date(shift.date);
@@ -150,13 +171,25 @@ export function Dashboard() {
               New log
             </Link>
           </Button>
-          <Button variant="outline" size="sm">
-            <CheckSquare className="w-4 h-4 mr-2" />
-            New task
-          </Button>
+          <QuickTaskDialog onCreated={() => setRefreshKey((k) => k + 1)} />
         </>
       }
     >
+        <DailyBriefing
+          nextShift={nextShift}
+          pendingTasks={pendingTasks}
+          nextBestActivity={nextBestActivity}
+          learningCompleted={learningStats.completedCount}
+          recentLogCount={recentLogs.length}
+        />
+
+        <section className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            Quick links
+          </p>
+          <PdQuickLinks />
+        </section>
+
         <HeroPanel
           title="One clear next step"
           subtitle="Balance work, learning, wellbeing, and follow-up — start with PD focus or your next shift."
@@ -185,12 +218,18 @@ export function Dashboard() {
         />
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            icon={Calendar}
-            label="Next shift"
-            value={nextShift ? getShiftDisplayText(nextShift) : 'None'}
-            helper={nextShift ? `${nextShift.startTime} – ${nextShift.endTime}` : 'No upcoming shift'}
-          />
+          {nextShift ? (
+            <Link href={`/shifts/${nextShift.id}`} className="block transition hover:opacity-90">
+              <StatCard
+                icon={Calendar}
+                label="Next shift"
+                value={getShiftDisplayText(nextShift)}
+                helper={`${nextShift.startTime} – ${nextShift.endTime} · tap to prep`}
+              />
+            </Link>
+          ) : (
+            <StatCard icon={Calendar} label="Next shift" value="None" helper="No upcoming shift" />
+          )}
           <StatCard icon={Clock} label="Hours this month" value={totalHoursThisMonth} helper="Target: 160h" />
           <StatCard
             icon={CheckSquare}
@@ -327,11 +366,20 @@ export function Dashboard() {
             <CardContent>
               {pendingTasks.length > 0 ? (
                 <div className="space-y-3">
-                  {pendingTasks.map((task) => (
-                    <div key={task.id} className="flex items-start justify-between rounded-xl border border-slate-100 bg-slate-50/80 p-3 dark:border-slate-800 dark:bg-slate-900/50">
+                  {pendingTasks.map((task) => {
+                    const overdue = task.dueDate && isPast(new Date(task.dueDate));
+                    return (
+                    <div
+                      key={task.id}
+                      className={`flex items-start justify-between gap-2 rounded-xl border p-3 ${
+                        overdue
+                          ? 'border-amber-300/80 bg-amber-50/80 dark:border-amber-800 dark:bg-amber-950/30'
+                          : 'border-slate-100 bg-slate-50/80 dark:border-slate-700 dark:bg-slate-900/50'
+                      }`}
+                    >
                       <div className="flex-1">
-                        <p className="font-medium text-sm">{task.title}</p>
-                        <div className="flex items-center gap-2 mt-1">
+                        <p className="font-medium text-sm text-slate-900 dark:text-white">{task.title}</p>
+                        <div className="mt-1 flex flex-wrap items-center gap-2">
                           <Badge variant={getPriorityColor(task.priority)} className="text-xs">
                             {task.priority}
                           </Badge>
@@ -339,14 +387,18 @@ export function Dashboard() {
                             {task.category}
                           </Badge>
                           {task.dueDate && (
-                            <span className="text-xs text-muted-foreground">
+                            <span className={`text-xs ${overdue ? 'font-medium text-amber-700 dark:text-amber-300' : 'text-muted-foreground'}`}>
                               Due {format(new Date(task.dueDate), 'MMM d')}
                             </span>
                           )}
                         </div>
                       </div>
+                      <Button size="sm" variant="outline" className="shrink-0 text-xs" onClick={() => markTaskDone(task.id)}>
+                        Done
+                      </Button>
                     </div>
-                  ))}
+                  );
+                  })}
                 </div>
               ) : (
                 <p className="text-muted-foreground text-center py-4">

@@ -2,9 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { format, isToday, isTomorrow, isPast } from 'date-fns';
+import { format, isToday, isTomorrow } from 'date-fns';
 import { db, initDatabase } from '@/lib/db';
 import { Shift } from '@/types';
+import {
+  endShiftSession,
+  formatSessionTime,
+  getShiftDisplayStatus,
+  getShiftSession,
+  startShiftSession,
+} from '@/lib/shiftSessions';
 import { Layout } from '@/components/Layout';
 import { ShiftForm } from '@/components/ShiftForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +24,7 @@ export default function ShiftsPage() {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [sessionTick, setSessionTick] = useState(0);
 
   useEffect(() => {
     const loadShifts = async () => {
@@ -34,25 +42,17 @@ export default function ShiftsPage() {
     loadShifts();
   }, []);
 
-  const getShiftDateTime = (shift: Shift, time: string) => {
-    const [hours, minutes] = time.split(':').map(Number);
-    const date = new Date(shift.date);
-    date.setHours(hours, minutes, 0, 0);
-    return date;
-  };
-
   const getShiftStatus = (shift: Shift): { status: string; color: BadgeProps['variant'] } => {
-    const now = new Date();
-    const shiftStart = getShiftDateTime(shift, shift.startTime);
-    const shiftEnd = getShiftDateTime(shift, shift.endTime);
+    const session = getShiftSession(shift.id);
+    const displayStatus = getShiftDisplayStatus(shift, session);
 
-    if (isPast(shiftEnd)) {
+    if (displayStatus === 'completed') {
       return { status: 'completed', color: 'secondary' };
-    } else if (now >= shiftStart && now <= shiftEnd) {
-      return { status: 'in-progress', color: 'default' };
-    } else {
-      return { status: 'scheduled', color: 'outline' };
     }
+    if (displayStatus === 'in-progress') {
+      return { status: 'in-progress', color: 'default' };
+    }
+    return { status: 'scheduled', color: 'outline' };
   };
 
   const getShiftDisplayText = (shift: Shift) => {
@@ -67,13 +67,13 @@ export default function ShiftsPage() {
   };
 
   const handleStartShift = async (shiftId: string) => {
-    // TODO: Implement shift start logic
-    console.log('Starting shift:', shiftId);
+    startShiftSession(shiftId);
+    setSessionTick((t) => t + 1);
   };
 
   const handleEndShift = async (shiftId: string) => {
-    // TODO: Implement shift end logic
-    console.log('Ending shift:', shiftId);
+    endShiftSession(shiftId);
+    setSessionTick((t) => t + 1);
   };
 
   const handleShiftCreated = async () => {
@@ -126,9 +126,16 @@ export default function ShiftsPage() {
           {/* Shifts Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {shifts.map((shift) => {
+              void sessionTick;
               const { status, color } = getShiftStatus(shift);
+              const session = getShiftSession(shift.id);
+              const actualStart = formatSessionTime(session?.actualStartAt);
+              const actualEnd = formatSessionTime(session?.actualEndAt);
               return (
-                <Card key={shift.id} className="hover:shadow-lg transition-shadow">
+                <Card
+                  key={shift.id}
+                  className="border-slate-200 transition-shadow hover:shadow-lg dark:border-slate-700"
+                >
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div>
@@ -162,6 +169,14 @@ export default function ShiftsPage() {
                       {shift.notes && (
                         <p className="text-sm text-muted-foreground">
                           {shift.notes}
+                        </p>
+                      )}
+
+                      {(actualStart || actualEnd) && (
+                        <p className="text-xs text-emerald-700 dark:text-emerald-400">
+                          {actualStart && `Started ${actualStart}`}
+                          {actualStart && actualEnd && ' · '}
+                          {actualEnd && `Ended ${actualEnd}`}
                         </p>
                       )}
 

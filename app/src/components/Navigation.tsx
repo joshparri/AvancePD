@@ -17,7 +17,8 @@ import {
   NotebookText,
   Wrench,
   HeartPulse,
-  BookOpen
+  BookOpen,
+  Gamepad2,
 } from 'lucide-react';
 
 const navigation = [
@@ -28,6 +29,7 @@ const navigation = [
   { name: 'MSP Scenarios', href: '/msp-scenarios', icon: ClipboardList },
   { name: 'MSP Quiz', href: '/msp-quiz', icon: Brain },
   { name: 'Learning Cockpit', href: '/learning-cockpit', icon: Lightbulb },
+  { name: 'AvanceGame', href: '/avance-game', icon: Gamepad2 },
   { name: 'Tool Primers', href: '/tool-primers', icon: Wrench },
   { name: 'Ticket Notes', href: '/ticket-notes', icon: ClipboardCheck },
   { name: 'Evidence Pack', href: '/evidence-pack', icon: Archive },
@@ -78,8 +80,12 @@ export function Navigation() {
       </div>
 
       {/* Mobile menu */}
-      <div className="sm:hidden">
-        <div className="pt-2 pb-3 space-y-1">
+      <div className="border-t border-slate-200 dark:border-slate-800 sm:hidden">
+        <div className="flex items-center justify-between px-4 py-2">
+          <span className="text-xs font-medium text-muted-foreground">Theme</span>
+          <DarkModeToggle showLabel />
+        </div>
+        <div className="space-y-1 pb-3 pt-1">
           {navigation.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
