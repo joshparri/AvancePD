@@ -140,13 +140,14 @@ export const educationalGamePlatforms: EducationalGamePlatform[] = [
     isBuiltIn: true,
     category: 'it-gamified',
     categoryLabel: educationalGameCategoryLabels['it-gamified'],
-    tagline: 'Duolingo-for-IT inside Avance PD — streaks, skill trees, and six MSP modes',
+    tagline: 'Live-service style MSP practice inside Avance PD',
     description:
-      'Built-in sub-app combining the Hook Model (trigger, action, variable reward, investment) with IT skill trees, daily streaks, XP, and modes inspired by Duolingo, GeoGuessr, Elevate, Khan Academy, Coolmath, CMD Challenge, and SadServers.',
+      'Built-in sub-app combining daily events, just-one-more challenge loops, variable mystery drops, cohort ranking, IT skill trees, streaks, XP, and modes inspired by Duolingo, GeoGuessr, Elevate, Khan Academy, Coolmath, CMD Challenge, and SadServers.',
     gameplayHighlights: [
-      'XP bar, levels, variable bonus rewards, and streak shields',
+      'XP bar, levels, variable mystery drops, and streak shields',
       'Gated skill tree with boss challenges and daily 6-mode chain',
-      'Ghost leaderboard and six MSP game modes',
+      'Ghost leaderboard, cohort pressure, and six MSP game modes',
+      'Limited daily event hooks and one-more-turn prompts',
       'External labs unlock after your first boss victory',
     ],
     bestFor: 'Daily 5-minute IT habit loops without leaving Avance Professional Development.',

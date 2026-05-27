@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Repeat2, Sparkles } from 'lucide-react';
 import {
   avanceGameChallenges,
   avanceGameModeMeta,
@@ -59,11 +60,14 @@ export function GameModePlay({
   selectedIndex,
   feedback,
   lastXp,
+  sessionStreak,
   onSelect,
   onSubmit,
   onNext,
   onExit,
 }: GameModePlayProps) {
+  const streakNudge = sessionStreak > 0 ? `${sessionStreak} correct in a row` : 'Start a clean run';
+
   return (
     <Card className="border-blue-200/80 dark:border-blue-900/50">
       <CardHeader>
@@ -124,6 +128,16 @@ export function GameModePlay({
               {feedback === 'correct' ? `Correct! +${lastXp} XP` : `Not quite — +${lastXp} XP for trying`}
             </p>
             <p className="mt-2 text-muted-foreground">{challenge.explanation}</p>
+            <div className="mt-3 grid grid-cols-1 gap-2 rounded-lg border bg-white/70 p-3 text-xs dark:bg-slate-950/30 sm:grid-cols-2">
+              <div className="flex items-center gap-2">
+                <Repeat2 className="h-4 w-4 text-blue-600" />
+                <span>{streakNudge}. One more answer keeps the run alive.</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-violet-600" />
+                <span>Every challenge advances XP, node progress, and mystery drops.</span>
+              </div>
+            </div>
             <div className="mt-4 flex gap-2">
               <Button size="sm" onClick={onNext}>
                 Next challenge

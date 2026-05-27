@@ -11,6 +11,7 @@ import {
 } from '../lib/dailyChallenge';
 import type { BonusEvent, RewardState } from '../lib/rewardEngine';
 import { addXP, saveRewardState } from '../lib/rewardEngine';
+import { getMultiplier } from '../lib/eventEngine';
 
 type DailyChallengeProps = {
   reward: RewardState;
@@ -55,10 +56,11 @@ export function DailyChallenge({ reward, onRewardUpdate }: DailyChallengeProps) 
     if (selected === null || !current) return;
     const nextStep = daily.step + 1;
     if (nextStep >= questions.length) {
-      const { newState, bonusEvent, xpGained } = addXP(reward, DAILY_CHALLENGE_XP);
+      const multiplier = getMultiplier();
+      const { newState, bonusEvent, xpGained } = addXP(reward, DAILY_CHALLENGE_XP, multiplier);
       saveRewardState(newState);
       onRewardUpdate(newState, bonusEvent, xpGained);
-      const done: DailySave = { date: todayKey(), step: questions.length, completed: true, xpEarned: DAILY_CHALLENGE_XP };
+      const done: DailySave = { date: todayKey(), step: questions.length, completed: true, xpEarned: xpGained };
       saveDaily(done);
       setDaily(done);
       setActive(false);

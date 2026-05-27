@@ -161,19 +161,21 @@ export const spinForBonus = (
 
 export const addXP = (
   state: RewardState,
-  amount: number
+  amount: number,
+  multiplier = 1
 ): { newState: RewardState; bonusEvent: BonusEvent | null; xpGained: number } => {
+  const baseAmount = Math.max(0, Math.round(amount * multiplier));
   const nextMeter = Math.min(MYSTERY_METER_MAX, state.mysteryMeter + 1);
   const guaranteedDrop = nextMeter >= MYSTERY_METER_MAX;
   const bonusEvent = rollBonus(guaranteedDrop);
-  let xpGained = amount;
+  let xpGained = baseAmount;
   let next: RewardState = {
     ...state,
     mysteryMeter: bonusEvent ? 0 : nextMeter,
   };
 
   if (bonusEvent?.type === 'multiplier') {
-    xpGained = amount * bonusEvent.value;
+    xpGained = baseAmount * bonusEvent.value;
   }
   if (bonusEvent?.type === 'shield') {
     next = {

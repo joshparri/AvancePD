@@ -12,10 +12,12 @@ import { avanceExternalItPlatforms, avanceGameModeMeta, type AvanceGameMode } fr
 import { getAvanceGameProgress, recordChallengeResult, type AvanceGameProgress } from '@/lib/avanceGameProgress';
 import { ArrowLeft, ArrowUpRight, Gamepad2, Trophy, Zap } from 'lucide-react';
 import { DailyChallenge } from './components/DailyChallenge';
+import EventBanner from './components/EventBanner';
+import { EngagementLoops } from './components/EngagementLoops';
 import { GameToast } from './components/GameToast';
 import { GhostLeaderboard } from './components/GhostLeaderboard';
 import { GameModePlay, getUnlockedNodeIds, pickChallenge } from './components/GameModePlay';
-import { SkillTree } from './components/SkillTree';
+import { SkillTree, SKILL_NODES } from './components/SkillTree';
 import { StreakDisplay } from './components/StreakDisplay';
 import { XpLevelBar } from './components/XpLevelBar';
 import {
@@ -30,6 +32,7 @@ import {
   type BonusEvent,
   type RewardState,
 } from './lib/rewardEngine';
+import { getMultiplier } from './lib/eventEngine';
 
 type ToastState = { message: string; variant: 'default' | 'bonus' | 'unlock' | 'shield' } | null;
 
@@ -63,6 +66,12 @@ export default function AvanceGamePage() {
   const playedToday = reward.lastPlayedDate === today;
   const atRisk = typeof window !== 'undefined' && !playedToday && new Date().getHours() >= 20;
   const hasBossBadge = reward.unlockedBadges.some((b) => b.startsWith('boss_'));
+  const nextUnlock = useMemo(() => {
+    const locked = SKILL_NODES.find((node) => !unlockedNodes.includes(node.id) && node.requires);
+    if (!locked || !locked.requires) return null;
+    const remaining = Math.max(0, locked.unlockThreshold - (reward.nodeProgress[locked.requires] ?? 0));
+    return { label: locked.label, remaining };
+  }, [reward.nodeProgress, unlockedNodes]);
 
   const applyReward = useCallback((state: RewardState, bonus: BonusEvent | null, gained: number) => {
     setReward(state);
@@ -84,8 +93,17 @@ export default function AvanceGamePage() {
     setSpinning(true);
     try {
       const result = spinForBonus(reward);
-      applyReward(result.newState, result.bonusEvent, result.xpGained);
-      setToast({ message: result.bonusEvent?.message ?? `+${result.xpGained} XP`, variant: 'bonus' });
+      const eventMult = getMultiplier();
+      let finalState = result.newState;
+      let finalXp = result.xpGained;
+      if (eventMult > 1) {
+        const adjusted = Math.round(result.xpGained * eventMult);
+        const diff = adjusted - result.xpGained;
+        finalState = { ...result.newState, xp: result.newState.xp + diff, level: Math.floor((result.newState.xp + diff) / 500) + 1 };
+        finalXp = adjusted;
+      }
+      applyReward(finalState, result.bonusEvent, finalXp);
+      setToast({ message: result.bonusEvent?.message ?? `+${finalXp} XP`, variant: 'bonus' });
     } finally {
       setSpinning(false);
     }
@@ -100,11 +118,20 @@ export default function AvanceGamePage() {
     setLastXp(0);
   };
 
+  const startSuggestedMode = () => {
+    const modes = Object.keys(avanceGameModeMeta) as AvanceGameMode[];
+    const mode = modes.find((candidate) =>
+      Boolean(pickChallenge(candidate, unlockedNodes, legacy.completedChallengeIds, legacy.sessionCorrectStreak))
+    );
+    if (mode) startMode(mode);
+  };
+
   const submitAnswer = () => {
     if (!currentChallenge || selectedIndex === null || activeMode === null) return;
     const correct = selectedIndex === currentChallenge.correctIndex;
     const baseXp = correct ? currentChallenge.xpReward : Math.max(2, Math.floor(currentChallenge.xpReward / 3));
-    const { newState, bonusEvent, xpGained } = addXP(reward, baseXp);
+    const multiplier = getMultiplier();
+    const { newState, bonusEvent, xpGained } = addXP(reward, baseXp, multiplier);
     let nextReward = recordNodeActivity(newState, currentChallenge.skillNode);
     nextReward = {
       ...nextReward,
@@ -136,7 +163,7 @@ export default function AvanceGamePage() {
   const handleBossComplete = (nodeId: string, passed: boolean) => {
     let next = recordBossAttempt(reward, nodeId);
     if (passed) {
-      const result = addXP(next, 200);
+      const result = addXP(next, 200, getMultiplier());
       next = awardBadge(result.newState, `boss_${nodeId}_complete`);
       applyReward(next, result.bonusEvent, result.xpGained);
       setToast({ message: `🏆 Boss defeated! +${result.xpGained} XP`, variant: 'bonus' });
@@ -146,12 +173,21 @@ export default function AvanceGamePage() {
     }
   };
 
+  // prompt for browser notifications for at-risk users (simple in-page prompt)
+  if (typeof window !== 'undefined' && atRisk && Notification && Notification.permission === 'default') {
+    Notification.requestPermission().then((perm) => {
+      if (perm === 'granted') {
+        new Notification('Come back to Avance', { body: 'Quick 5-minute challenge will keep your streak alive!' });
+      }
+    });
+  }
+
   return (
     <Layout>
       <PageShell
         eyebrow="Built-in"
         title="AvanceGame"
-        subtitle="Streaks, variable rewards, gated skill trees, boss levels, and daily challenges—built for MSP habits."
+        subtitle="Streaks, variable rewards, live events, cohort pressure, boss levels, and daily challenges built for MSP habits."
         actions={
           <Button variant="outline" size="sm" asChild>
             <Link href="/">
@@ -163,6 +199,15 @@ export default function AvanceGamePage() {
       >
         <XpLevelBar xp={reward.xp} xpDelta={xpDelta} />
 
+        <EventBanner />
+        <EngagementLoops
+          reward={reward}
+          playedToday={playedToday}
+          nextUnlockLabel={nextUnlock?.label ?? null}
+          nextUnlockRemaining={nextUnlock?.remaining ?? null}
+          onPlaySuggested={startSuggestedMode}
+        />
+
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-4">
             <DailyChallenge reward={reward} onRewardUpdate={applyReward} />
@@ -170,11 +215,11 @@ export default function AvanceGamePage() {
               <CardContent className="flex items-center justify-between p-4">
                 <div>
                   <p className="font-semibold text-yellow-800 dark:text-yellow-200">Spin for Bonus</p>
-                  <p className="text-xs text-muted-foreground">Small variable XP + chance for shields or rare scenarios.</p>
+                  <p className="text-xs text-muted-foreground">Small variable XP plus a mystery meter for guaranteed drops.</p>
                 </div>
                 <div>
                   <Button size="sm" onClick={handleSpin} disabled={spinning}>
-                    {spinning ? 'Spinning…' : 'Spin now'}
+                    {spinning ? 'Spinning...' : 'Spin now'}
                   </Button>
                 </div>
               </CardContent>
@@ -185,7 +230,7 @@ export default function AvanceGamePage() {
 
         <HeroPanel
           title="Your learning hook"
-          subtitle="Variable rewards, loss-aversion streaks, and flow-zone drills—come back tomorrow."
+          subtitle="A short loop: clear one ticket, move the mystery meter, protect the streak, and unlock the next branch."
           illustration={<LearningIllustration variant="learning-cockpit" size="lg" decorative />}
           stats={[
             { label: 'Level', value: reward.level },
@@ -201,13 +246,13 @@ export default function AvanceGamePage() {
 
         <SkillTree
           reward={reward}
-          onUnlockToast={(label) => setToast({ message: `🔓 ${label} unlocked!`, variant: 'unlock' })}
+          onUnlockToast={(label) => setToast({ message: `${label} unlocked.`, variant: 'unlock' })}
           onBossComplete={handleBossComplete}
         />
 
         {!activeMode && (
           <section className="space-y-4">
-            <SectionHeader icon={Gamepad2} title="Game modes" description="Unlocked branches only—earn XP and node progress." />
+            <SectionHeader icon={Gamepad2} title="Game modes" description="Unlocked branches only. Earn XP, node progress, and mystery meter progress." />
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {(Object.keys(avanceGameModeMeta) as AvanceGameMode[]).map((mode) => {
                 const meta = avanceGameModeMeta[mode];
