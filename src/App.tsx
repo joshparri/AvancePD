@@ -75,8 +75,8 @@ const pages = [
   { id: 'communicationPractice', label: 'Communication Practice' },
   { id: 'mspRoadmap', label: 'MSP Roadmap' },
   { id: 'evidencePack', label: 'Evidence Pack' },
-  { id: 'microLearning', label: 'Micro-Learning' },
-  { id: 'avancePDGames', label: 'AvancePD Games' }
+  { id: 'avancePDGames', label: 'AvancePDGames' },
+  { id: 'microLearning', label: 'Micro-Learning' }
 ];
 
 type PageId =
@@ -103,8 +103,8 @@ type PageId =
   | 'communicationPractice'
   | 'mspRoadmap'
   | 'evidencePack'
-  | 'microLearning'
-  | 'avancePDGames';
+  | 'avancePDGames'
+  | 'microLearning';
 
 function loadPersisted<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') {
@@ -421,15 +421,13 @@ function App() {
         {currentPage === 'communicationPractice' && <CommunicationPractice />}
         {currentPage === 'mspRoadmap' && <MspRoadmap />}
         {currentPage === 'evidencePack' && <EvidencePack progress={progress} />}
+        {currentPage === 'avancePDGames' && <AvancePDGames />}
         {currentPage === 'microLearning' && (
           <MicroLearning
             progress={progress}
             markMicroCardViewed={markMicroCardViewed}
             onNavigate={(page) => setCurrentPage(page as PageId)}
           />
-        )}
-        {currentPage === 'avancePDGames' && (
-          <AvancePDGames onNavigate={(page) => setCurrentPage(page as PageId)} />
         )}
       </main>
       <MobileBottomActions onNavigate={(page) => setCurrentPage(page as PageId)} />

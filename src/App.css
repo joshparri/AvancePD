@@ -1847,6 +1847,439 @@ button:active,
   letter-spacing: 0.01em;
 }
 
+/* AvancePDGames */
+.games-page {
+  display: grid;
+  gap: 18px;
+}
+
+.games-hero-card {
+  background: #f8fbff;
+  border-left: 4px solid #0f766e;
+}
+
+.games-hero-grid {
+  align-items: start;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+}
+
+.games-kicker {
+  color: #0f766e;
+  display: inline-block;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.games-stat-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.games-rank-panel {
+  background: #102a2d;
+  border: 1px solid rgba(20, 184, 166, 0.3);
+  border-radius: 16px;
+  color: #f8fafc;
+  display: grid;
+  gap: 4px;
+  padding: 18px;
+}
+
+.games-rank-panel strong {
+  font-size: 1.25rem;
+}
+
+.games-stat-label {
+  color: #99f6e4;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.games-resource-row,
+.games-action-row,
+.games-tactic-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.games-xp-track,
+.games-mini-track {
+  background: #dbe4ee;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.games-xp-track {
+  height: 14px;
+  margin-top: 18px;
+}
+
+.games-xp-fill,
+.games-mini-track div {
+  background: #0f766e;
+  height: 100%;
+}
+
+.games-xp-caption {
+  color: #475569;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  gap: 12px;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.games-command-grid {
+  align-items: start;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+}
+
+.games-side-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.games-mode-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.card .games-mode-tab {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  color: #0f172a;
+  margin: 0;
+  padding: 8px 16px;
+}
+
+.card .games-mode-tab.active {
+  background: #102a2d;
+  border-color: #102a2d;
+  color: #ffffff;
+}
+
+.games-mission-header,
+.games-panel-header {
+  align-items: start;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+}
+
+.games-mission-header h2,
+.games-panel-header h2 {
+  margin-bottom: 0;
+}
+
+.games-scenario-link,
+.games-muted,
+.games-outcome-note {
+  color: #475569;
+  line-height: 1.55;
+}
+
+.games-raid-meter {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 14px;
+  color: #92400e;
+  display: grid;
+  gap: 3px;
+  min-width: 132px;
+  padding: 12px;
+  text-align: right;
+}
+
+.games-raid-meter span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.games-prompt-panel {
+  background: #f8fafc;
+  border: 1px solid #dbe4ee;
+  border-radius: 16px;
+  margin-top: 18px;
+  padding: 18px;
+}
+
+.games-prompt-panel p {
+  font-size: 1.08rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.games-clue-box {
+  background: #ecfeff;
+  border: 1px solid #67e8f9;
+  border-radius: 12px;
+  color: #155e75;
+  line-height: 1.55;
+  margin-top: 14px;
+  padding: 12px;
+}
+
+.games-tactic-row {
+  margin-top: 14px;
+}
+
+.card .games-tactic {
+  background: #ffffff;
+  border: 1px solid #dbe4ee;
+  border-radius: 14px;
+  color: #0f172a;
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  min-width: 160px;
+  padding: 11px 12px;
+  text-align: left;
+}
+
+.card .games-tactic span {
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.card .games-tactic.active {
+  background: #0f766e;
+  border-color: #0f766e;
+  color: #ffffff;
+}
+
+.card .games-tactic.active span {
+  color: #ccfbf1;
+}
+
+.games-options {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.card .games-option {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  color: #0f172a;
+  line-height: 1.45;
+  margin: 0;
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.card .games-option.active {
+  background: #102a2d;
+  border-color: #102a2d;
+  color: #ffffff;
+}
+
+.games-action-row {
+  margin-top: 16px;
+}
+
+.games-outcome {
+  border-radius: 16px;
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 16px;
+}
+
+.games-outcome.success {
+  background: #ecfdf5;
+  border: 1px solid #86efac;
+}
+
+.games-outcome.miss {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+}
+
+.games-outcome h3 {
+  margin: 8px 0 0;
+}
+
+.games-quest-list,
+.games-upgrade-list,
+.games-leaderboard,
+.games-faction-grid,
+.games-vault-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.games-quest-row,
+.games-upgrade-row,
+.games-leader-row,
+.games-faction-row {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.games-quest-row > div:first-child,
+.games-leader-row {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.games-quest-row span,
+.games-faction-row span {
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.games-mini-track {
+  height: 8px;
+  margin-top: 8px;
+}
+
+.games-upgrade-row {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.games-upgrade-row p {
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  margin: 4px 0 0;
+}
+
+.games-upgrade-row strong span {
+  color: #0f766e;
+  font-size: 0.82rem;
+}
+
+.card .games-upgrade-row button {
+  background: #0f766e;
+  border: 1px solid #0f766e;
+  border-radius: 12px;
+  color: #ffffff;
+  margin: 0;
+  min-width: 72px;
+  padding: 9px 10px;
+}
+
+.games-lower-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.games-leader-row {
+  color: #334155;
+}
+
+.games-leader-row.player {
+  background: #ecfeff;
+  border-color: #67e8f9;
+  color: #155e75;
+}
+
+.games-leader-row span {
+  background: #e2e8f0;
+  border-radius: 999px;
+  display: inline-grid;
+  height: 28px;
+  place-items: center;
+  width: 28px;
+}
+
+.games-leader-row em {
+  color: #64748b;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.games-faction-row {
+  display: grid;
+  gap: 4px;
+}
+
+.games-vault-list {
+  align-content: start;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.games-vault-list span {
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 999px;
+  color: #92400e;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 6px 10px;
+}
+
+.card .games-reset-btn {
+  background: transparent;
+  border: 1px solid #fca5a5;
+  border-radius: 999px;
+  color: #991b1b;
+  margin: 0;
+  padding: 7px 12px;
+}
+
+@media (max-width: 1100px) {
+  .games-hero-grid,
+  .games-command-grid,
+  .games-lower-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .games-mission-header,
+  .games-panel-header,
+  .games-xp-caption {
+    align-items: stretch;
+    display: grid;
+    gap: 10px;
+  }
+
+  .games-raid-meter {
+    text-align: left;
+  }
+
+  .games-tactic-row,
+  .games-action-row,
+  .games-mode-tabs {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .card .games-tactic,
+  .card .games-mode-tab,
+  .games-action-row button {
+    width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .card,
   .mini-card,

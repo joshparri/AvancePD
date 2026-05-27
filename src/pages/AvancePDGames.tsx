@@ -1,457 +1,914 @@
 import { useEffect, useMemo, useState } from 'react';
+import { microLearningCards, type MicroLearningCard } from '../data/microLearning';
+import { mspScenarios } from '../data/mspScenarios';
+
+declare global {
+  interface Window {
+    render_game_to_text?: () => string;
+    advanceTime?: (ms: number) => void;
+  }
+}
+
+const gameStorageKey = 'avance-pd-games-state';
+
+const factions = [
+  { id: 'identity-guild', name: 'Identity Guild' },
+  { id: 'cloud-court', name: 'Cloud Court' },
+  { id: 'network-watch', name: 'Network Watch' },
+  { id: 'security-circle', name: 'Security Circle' },
+  { id: 'endpoint-smiths', name: 'Endpoint Smiths' },
+  { id: 'recovery-order', name: 'Recovery Order' },
+  { id: 'docs-college', name: 'Docs College' }
+] as const;
+
+const upgrades = [
+  {
+    id: 'automation-grid',
+    name: 'Automation Grid',
+    detail: 'Adds passive XP and credits after every contract.',
+    baseCost: 60,
+    maxRank: 5
+  },
+  {
+    id: 'knowledge-forge',
+    name: 'Knowledge Forge',
+    detail: 'Raises XP from correct answers and teach-back contracts.',
+    baseCost: 75,
+    maxRank: 5
+  },
+  {
+    id: 'loot-signal',
+    name: 'Loot Signal',
+    detail: 'Improves the chance of rare reward rolls.',
+    baseCost: 90,
+    maxRank: 4
+  },
+  {
+    id: 'focus-cache',
+    name: 'Focus Cache',
+    detail: 'Increases maximum focus for stronger tactical plays.',
+    baseCost: 85,
+    maxRank: 4
+  },
+  {
+    id: 'guild-mentor',
+    name: 'Guild Mentor',
+    detail: 'Softens the penalty from one wrong answer during a streak.',
+    baseCost: 110,
+    maxRank: 3
+  }
+] as const;
+
+const tactics = [
+  { id: 'none', name: 'Clean Run', cost: 0, detail: 'Keep focus for later.' },
+  { id: 'scope-scan', name: 'Scope Scan', cost: 1, detail: 'Reveal the key clue.' },
+  { id: 'mentor-call', name: 'Mentor Call', cost: 2, detail: 'Reduce answer noise.' },
+  { id: 'automation-burst', name: 'Automation Burst', cost: 2, detail: 'Double credit payout.' },
+  { id: 'change-window', name: 'Change Window', cost: 1, detail: 'Protect one streak break.' }
+] as const;
+
+type FactionId = (typeof factions)[number]['id'];
+type UpgradeId = (typeof upgrades)[number]['id'];
+type TacticId = (typeof tactics)[number]['id'];
+type MissionDifficulty = 'cadet' | 'operator' | 'veteran';
+type MissionKind = 'scope' | 'risk' | 'teach';
+type GameMode = 'contracts' | 'factory' | 'raid';
+type RewardRarity = 'common' | 'rare' | 'epic';
+
+type MissionOption = {
+  id: string;
+  text: string;
+  correct: boolean;
+};
 
 type GameMission = {
   id: string;
+  cardId: string;
   title: string;
   category: string;
-  description: string;
-  xp: number;
-  rating: string;
-  tags: string[];
-  subject: string;
-  learningOutcome: string;
-  relatedPage?: string;
-  relatedStudy?: string;
+  factionId: FactionId;
+  difficulty: MissionDifficulty;
+  kind: MissionKind;
+  prompt: string;
+  options: MissionOption[];
+  correctOptionId: string;
+  clue: string;
+  successText: string;
+  failureText: string;
+  scenarioTitle?: string;
 };
 
-type LootReward = {
-  label: string;
-  rarity: 'common' | 'uncommon' | 'rare' | 'legendary';
+type MissionLog = {
+  missionId: string;
+  cardId: string;
+  category: string;
+  correct: boolean;
+  reward: string;
   xp: number;
-  description: string;
+  credits: number;
+  at: string;
 };
 
-type GamesProgress = {
-  level: number;
+type AvancePDGameState = {
   xp: number;
-  xpToNextLevel: number;
-  totalPoints: number;
-  streakDays: number;
-  completedMissions: string[];
-  loot: string[];
-  lastDailyClaim: string;
-  dailyQuestId: string;
-  feedback: string;
+  credits: number;
+  streak: number;
+  bestStreak: number;
+  focus: number;
+  turn: number;
+  heat: number;
+  raidIntegrity: number;
+  masteredCardIds: string[];
+  badges: string[];
+  rareFinds: string[];
+  upgrades: Record<UpgradeId, number>;
+  factionStanding: Record<FactionId, number>;
+  currentMissionId: string;
+  history: MissionLog[];
 };
 
-const storageKey = 'avance-games-progress';
+type MissionOutcome = {
+  correct: boolean;
+  title: string;
+  message: string;
+  explanation: string;
+  reward: string;
+  rarity: RewardRarity;
+  xp: number;
+  credits: number;
+  streak: number;
+  raidCleared: boolean;
+};
 
-const missions: GameMission[] = [
-  {
-    id: 'one-more-turn',
-    title: 'One More Turn: Build Your IT Empire',
-    category: 'Strategy',
-    description:
-      'A Civilization-style quest that rewards you for refining one more IT concept, one more process, and one more automation flow.',
-    subject: 'Identity & Automation',
-    learningOutcome: 'Sharpen your ability to scale access and automate routine cloud workflows.',
-    relatedPage: 'microLearning',
-    relatedStudy: 'Identity and Access concepts',
-    xp: 120,
-    rating: 'gold',
-    tags: ['strategy', 'planning', 'automation']
-  },
-  {
-    id: 'support-battle',
-    title: 'Support Battle Royale',
-    category: 'Competitive',
-    description:
-      'Treat every ticket like a ranked match: quick triage, smart escalation, and a better run after every loss.',
-    subject: 'Triage & Response',
-    learningOutcome: 'Improve your speed and judgment on real MSP issues so each session feels like a competitive win.',
-    relatedPage: 'mspSkills',
-    relatedStudy: 'Incident triage and escalation skills',
-    xp: 95,
-    rating: 'silver',
-    tags: ['competitive', 'speed', 'rank']
-  },
-  {
-    id: 'sandbox-loop',
-    title: 'Sandbox Loop: Build and Iterate',
-    category: 'Survival',
-    description:
-      'A Minecraft-like loop for IT learning: explore concepts, build small fixes, then expand your toolkit each time.',
-    subject: 'Problem Solving',
-    learningOutcome: 'Practice creative diagnostics and build repeatable troubleshooting habits that scale.',
-    relatedPage: 'microLearning',
-    relatedStudy: 'Diagnostic checklist and troubleshooting loops',
-    xp: 90,
-    rating: 'silver',
-    tags: ['sandbox', 'experiment', 'growth']
-  },
-  {
-    id: 'deck-run',
-    title: 'Deck Builder Run',
-    category: 'Roguelike',
-    description:
-      'Collect IT knowledge cards and use them in different scenarios — every run makes your next one stronger.',
-    subject: 'Knowledge Collection',
-    learningOutcome: 'Build a deck of essential MSP concepts and rewards for repeated practice.',
-    relatedPage: 'microLearning',
-    relatedStudy: 'Core MSP knowledge cards',
-    xp: 110,
-    rating: 'gold',
-    tags: ['roguelike', 'replayable', 'reward']
-  },
-  {
-    id: 'flow-state',
-    title: 'Flow State Sprint',
-    category: 'Live Service',
-    description:
-      'Hit a focused learning sprint with clear goals, instant feedback, and a streak bonus for keeping momentum.',
-    subject: 'Focus & Mastery',
-    learningOutcome: 'Keep your brain in flow as you grind through meaningful IT skill milestones.',
-    relatedPage: 'mspSkills',
-    relatedStudy: 'Focused skills mastery challenges',
-    xp: 80,
-    rating: 'bronze',
-    tags: ['flow', 'goal', 'instant feedback']
+const factionIds = factions.map((faction) => faction.id) as FactionId[];
+const upgradeIds = upgrades.map((upgrade) => upgrade.id) as UpgradeId[];
+
+const difficultySettings: Record<MissionDifficulty, { label: string; xp: number; credits: number; heat: number }> = {
+  cadet: { label: 'Cadet', xp: 28, credits: 16, heat: 8 },
+  operator: { label: 'Operator', xp: 42, credits: 24, heat: 12 },
+  veteran: { label: 'Veteran', xp: 58, credits: 34, heat: 16 }
+};
+
+const rarityLoot: Record<RewardRarity, string[]> = {
+  common: ['Clean Note', 'Patch Token', 'Scope Mark', 'Review Spark'],
+  rare: ['Runbook Sigil', 'Signal Lens', 'Escalation Seal', 'Automation Shard'],
+  epic: ['Zero-Downtime Relic', 'Incident Crown', 'Mastery Prism', 'Vault Key']
+};
+
+function createRecord<K extends string>(keys: readonly K[], value: number) {
+  return Object.fromEntries(keys.map((key) => [key, value])) as Record<K, number>;
+}
+
+function defaultGameState(): AvancePDGameState {
+  return {
+    xp: 0,
+    credits: 80,
+    streak: 0,
+    bestStreak: 0,
+    focus: 3,
+    turn: 0,
+    heat: 18,
+    raidIntegrity: 100,
+    masteredCardIds: [],
+    badges: [],
+    rareFinds: [],
+    upgrades: createRecord(upgradeIds, 0),
+    factionStanding: createRecord(factionIds, 0),
+    currentMissionId: '',
+    history: []
+  };
+}
+
+function loadGameState(): AvancePDGameState {
+  const fallback = defaultGameState();
+  if (typeof window === 'undefined') return fallback;
+
+  try {
+    const raw = window.localStorage.getItem(gameStorageKey);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw) as Partial<AvancePDGameState>;
+    return {
+      ...fallback,
+      ...parsed,
+      upgrades: { ...fallback.upgrades, ...(parsed.upgrades ?? {}) },
+      factionStanding: { ...fallback.factionStanding, ...(parsed.factionStanding ?? {}) },
+      masteredCardIds: Array.isArray(parsed.masteredCardIds) ? parsed.masteredCardIds : [],
+      badges: Array.isArray(parsed.badges) ? parsed.badges : [],
+      rareFinds: Array.isArray(parsed.rareFinds) ? parsed.rareFinds : [],
+      history: Array.isArray(parsed.history) ? parsed.history.slice(0, 80) : []
+    };
+  } catch {
+    return fallback;
   }
-];
+}
 
-const lootRewards: LootReward[] = [
-  {
-    label: 'Critical Insight',
-    rarity: 'rare',
-    xp: 35,
-    description: 'A sharp idea that makes your next task more efficient.'
-  },
-  {
-    label: 'Practice Token',
-    rarity: 'common',
-    xp: 12,
-    description: 'A small, reliable reward that keeps your compulsion loop moving.'
-  },
-  {
-    label: 'Legendary Shortcut',
-    rarity: 'legendary',
-    xp: 60,
-    description: 'A rare breakthrough that feels like gambling and powers your learning spike.'
-  },
-  {
-    label: 'Resource Cache',
-    rarity: 'uncommon',
-    xp: 22,
-    description: 'A stash of useful knowledge and momentum for your next run.'
-  },
-  {
-    label: 'Restart Bonus',
-    rarity: 'common',
-    xp: 15,
-    description: 'A soft reward for resetting the loop and starting fresh with more focus.'
+function saveGameState(state: AvancePDGameState) {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(gameStorageKey, JSON.stringify(state));
+}
+
+function firstSentence(value: string) {
+  return value.match(/[^.!?]+[.!?]?/)?.[0]?.trim() ?? value;
+}
+
+function shorten(value: string, maxLength = 130) {
+  const clean = value.trim().replace(/\s+/g, ' ');
+  return clean.length > maxLength ? `${clean.slice(0, maxLength - 3).trim()}...` : clean;
+}
+
+function rotateOptions(items: Array<Omit<MissionOption, 'id'>>, missionId: string, rotateBy: number) {
+  const rotate = rotateBy % items.length;
+  const rotated = [...items.slice(rotate), ...items.slice(0, rotate)];
+  return rotated.map((item, index) => ({ ...item, id: `${missionId}-option-${index}` }));
+}
+
+function factionForCategory(category: string): FactionId {
+  const lower = category.toLowerCase();
+  if (lower.includes('identity')) return 'identity-guild';
+  if (lower.includes('m365') || lower.includes('collaboration')) return 'cloud-court';
+  if (lower.includes('network')) return 'network-watch';
+  if (lower.includes('cyber') || lower.includes('security')) return 'security-circle';
+  if (lower.includes('endpoint') || lower.includes('intune')) return 'endpoint-smiths';
+  if (lower.includes('backup') || lower.includes('infrastructure')) return 'recovery-order';
+  return 'docs-college';
+}
+
+function scenarioTitleFor(card: MicroLearningCard) {
+  const directScenario = mspScenarios.find((scenario) => card.linkedScenarioIds.includes(scenario.id));
+  if (directScenario) return directScenario.title;
+  return mspScenarios.find((scenario) => scenario.relatedSkillIds.some((skillId) => card.linkedSkillIds.includes(skillId)))?.title;
+}
+
+function buildMissionOptions(missionId: string, correctText: string, distractors: string[], rotateBy: number) {
+  const options = rotateOptions(
+    [
+      { text: correctText, correct: true },
+      ...distractors.slice(0, 3).map((text) => ({ text, correct: false }))
+    ],
+    missionId,
+    rotateBy
+  );
+  return {
+    options,
+    correctOptionId: options.find((option) => option.correct)?.id ?? options[0].id
+  };
+}
+
+function buildMissions(cards: MicroLearningCard[]): GameMission[] {
+  return cards.flatMap((card, cardIndex) => {
+    const factionId = factionForCategory(card.category);
+    const scenarioTitle = scenarioTitleFor(card);
+    const difficulties: MissionDifficulty[] = ['cadet', 'operator', 'veteran'];
+    const concept = shorten(firstSentence(card.concept));
+    const specificRisk = shorten(card.commonMistake);
+    const teachBack = shorten(firstSentence(card.whyItMatters));
+
+    const scopeId = `${card.id}-scope`;
+    const scopeOptions = buildMissionOptions(
+      scopeId,
+      `Scope the issue first, then apply this concept: ${concept}`,
+      [
+        'Perform the largest reset available and see what changes.',
+        'Ask for private credentials so you can test as the user.',
+        'Close the ticket as soon as the user stops replying.'
+      ],
+      cardIndex
+    );
+
+    const riskId = `${card.id}-risk`;
+    const riskOptions = buildMissionOptions(
+      riskId,
+      `Avoid this exact trap: ${specificRisk}`,
+      [
+        'Avoid writing any ticket notes until the whole queue is empty.',
+        'Avoid asking scope questions because they slow the first response.',
+        'Avoid checking evidence when the user sounds confident.'
+      ],
+      cardIndex + 1
+    );
+
+    const teachId = `${card.id}-teach`;
+    const teachOptions = buildMissionOptions(
+      teachId,
+      teachBack,
+      [
+        'It matters mostly because tickets look better when they have more technical words.',
+        'It matters because fast action is always safer than asking one more question.',
+        'It matters only when a manager is watching the queue.'
+      ],
+      cardIndex + 2
+    );
+
+    return [
+      {
+        id: scopeId,
+        cardId: card.id,
+        title: `${card.topic}: first move`,
+        category: card.category,
+        factionId,
+        difficulty: difficulties[cardIndex % difficulties.length],
+        kind: 'scope',
+        prompt: `Ticket pressure hits: ${card.topic}. What is the best opening play?`,
+        clue: card.concept,
+        successText: 'You narrowed the fault before changing the environment.',
+        failureText: 'That choice creates avoidable risk. Start by scoping, preserving evidence, and using the safest first check.',
+        scenarioTitle,
+        ...scopeOptions
+      },
+      {
+        id: riskId,
+        cardId: card.id,
+        title: `${card.topic}: risk call`,
+        category: card.category,
+        factionId,
+        difficulty: difficulties[(cardIndex + 1) % difficulties.length],
+        kind: 'risk',
+        prompt: `Which mistake would most likely create a repeat ticket or security risk here?`,
+        clue: card.commonMistake,
+        successText: 'You spotted the trap before it became technical debt.',
+        failureText: 'The dangerous move is the one the card warns about directly. Slow down and protect the system state.',
+        scenarioTitle,
+        ...riskOptions
+      },
+      {
+        id: teachId,
+        cardId: card.id,
+        title: `${card.topic}: teach-back`,
+        category: card.category,
+        factionId,
+        difficulty: difficulties[(cardIndex + 2) % difficulties.length],
+        kind: 'teach',
+        prompt: `A teammate asks why this concept matters. Which answer proves you understand it?`,
+        clue: card.whyItMatters,
+        successText: 'Clean teach-back. That knowledge is now easier to use under pressure.',
+        failureText: 'The best explanation connects the concept to risk, time, safety, or repeat tickets.',
+        scenarioTitle,
+        ...teachOptions
+      }
+    ];
+  });
+}
+
+function getLevelInfo(xp: number) {
+  let level = 1;
+  let spent = 0;
+  let next = 120;
+
+  while (xp - spent >= next) {
+    spent += next;
+    level += 1;
+    next = 120 + level * 45;
   }
-];
 
-const defaultProgress: GamesProgress = {
-  level: 1,
-  xp: 0,
-  xpToNextLevel: 180,
-  totalPoints: 0,
-  streakDays: 0,
-  completedMissions: [],
-  loot: [],
-  lastDailyClaim: '',
-  dailyQuestId: missions[0].id,
-  feedback: 'Pick a mission and feel the rush of instant feedback.'
-};
+  return {
+    level,
+    current: xp - spent,
+    next,
+    percent: Math.min(100, Math.round(((xp - spent) / next) * 100))
+  };
+}
+
+function getRankName(level: number) {
+  if (level >= 18) return 'Principal Strategist';
+  if (level >= 12) return 'Senior Incident Mage';
+  if (level >= 7) return 'Systems Adept';
+  if (level >= 4) return 'Queue Ranger';
+  return 'Apprentice Analyst';
+}
+
+function getUpgradeCost(upgrade: (typeof upgrades)[number], rank: number) {
+  return upgrade.baseCost + rank * Math.round(upgrade.baseCost * 0.65);
+}
+
+function hashText(value: string) {
+  return value.split('').reduce((total, char) => total + char.charCodeAt(0), 0);
+}
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function loadGameProgress(): GamesProgress {
-  if (typeof window === 'undefined') return defaultProgress;
-  try {
-    const raw = window.localStorage.getItem(storageKey);
-    return raw ? { ...defaultProgress, ...(JSON.parse(raw) as GamesProgress) } : defaultProgress;
-  } catch {
-    return defaultProgress;
-  }
+function getDailyEvent(today: string) {
+  const events = [
+    { name: 'Identity audit window', factionId: 'identity-guild' as FactionId, bonus: '+12 XP on Identity Guild contracts' },
+    { name: 'Cloud migration sprint', factionId: 'cloud-court' as FactionId, bonus: '+12 XP on Cloud Court contracts' },
+    { name: 'Network change freeze', factionId: 'network-watch' as FactionId, bonus: '+12 XP on Network Watch contracts' },
+    { name: 'Security drill', factionId: 'security-circle' as FactionId, bonus: '+12 XP on Security Circle contracts' },
+    { name: 'Endpoint hardening push', factionId: 'endpoint-smiths' as FactionId, bonus: '+12 XP on Endpoint Smiths contracts' },
+    { name: 'Recovery test day', factionId: 'recovery-order' as FactionId, bonus: '+12 XP on Recovery Order contracts' },
+    { name: 'Documentation harvest', factionId: 'docs-college' as FactionId, bonus: '+12 XP on Docs College contracts' }
+  ];
+  return events[hashText(today) % events.length];
 }
 
-function saveGameProgress(progress: GamesProgress) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(storageKey, JSON.stringify(progress));
+function pickNextMission(missions: GameMission[], state: AvancePDGameState) {
+  const recentIds = new Set(state.history.slice(0, 6).map((entry) => entry.missionId));
+  const unmastered = missions.filter((mission) => !state.masteredCardIds.includes(mission.cardId) && !recentIds.has(mission.id));
+  const candidates = unmastered.length > 0 ? unmastered : missions.filter((mission) => !recentIds.has(mission.id));
+  const pool = candidates.length > 0 ? candidates : missions;
+  const index = Math.abs(state.turn * 7 + state.xp + state.streak * 13) % pool.length;
+  return pool[index] ?? missions[0];
 }
 
-function rollLoot(): LootReward {
+function rollReward(state: AvancePDGameState, mission: GameMission, isCorrect: boolean): { name: string; rarity: RewardRarity } {
+  if (!isCorrect) return { name: 'Practice Spark', rarity: 'common' };
+
+  const signalRank = state.upgrades['loot-signal'];
+  const chance = Math.min(0.42, 0.16 + signalRank * 0.045 + Math.min(state.streak, 8) * 0.012);
   const roll = Math.random();
-  if (roll > 0.94) return lootRewards.find((item) => item.rarity === 'legendary') ?? lootRewards[0];
-  if (roll > 0.72) return lootRewards.find((item) => item.rarity === 'rare') ?? lootRewards[0];
-  if (roll > 0.42) return lootRewards.find((item) => item.rarity === 'uncommon') ?? lootRewards[0];
-  return lootRewards.find((item) => item.rarity === 'common') ?? lootRewards[0];
+  const rarity: RewardRarity = roll < 0.055 + signalRank * 0.01 ? 'epic' : roll < chance ? 'rare' : 'common';
+  const lootPool = rarityLoot[rarity];
+  const lootName = lootPool[Math.floor(Math.random() * lootPool.length)] ?? lootPool[0];
+  const faction = factions.find((item) => item.id === mission.factionId)?.name ?? 'Guild';
+  return { name: `${lootName} of the ${faction}`, rarity };
 }
 
-function levelUpProgress(progress: GamesProgress): GamesProgress {
-  let xp = progress.xp;
-  let level = progress.level;
-  let xpToNextLevel = progress.xpToNextLevel;
+function earnedBadges(state: AvancePDGameState) {
+  const badges: string[] = [];
+  const masteredCategories = new Set(
+    microLearningCards
+      .filter((card) => state.masteredCardIds.includes(card.id))
+      .map((card) => card.category)
+  );
+  const totalUpgradeRanks = Object.values(state.upgrades).reduce((total, rank) => total + rank, 0);
 
-  while (xp >= xpToNextLevel) {
-    xp -= xpToNextLevel;
-    level += 1;
-    xpToNextLevel = Math.ceil(xpToNextLevel * 1.2);
-  }
+  if (state.history.length >= 1) badges.push('First Contract Cleared');
+  if (state.bestStreak >= 5) badges.push('Five-Fix Streak');
+  if (state.bestStreak >= 10) badges.push('Flow State');
+  if (state.masteredCardIds.length >= 10) badges.push('Ten Concepts Mastered');
+  if (masteredCategories.size >= 5) badges.push('Cross-Discipline Operator');
+  if (totalUpgradeRanks >= 8) badges.push('Factory Builder');
+  if (state.rareFinds.length >= 3) badges.push('Rare Cache Hunter');
 
-  return {
-    ...progress,
-    xp,
-    level,
-    xpToNextLevel
-  };
+  return badges;
 }
 
-function formatRarity(rarity: LootReward['rarity']) {
-  switch (rarity) {
-    case 'legendary':
-      return '✨';
-    case 'rare':
-      return '⭐';
-    case 'uncommon':
-      return '🔹';
-    default:
-      return '🔸';
-  }
+function getDailyQuests(state: AvancePDGameState, today: string) {
+  const todays = state.history.filter((entry) => entry.at.slice(0, 10) === today);
+  const correctToday = todays.filter((entry) => entry.correct);
+  const categoriesToday = new Set(correctToday.map((entry) => entry.category));
+
+  return [
+    { title: 'Clear five contracts', progress: Math.min(todays.length, 5), target: 5 },
+    { title: 'Chain three correct calls', progress: Math.min(state.streak, 3), target: 3 },
+    { title: 'Master two skill domains', progress: Math.min(categoriesToday.size, 2), target: 2 }
+  ];
 }
 
-type AvancePDGamesProps = {
-  onNavigate?: (page: string) => void;
-};
+function AvancePDGames() {
+  const missions = useMemo(() => buildMissions(microLearningCards), []);
+  const [gameState, setGameState] = useState<AvancePDGameState>(loadGameState);
+  const [selectedOptionId, setSelectedOptionId] = useState('');
+  const [activeTactic, setActiveTactic] = useState<TacticId>('none');
+  const [mode, setMode] = useState<GameMode>('contracts');
+  const [lastOutcome, setLastOutcome] = useState<MissionOutcome | null>(null);
 
-function AvancePDGames({ onNavigate }: AvancePDGamesProps) {
-  const [progress, setProgress] = useState<GamesProgress>(loadGameProgress);
-  const [activeMissionId, setActiveMissionId] = useState(progress.dailyQuestId);
-  const [lastAction, setLastAction] = useState('Ready for a new learning run.');
+  const currentMission = missions.find((mission) => mission.id === gameState.currentMissionId) ?? missions[0];
+  const currentFaction = factions.find((faction) => faction.id === currentMission?.factionId);
+  const activeTacticConfig = tactics.find((tactic) => tactic.id === activeTactic) ?? tactics[0];
+  const levelInfo = getLevelInfo(gameState.xp);
+  const rankName = getRankName(levelInfo.level);
+  const today = todayIso();
+  const dailyEvent = getDailyEvent(today);
+  const dailyQuests = getDailyQuests(gameState, today);
+  const maxFocus = 3 + gameState.upgrades['focus-cache'];
+  const playerScore = gameState.xp + gameState.credits + gameState.masteredCardIds.length * 70 + gameState.bestStreak * 35;
+  const leaderboard = [
+    { name: 'You', score: playerScore },
+    { name: 'Patch Guild', score: 1450 },
+    { name: 'Signal Desk', score: 980 },
+    { name: 'Night Queue', score: 720 }
+  ].sort((a, b) => b.score - a.score);
+
+  const visibleOptions = useMemo(() => {
+    if (!currentMission) return [];
+    if (activeTactic === 'mentor-call' && gameState.focus >= activeTacticConfig.cost) {
+      const correct = currentMission.options.find((option) => option.correct);
+      const firstWrong = currentMission.options.find((option) => !option.correct);
+      return currentMission.options.filter((option) => option.id === correct?.id || option.id === firstWrong?.id);
+    }
+    return currentMission.options;
+  }, [activeTactic, activeTacticConfig.cost, currentMission, gameState.focus]);
 
   useEffect(() => {
-    saveGameProgress(progress);
-  }, [progress]);
+    if (!gameState.currentMissionId && missions[0]) {
+      setGameState((current) => ({ ...current, currentMissionId: missions[0].id }));
+    }
+  }, [gameState.currentMissionId, missions]);
 
-  const activeMission = useMemo(
-    () => missions.find((mission) => mission.id === activeMissionId) ?? missions[0],
-    [activeMissionId]
-  );
+  useEffect(() => {
+    saveGameState(gameState);
+  }, [gameState]);
 
-  const dailyCompleted = progress.lastDailyClaim === todayIso();
-
-  const xpProgress = Math.min((progress.xp / progress.xpToNextLevel) * 100, 100);
-
-  const handleCompleteMission = (mission: GameMission) => {
-    const reward = rollLoot();
-    const earnedXp = mission.xp + (mission.id === progress.dailyQuestId ? 20 : 0);
-    const next = levelUpProgress({
-      ...progress,
-      xp: progress.xp + earnedXp + reward.xp,
-      totalPoints: progress.totalPoints + earnedXp + reward.xp,
-      completedMissions: Array.from(new Set([...progress.completedMissions, mission.id])),
-      loot: [reward.label, ...progress.loot].slice(0, 8),
-      feedback: `Conquered ${mission.title}. +${earnedXp} XP, +${reward.xp} bonus from ${reward.label}.`,
-      streakDays: dailyCompleted ? progress.streakDays : progress.streakDays + 1,
-      lastDailyClaim: todayIso()
+  useEffect(() => {
+    window.render_game_to_text = () => JSON.stringify({
+      page: 'AvancePDGames',
+      mode,
+      level: levelInfo.level,
+      rankName,
+      xp: gameState.xp,
+      credits: gameState.credits,
+      focus: gameState.focus,
+      streak: gameState.streak,
+      currentMission: currentMission?.title,
+      selectedOptionId,
+      visibleOptions: visibleOptions.map((option) => ({ id: option.id, text: option.text })),
+      lastOutcome
     });
+    window.advanceTime = () => undefined;
 
-    setProgress(next);
-    setLastAction(`Mission complete: ${mission.title}. Loot found: ${reward.label}.`);
+    return () => {
+      delete window.render_game_to_text;
+      delete window.advanceTime;
+    };
+  }, [currentMission, gameState, lastOutcome, levelInfo.level, mode, rankName, selectedOptionId, visibleOptions]);
+
+  const buyUpgrade = (upgradeId: UpgradeId) => {
+    const upgrade = upgrades.find((item) => item.id === upgradeId);
+    if (!upgrade) return;
+
+    setGameState((current) => {
+      const currentRank = current.upgrades[upgradeId] ?? 0;
+      const cost = getUpgradeCost(upgrade, currentRank);
+      if (currentRank >= upgrade.maxRank || current.credits < cost) return current;
+
+      return {
+        ...current,
+        credits: current.credits - cost,
+        upgrades: {
+          ...current.upgrades,
+          [upgradeId]: currentRank + 1
+        },
+        focus: upgradeId === 'focus-cache' ? Math.min(current.focus + 1, 3 + currentRank + 1) : current.focus
+      };
+    });
   };
 
-  const handleOpenLootChest = () => {
-    const reward = rollLoot();
-    const next = levelUpProgress({
-      ...progress,
-      xp: progress.xp + reward.xp,
-      totalPoints: progress.totalPoints + reward.xp,
-      loot: [reward.label, ...progress.loot].slice(0, 8),
-      feedback: `Opened a loot chest and found ${reward.label}. +${reward.xp} XP!`,
-      lastDailyClaim: progress.lastDailyClaim
-    });
-
-    setProgress(next);
-    setLastAction(`Loot chest opened: ${reward.label}.`);
+  const startNextMission = () => {
+    setGameState((current) => ({ ...current, currentMissionId: pickNextMission(missions, current).id }));
+    setSelectedOptionId('');
+    setLastOutcome(null);
+    setActiveTactic('none');
   };
 
-  const handleShuffleDeck = () => {
-    const nextQuest = missions[Math.floor(Math.random() * missions.length)];
-    setActiveMissionId(nextQuest.id);
-    setProgress((current) => ({
+  const submitAnswer = () => {
+    if (!currentMission || !selectedOptionId) return;
+
+    const selected = currentMission.options.find((option) => option.id === selectedOptionId);
+    const correct = selected?.id === currentMission.correctOptionId;
+    const current = gameState;
+    const currentMaxFocus = 3 + current.upgrades['focus-cache'];
+    const tacticCost = activeTacticConfig.cost;
+    const tacticReady = current.focus >= tacticCost;
+    const protectedWrong = !correct && activeTactic === 'change-window' && tacticReady;
+    const automationBurst = correct && activeTactic === 'automation-burst' && tacticReady;
+    const nextStreak = correct ? current.streak + 1 : protectedWrong ? Math.max(1, current.streak) : 0;
+    const difficulty = difficultySettings[currentMission.difficulty];
+    const dailyBonus = correct && currentMission.factionId === dailyEvent.factionId ? 12 : 0;
+    const passiveXp = current.upgrades['automation-grid'] * 4;
+    const passiveCredits = current.upgrades['automation-grid'] * 3;
+    const forgeBonus = 1 + current.upgrades['knowledge-forge'] * 0.08 + (currentMission.kind === 'teach' ? 0.06 : 0);
+    const modeXp = mode === 'contracts' ? 8 : 0;
+    const modeCredits = mode === 'factory' ? 10 : 0;
+    const baseXp = correct ? Math.round((difficulty.xp + dailyBonus + modeXp) * forgeBonus) : protectedWrong ? 10 : 5;
+    const baseCredits = correct ? difficulty.credits + modeCredits : 4;
+    const xpGain = baseXp + passiveXp;
+    let creditsGain = baseCredits + passiveCredits + (automationBurst ? baseCredits : 0);
+    const focusAfterCost = Math.max(0, current.focus - (activeTactic === 'none' || !tacticReady ? 0 : tacticCost));
+    const nextFocus = correct ? Math.min(currentMaxFocus, focusAfterCost + 1) : focusAfterCost;
+    const reward = rollReward(current, currentMission, correct);
+    const nextMastered = new Set(current.masteredCardIds);
+    const nextRareFinds = new Set(current.rareFinds);
+    let raidIntegrity = current.raidIntegrity;
+    let finalXpGain = xpGain;
+    let raidCleared = false;
+
+    if (correct) {
+      nextMastered.add(currentMission.cardId);
+      if (reward.rarity !== 'common') nextRareFinds.add(reward.name);
+      const raidDamage = difficulty.heat + nextStreak * 2 + (mode === 'raid' ? 12 : 0);
+      raidIntegrity = Math.max(0, current.raidIntegrity - raidDamage);
+      if (raidIntegrity === 0) {
+        raidCleared = true;
+        raidIntegrity = 100;
+        finalXpGain += 120;
+        creditsGain += 100;
+        nextRareFinds.add(`Raid cache ${today}`);
+      }
+    } else {
+      raidIntegrity = Math.min(100, current.raidIntegrity + 5);
+    }
+
+    const nextStanding = {
+      ...current.factionStanding,
+      [currentMission.factionId]: current.factionStanding[currentMission.factionId] + (correct ? 3 : 1)
+    };
+    const nextHeat = correct ? Math.max(0, current.heat - difficulty.heat) : Math.min(100, current.heat + 11);
+    const logEntry: MissionLog = {
+      missionId: currentMission.id,
+      cardId: currentMission.cardId,
+      category: currentMission.category,
+      correct,
+      reward: reward.name,
+      xp: finalXpGain,
+      credits: creditsGain,
+      at: new Date().toISOString()
+    };
+
+    let nextState: AvancePDGameState = {
       ...current,
-      dailyQuestId: nextQuest.id,
-      feedback: `Your deck has been reshuffled. New daily quest: ${nextQuest.title}.`
-    }));
-    setLastAction(`New deck card drawn: ${nextQuest.title}.`);
+      xp: current.xp + finalXpGain,
+      credits: current.credits + creditsGain,
+      streak: nextStreak,
+      bestStreak: Math.max(current.bestStreak, nextStreak),
+      focus: nextFocus,
+      turn: current.turn + 1,
+      heat: nextHeat,
+      raidIntegrity,
+      masteredCardIds: Array.from(nextMastered),
+      rareFinds: Array.from(nextRareFinds).slice(-16),
+      factionStanding: nextStanding,
+      history: [logEntry, ...current.history].slice(0, 80)
+    };
+    nextState = {
+      ...nextState,
+      badges: Array.from(new Set([...nextState.badges, ...earnedBadges(nextState)])),
+      currentMissionId: pickNextMission(missions, nextState).id
+    };
+
+    setGameState(nextState);
+    setLastOutcome({
+      correct,
+      title: correct ? 'Contract cleared' : protectedWrong ? 'Streak protected' : 'Contract failed',
+      message: correct ? currentMission.successText : protectedWrong ? 'The change window caught the mistake. Review the clue and keep moving.' : currentMission.failureText,
+      explanation: currentMission.clue,
+      reward: raidCleared ? `${reward.name} plus Raid Cache` : reward.name,
+      rarity: raidCleared ? 'epic' : reward.rarity,
+      xp: finalXpGain,
+      credits: creditsGain,
+      streak: nextStreak,
+      raidCleared
+    });
+    setSelectedOptionId('');
+    setActiveTactic('none');
   };
 
-  const leaderboard = [
-    { name: 'Support Legends', score: 14220 },
-    { name: 'Ops Guild', score: 11840 },
-    { name: 'You', score: progress.totalPoints }
-  ];
+  const resetGame = () => {
+    if (!window.confirm('Reset AvancePDGames progress on this device?')) return;
+    setGameState({ ...defaultGameState(), currentMissionId: missions[0]?.id ?? '' });
+    setSelectedOptionId('');
+    setLastOutcome(null);
+    setActiveTactic('none');
+  };
+
+  if (!currentMission) {
+    return (
+      <section className="card">
+        <h1>AvancePDGames</h1>
+        <p>No learning missions are available yet.</p>
+      </section>
+    );
+  }
 
   return (
-    <div>
-      <section className="card game-hero">
-        <h1>AvancePD Games</h1>
-        <p>
-          A learning playground built like the most addictive strategy and live-service games.
-          Complete fast quests, open surprise loot, level up your IT skill power, and jump straight into real IT study content after every reward.
-        </p>
-        <div className="metric-row">
-          <span className="status-chip info">Level {progress.level}</span>
-          <span className="status-chip success">{progress.totalPoints} total points</span>
-          <span className="status-chip warn">{progress.streakDays} day streak</span>
+    <div className="games-page">
+      <section className="card games-hero-card">
+        <div className="games-hero-grid">
+          <div>
+            <span className="games-kicker">AvancePDGames</span>
+            <h1>NOC Citadel</h1>
+            <p className="page-subtitle">
+              Clear IT contracts, grow your guild rank, build automation, and turn MSP concepts into fast instincts.
+            </p>
+          </div>
+          <div className="games-stat-stack">
+            <div className="games-rank-panel">
+              <span className="games-stat-label">Rank</span>
+              <strong>{rankName}</strong>
+              <span>Level {levelInfo.level}</span>
+            </div>
+            <div className="games-resource-row">
+              <span className="status-chip success">{gameState.credits} credits</span>
+              <span className="status-chip info">{gameState.focus}/{maxFocus} focus</span>
+              <span className="status-chip warn">{gameState.streak} streak</span>
+            </div>
+          </div>
+        </div>
+        <div className="games-xp-track" aria-label={`XP progress ${levelInfo.percent}%`}>
+          <div className="games-xp-fill" style={{ width: `${levelInfo.percent}%` }} />
+        </div>
+        <div className="games-xp-caption">
+          <span>{levelInfo.current} / {levelInfo.next} XP to next level</span>
+          <span>{gameState.masteredCardIds.length} concepts mastered</span>
         </div>
       </section>
 
-      <section className="card game-hub">
-        <div className="game-summary">
-          <div className="xp-panel">
-            <div className="xp-header">
-              <div>
-                <strong>XP progress</strong>
-                <div className="xp-subtitle">{progress.xp} / {progress.xpToNextLevel} XP to next level</div>
-              </div>
-              <div className="xp-percent">{Math.floor(xpProgress)}%</div>
-            </div>
-            <div className="xp-bar-background">
-              <div className="xp-bar-fill" style={{ width: `${xpProgress}%` }} />
-            </div>
+      <div className="games-command-grid">
+        <section className="card games-mission-card">
+          <div className="games-mode-tabs" role="tablist" aria-label="AvancePDGames mode">
+            {[
+              ['contracts', 'Contracts'],
+              ['factory', 'Factory'],
+              ['raid', 'Raid']
+            ].map(([modeId, label]) => (
+              <button
+                key={modeId}
+                type="button"
+                className={mode === modeId ? 'games-mode-tab active' : 'games-mode-tab'}
+                onClick={() => setMode(modeId as GameMode)}
+              >
+                {label}
+              </button>
+            ))}
           </div>
 
-          <div className="quest-panel">
-            <h2>Your Active Quest</h2>
-            <div className="quest-card">
-              <div className="quest-card-header">
-                <span className="status-chip info">{activeMission.category}</span>
-                <span className="status-chip success">{activeMission.rating}</span>
-              </div>
-              <h3>{activeMission.title}</h3>
-              <p>{activeMission.description}</p>
+          <div className="games-mission-header">
+            <div>
               <div className="metric-row">
-                <span className="status-chip warn">{activeMission.xp} XP</span>
-                <span className="status-chip success">{activeMission.subject}</span>
-                <span className="status-chip info">{activeMission.tags.join(' · ')}</span>
+                <span className="status-chip info">{difficultySettings[currentMission.difficulty].label}</span>
+                <span className="status-chip success">{currentFaction?.name}</span>
+                <span className="status-chip warn">{currentMission.category}</span>
               </div>
-              <div className="mission-outcome">
-                <strong>Learning outcome:</strong> {activeMission.learningOutcome}
-              </div>
-              <div className="game-actions">
-                <button type="button" className="game-action-btn" onClick={() => handleCompleteMission(activeMission)}>
-                  Complete quest
-                </button>
-                <button type="button" className="game-action-btn secondary" onClick={handleShuffleDeck}>
-                  Shuffle deck
-                </button>
-              </div>
-              {activeMission.relatedPage && (
-                <div className="mission-link">
-                  <strong>Study tie:</strong> {activeMission.relatedStudy}
-                  <button
-                    type="button"
-                    className="game-action-btn secondary"
-                    onClick={() => onNavigate?.(activeMission.relatedPage ?? 'microLearning')}
-                  >
-                    Open related study page
-                  </button>
-                </div>
+              <h2>{currentMission.title}</h2>
+              {currentMission.scenarioTitle && (
+                <p className="games-scenario-link">Scenario thread: {currentMission.scenarioTitle}</p>
               )}
             </div>
+            <div className="games-raid-meter">
+              <span>Raid integrity</span>
+              <strong>{gameState.raidIntegrity}%</strong>
+            </div>
           </div>
-        </div>
 
-        <div className="game-board">
-          <div className="game-section">
-            <h2>Instant Feedback Loop</h2>
-            <p>
-              Every play gives immediate results: earned XP, a loot reward, and a new game state that fuels the next session.
-              That keeps your attention locked in, just like the best competitive and live-service games.
-            </p>
-            <p>
-              Each victory also teaches a real IT skill: identity automation, ticket triage, troubleshooting loops, or knowledge card mastery.
-            </p>
-            <button type="button" className="game-action-btn" onClick={handleOpenLootChest}>
-              Open surprise loot chest
+          <div className="games-prompt-panel">
+            <p>{currentMission.prompt}</p>
+            {activeTactic === 'scope-scan' && gameState.focus >= activeTacticConfig.cost && (
+              <div className="games-clue-box">
+                <strong>Scope scan:</strong> {currentMission.clue}
+              </div>
+            )}
+          </div>
+
+          <div className="games-tactic-row">
+            {tactics.map((tactic) => (
+              <button
+                key={tactic.id}
+                type="button"
+                className={activeTactic === tactic.id ? 'games-tactic active' : 'games-tactic'}
+                onClick={() => setActiveTactic(tactic.id)}
+                disabled={tactic.cost > gameState.focus}
+              >
+                <strong>{tactic.name}</strong>
+                <span>{tactic.cost === 0 ? 'Free' : `${tactic.cost} focus`} · {tactic.detail}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="games-options">
+            {visibleOptions.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                className={selectedOptionId === option.id ? 'games-option active' : 'games-option'}
+                onClick={() => setSelectedOptionId(option.id)}
+              >
+                {option.text}
+              </button>
+            ))}
+          </div>
+
+          <div className="games-action-row">
+            <button type="button" className="primary-action" onClick={submitAnswer} disabled={!selectedOptionId}>
+              Lock answer
             </button>
-            <p className="feedback-text">{progress.feedback}</p>
-            <div className="game-actions">
-              <button type="button" className="game-action-btn secondary" onClick={() => onNavigate?.('microLearning')}>
-                Open Micro-Learning
-              </button>
-              <button type="button" className="game-action-btn secondary" onClick={() => onNavigate?.('mspSkills')}>
-                Open MSP Skills
-              </button>
+            <button type="button" className="secondary-action" onClick={startNextMission}>
+              New contract
+            </button>
+          </div>
+
+          {lastOutcome && (
+            <div className={`games-outcome ${lastOutcome.correct ? 'success' : 'miss'}`}>
+              <div>
+                <span className={`status-chip ${lastOutcome.correct ? 'success' : 'error'}`}>{lastOutcome.title}</span>
+                <h3>{lastOutcome.reward}</h3>
+              </div>
+              <p>{lastOutcome.message}</p>
+              <p className="games-outcome-note">{lastOutcome.explanation}</p>
+              <div className="metric-row">
+                <span className="status-chip info">+{lastOutcome.xp} XP</span>
+                <span className="status-chip success">+{lastOutcome.credits} credits</span>
+                <span className="status-chip warn">{lastOutcome.streak} streak</span>
+                {lastOutcome.raidCleared && <span className="status-chip success">Raid cache opened</span>}
+              </div>
             </div>
-          </div>
+          )}
+        </section>
 
-          <div className="game-section leaderboard-card">
-            <h2>Guild Leaderboard</h2>
-            <ol>
-              {leaderboard.map((entry) => (
-                <li key={entry.name} className={entry.name === 'You' ? 'leaderboard-you' : ''}>
-                  <span>{entry.name}</span>
-                  <strong>{entry.score.toLocaleString()}</strong>
-                </li>
-              ))}
-            </ol>
-            <p>
-              FOMO in a social loop. Keep your score ahead of the guild and the app will gently push you back to earn more.
-            </p>
-          </div>
-        </div>
-
-        <div className="loot-grid">
-          <div>
-            <h2>Recent loot</h2>
-            <div className="loot-list">
-              {progress.loot.length === 0 ? (
-                <p>No loot yet. Start a quest to earn rewards.</p>
-              ) : (
-                progress.loot.map((item, index) => (
-                  <span key={`${item}-${index}`} className="loot-chip">{item}</span>
-                ))
-              )}
+        <div className="games-side-stack">
+          <section className="card games-panel">
+            <div className="games-panel-header">
+              <h2>Today</h2>
+              <span className="status-chip info">{dailyEvent.name}</span>
             </div>
-            <p className="game-note">
-              Every reward is a learning boost. Use the loot to unlock the next IT concept or skill card.
-            </p>
-          </div>
-
-          <div>
-            <h2>Challenge deck</h2>
-            <div className="deck-list">
-              {missions.map((mission) => (
-                <button
-                  key={mission.id}
-                  type="button"
-                  className={mission.id === activeMissionId ? 'deck-card active' : 'deck-card'}
-                  onClick={() => setActiveMissionId(mission.id)}
-                >
-                  <strong>{mission.title}</strong>
-                  <span>{mission.category} · {mission.xp} XP</span>
-                </button>
+            <p className="games-muted">{dailyEvent.bonus}</p>
+            <div className="games-quest-list">
+              {dailyQuests.map((quest) => (
+                <div key={quest.title} className="games-quest-row">
+                  <div>
+                    <strong>{quest.title}</strong>
+                    <span>{quest.progress}/{quest.target}</span>
+                  </div>
+                  <div className="games-mini-track">
+                    <div style={{ width: `${Math.round((quest.progress / quest.target) * 100)}%` }} />
+                  </div>
+                </div>
               ))}
             </div>
-          </div>
-        </div>
-      </section>
+          </section>
 
-      <section className="card game-insight">
-        <h2>Why this feels addictive</h2>
-        <ul>
-          <li><strong>Variable ratio rewards:</strong> random loot chests and surprise mission bonuses keep every round unpredictable.</li>
-          <li><strong>Compulsion loops:</strong> choose a quest, earn XP, open rewards, then invest it into leveling and streaks.</li>
-          <li><strong>Clear goals:</strong> your active quest, progress bar, and streak are always visible so you know exactly what to do next.</li>
-          <li><strong>Instant gratification:</strong> each button click gives feedback immediately, mirroring the dopamine burst of the best games.</li>
-          <li><strong>Social pull:</strong> the leaderboard simulates the urge to stay competitive and not fall behind.</li>
-        </ul>
-        <h3>How this turns into IT learning</h3>
-        <ul>
-          <li>Your missions are framed around real MSP skills like identity, triage, endpoint support, and cloud automation.</li>
-          <li>Completing a quest gives you XP and makes the next IT concept feel like a natural upgrade.</li>
-          <li>Each mission includes a direct study tie to Micro-Learning or MSP Skills so your play session flows into actual learning.
-          </li>
-          <li>Your streak and leaderboard are designed to make returning feel like progressing in a training program, not just a distraction.</li>
-          <li>Every reward becomes a prompt to explore a new IT skill card or concept, turning the addictive loop into a study habit.</li>
-        </ul>
-      </section>
+          <section className="card games-panel">
+            <div className="games-panel-header">
+              <h2>Factory</h2>
+              <span className="status-chip success">Heat {gameState.heat}%</span>
+            </div>
+            <div className="games-upgrade-list">
+              {upgrades.map((upgrade) => {
+                const rank = gameState.upgrades[upgrade.id];
+                const cost = getUpgradeCost(upgrade, rank);
+                return (
+                  <div key={upgrade.id} className="games-upgrade-row">
+                    <div>
+                      <strong>{upgrade.name} <span>{rank}/{upgrade.maxRank}</span></strong>
+                      <p>{upgrade.detail}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => buyUpgrade(upgrade.id)}
+                      disabled={rank >= upgrade.maxRank || gameState.credits < cost}
+                    >
+                      {rank >= upgrade.maxRank ? 'Max' : `${cost}`}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div className="games-lower-grid">
+        <section className="card games-panel">
+          <div className="games-panel-header">
+            <h2>Guild Board</h2>
+            <span className="status-chip warn">Best streak {gameState.bestStreak}</span>
+          </div>
+          <div className="games-leaderboard">
+            {leaderboard.map((entry, index) => (
+              <div key={entry.name} className={entry.name === 'You' ? 'games-leader-row player' : 'games-leader-row'}>
+                <span>{index + 1}</span>
+                <strong>{entry.name}</strong>
+                <em>{entry.score}</em>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="card games-panel">
+          <div className="games-panel-header">
+            <h2>Factions</h2>
+            <span className="status-chip info">{gameState.badges.length} badges</span>
+          </div>
+          <div className="games-faction-grid">
+            {factions.map((faction) => {
+              const standing = gameState.factionStanding[faction.id];
+              return (
+                <div key={faction.id} className="games-faction-row">
+                  <strong>{faction.name}</strong>
+                  <div className="games-mini-track">
+                    <div style={{ width: `${Math.min(100, standing)}%` }} />
+                  </div>
+                  <span>{standing} standing</span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="card games-panel">
+          <div className="games-panel-header">
+            <h2>Vault</h2>
+            <button type="button" className="games-reset-btn" onClick={resetGame}>Reset</button>
+          </div>
+          <div className="games-vault-list">
+            {[...gameState.badges, ...gameState.rareFinds].slice(-10).map((item) => (
+              <span key={item}>{item}</span>
+            ))}
+            {gameState.badges.length === 0 && gameState.rareFinds.length === 0 && (
+              <p className="games-muted">Clear contracts to fill the vault.</p>
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
