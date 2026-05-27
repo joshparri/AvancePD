@@ -1,90 +1,104 @@
 # Avance KB Learning Guide
 
-This guide explains how to use the local Avance knowledge base with the two Avance apps.
+This guide explains the KB Learning Machine flow in Avance PD. It describes the guided conversation, active review practice, and how to keep learning safe and local.
 
-> Important: The raw KB files under `docs/Avance KB_s` are local reference material only. Do not copy private customer data or internal-only content into public repo docs or GitHub.
+> Important: Raw KB files in `docs/Avance KB_s` are local reference material only. Do not copy private customer data, internal case notes, or raw ticket text into GitHub-tracked docs.
 
-## What the KB library is for
+## What the KB Learning Machine does
 
-The `docs/Avance KB_s` folder contains procedure and troubleshooting guides for MSP topics such as device enrollment, remote access, cloud migrations, security policies, phone and printer configuration, and recovery workflows.
+The KB Learning Machine is built to turn real work into repeatable learning.
+It guides you through a conversational learning session, helps you practise concepts from safe KB topics, and tracks review readiness without exposing private source material.
 
-The KB library is a reference source, not app data. Use it to connect real work to learning and to seed App 2 with relevant skill categories, scenarios, and evidence notes.
+## What are we learning today?
 
-## How the apps use the KB
+When you open the KB Learning Machine, it begins with a friendly, guided greeting:
 
-- **Avance Work Companion** is the capture engine.
-  - Use it to log work, follow-ups, ticket notes, and learning seeds.
-  - Tag captured items with the relevant KB topic or skill area.
-  - Send learning-worthy captures into a local learning queue if the app supports it.
+- "What are we learning today?"
+- It suggests today’s topic and the most relevant learning activity.
+- It may offer buttons for quick review, a quiz, a task, a ticket-note drill, or a reflection.
 
-- **Avance PD** is the learning cockpit.
-  - Use it to study KB-related skills, practise scenarios, and build manager-safe evidence.
-  - Map captured work to skill cards, scenarios, ticket note practice, and evidence pack entries.
-  - Keep the KB library local and use it as the source of truth for task-specific guidance.
+The idea is to make learning feel like a short guided conversation rather than a long manual.
 
-## Learning flow
+## The guided flow
 
-1. **Capture work in App 1**
-   - Create a quick log or ticket note immediately after completing a task.
-   - Mark whether the item is a learning seed, a follow-up, or a reusable knowledge item.
+### 1. Start with a conversational prompt
 
-2. **Link the capture to a KB topic**
-   - Choose the nearest KB topic category from the local library.
-   - If App 1 supports it, add a `relatedKb` or `learningQueue` marker.
+The first screen is a quick check-in:
 
-3. **Use App 2 to deepen the learning**
-   - Open the relevant skill category in the `MSP Skills` section.
-   - Find a matching scenario in `MSP Scenarios`.
-   - Practise writing a clean `Ticket Note` based on the issue.
-   - Add the result to the `Evidence Pack` when the learning is useful.
+- It names the current topic or skill area.
+- It explains the next learning activity.
+- It provides buttons like `Start quiz`, `Quick recall`, `Practice task`, and `Ticket-note drill`.
 
-4. **Review and repeat**
-   - Use the `Weekly Review` or `Learning Cockpit` to track progress.
-   - Convert repeated issues into reusable playbooks or knowledge notes.
-   - Keep the evidence pack manager-safe by excluding private customer data.
+This keeps the session focused and helps avoid fatigue from long blocks of text.
 
-## Recommended KB topic categories
+### 2. Open a KB summary
 
-Use the following categories as a starting point rather than individual file titles:
+KB summaries are presented in a collapsible format:
 
-- Device onboarding and management
-  - Apple device enrollment
-  - Intune enrollment
-  - JumpCloud and Entra account migration
+- Each summary contains the key idea, when to use it, and the core steps.
+- You can expand only the parts you need.
+- This avoids a wall of text and keeps the learning flow fast.
 
-- Remote access and network access
-  - SSH proxy and remote desktop access
-  - VPN and remote application configuration
-  - Firewall rules for remote management
+### 3. Start quizzes and quick recalls
 
-- Cloud identity and email
-  - Microsoft 365 and Google Workspace migration
-  - Exchange Online administration
-  - Password and credential provider setup
+The KB Learning Machine offers two main practice modes:
 
-- Security and policy
-  - Anti-phishing policy creation
-  - Safe links and security hardening
-  - Certificate and authentication troubleshooting
+- **Quizzes**
+  - Quiz questions load for each KB card.
+  - Questions focus on the topic’s core steps, checks, and common mistakes.
+- **Quick recalls**
+  - Quick-recall text areas appear with prompts like `Explain the best next step`.
+  - You type a brief answer in your own words.
 
-- Phone, printer, and peripheral setup
-  - Yealink phone configuration
-  - Printer installation and network printing
-  - Device-specific MDM policies
+Both modes help solidify your understanding without needing a formal instructor.
 
-- Troubleshooting and recovery
-  - Application repair and driver issues
-  - File recovery and system restore guidance
-  - Permission and admin rights workflows
+### 4. Practical tasks and ticket-note drills
 
-## Notes on privacy and public docs
+After the summary and recall work:
 
-- Keep raw KB content local to `docs/Avance KB_s`.
-- Do not include customer names, ticket details, or internal case notes in GitHub-tracked docs.
-- The public docs should describe the learning process, not reproduce the KB content.
+- **Practical tasks** offer a field-style checklist or scenario prompt.
+- **Ticket-note drills** help you practise writing a concise, manager-safe note.
+- The ticket-note drill is designed to build reusable communication habits without copying real ticket text.
 
-## Next documentation steps
+### 5. Reflection and review
 
-- Add this KB learning guide to the root and docs TODO trackers.
-- Update the user guide with a short KB workflow section.
-- Keep the local KB folder private and treat it as reference-only material for learning and app guidance.
+At the end of the session, the learning flow asks you to reflect:
+
+- What was the key takeaway?
+- What would you do differently next time?
+- What should you review again?
+
+This reflection is stored locally and helps turn one session into a repeated learning habit.
+
+## How Groq assessment works
+
+The KB Learning Machine uses a Groq-style assessment model when the Groq key is present.
+
+- User answers are stored locally.
+- The app may display automated feedback based on the answer quality.
+- Feedback is designed to be generic and safe, not a source of private data leakage.
+- If no Groq key is available, the learning machine still works locally with self-review prompts.
+
+This means the feature works as a local learning coach first, with optional enhanced feedback when allowed.
+
+## What to expect in the guide
+
+This guide is intentionally focused on process and safe practices:
+
+- Use the KB Learning Machine for guided practice, not raw KB ingestion.
+- Keep the KB summaries generic and privacy-safe.
+- Treat user answers as local notes.
+- Do not paste real customer or ticket-sensitive content into the app.
+
+## Practical usage
+
+1. Choose a KB topic from the KB Learning Machine dashboard.
+2. Read the collapsible summary and highlight important checks.
+3. Start a quiz or quick recall for the same card.
+4. Do a practical task or ticket-note drill.
+5. Write a short reflection and save it locally.
+6. Repeat the session later based on review prompts.
+
+## QA checklist
+
+See `docs/KB_LEARNING_ACCEPTANCE.md` for the acceptance criteria and validation steps.

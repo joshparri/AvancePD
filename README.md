@@ -23,6 +23,8 @@ Avance PD is a local-first professional development app for practising MSP help 
 - Ideas and vibe-coder plan: `docs/AWESOME_IDEAS_AND_VIBE_CODER_PLAN.md`
 - Vibe-coder prompt packs: `docs/VIBE_CODER_PROMPT_PACKS.md`
 - Learning machine backlog: `docs/LEARNING_MACHINE_TODO.md`
+- KB learning guide: `docs/KB_LEARNING_GUIDE.md`
+- KB learning acceptance criteria: `docs/KB_LEARNING_ACCEPTANCE.md`
 - KB learning QA checklist: `docs/KB_LEARNING_QA.md`
 - Agent coordination guide: `docs/AGENT_COORDINATION.md`
 - Project tracker: `TODO.md`
