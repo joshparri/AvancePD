@@ -40,6 +40,16 @@ This guide describes a simple Avance shift routine.
 - In App 2, use the KB category to choose a matching scenario, skill card, or evidence pack item.
 - Keep the KB content local and generic in app docs; do not copy private or customer-specific material into public GitHub files.
 
+## Using the KB Learning Session
+
+- The KB Learning Machine should feel like a lesson, not a long reference page.
+- Start with the hero prompt: “What are we learning today?”
+- Follow the session flow: learn, quiz, recall, practical task, ticket-note drill, and evidence.
+- Use short collapsible summaries and expand only the details you need.
+- Save your quiz answer, recall response, task plan, ticket note, and evidence locally.
+- If AI coach feedback is available, it should be handled server-side and should not expose the API key in the browser.
+- Treat KB cards as source material for a lesson, not as the destination.
+
 ## Privacy Reminder
 
 Keep client details, credentials, IPs, hostnames, copied tickets, screenshots, and private medical notes out of the app.
