@@ -120,6 +120,8 @@ function loadPersisted<T>(key: string, fallback: T): T {
 
 function App() {
   const [currentPage, setCurrentPage] = useState<PageId>('dashboard');
+  const [focusedMicroCardId, setFocusedMicroCardId] = useState('');
+  const [focusedScenarioId, setFocusedScenarioId] = useState('');
   const [workLogs, setWorkLogs] = useState<WorkLog[]>(() => loadPersisted('avance-workLogs', sampleWorkLogs));
   const [tasks, setTasks] = useState<Task[]>(() => loadPersisted('avance-tasks', sampleTasks));
   const [knowledgeEntries, setKnowledgeEntries] = useState<KnowledgeEntry[]>(() => loadPersisted('avance-knowledgeEntries', sampleKnowledgeEntries));
@@ -250,6 +252,15 @@ function App() {
   };
   const markMicroCardViewed = (cardId: string) => {
     setProgress((current) => markMicroCardViewedProgress(current, cardId));
+  };
+  const navigateWithLearningFocus = (page: string, focusId?: string) => {
+    if (page === 'microLearning' && focusId) {
+      setFocusedMicroCardId(focusId);
+    }
+    if (page === 'mspScenarios' && focusId) {
+      setFocusedScenarioId(focusId);
+    }
+    setCurrentPage(page as PageId);
   };
 
   return (
@@ -405,7 +416,13 @@ function App() {
         )}
         {currentPage === 'skillTracks' && <SkillTracks progress={progress} onNavigate={(page) => setCurrentPage(page as PageId)} />}
         {currentPage === 'mspSkills' && <MspSkills progress={progress} updateSkillReadiness={updateSkillReadiness} />}
-        {currentPage === 'mspScenarios' && <MspScenarios progress={progress} updateScenarioProgress={updateScenarioStatus} />}
+        {currentPage === 'mspScenarios' && (
+          <MspScenarios
+            progress={progress}
+            updateScenarioProgress={updateScenarioStatus}
+            focusScenarioId={focusedScenarioId}
+          />
+        )}
         {currentPage === 'mspQuiz' && (
           <MspQuiz
             progress={progress}
@@ -421,12 +438,13 @@ function App() {
         {currentPage === 'communicationPractice' && <CommunicationPractice />}
         {currentPage === 'mspRoadmap' && <MspRoadmap />}
         {currentPage === 'evidencePack' && <EvidencePack progress={progress} />}
-        {currentPage === 'avancePDGames' && <AvancePDGames />}
+        {currentPage === 'avancePDGames' && <AvancePDGames onNavigate={navigateWithLearningFocus} />}
         {currentPage === 'microLearning' && (
           <MicroLearning
             progress={progress}
             markMicroCardViewed={markMicroCardViewed}
-            onNavigate={(page) => setCurrentPage(page as PageId)}
+            focusCardId={focusedMicroCardId}
+            onNavigate={navigateWithLearningFocus}
           />
         )}
       </main>

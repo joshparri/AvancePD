@@ -2035,6 +2035,47 @@ button:active,
   padding: 12px;
 }
 
+.games-flow-panel {
+  background: #f8fafc;
+  border: 1px solid #dbe4ee;
+  border-radius: 16px;
+  margin-top: 16px;
+  padding: 16px;
+}
+
+.games-flow-panel h3 {
+  margin-bottom: 10px;
+}
+
+.games-flow-steps {
+  display: grid;
+  gap: 10px;
+}
+
+.games-flow-step {
+  align-items: start;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 30px minmax(0, 1fr);
+}
+
+.games-flow-step span {
+  background: #ccfbf1;
+  border-radius: 999px;
+  color: #0f766e;
+  display: inline-grid;
+  font-weight: 800;
+  height: 30px;
+  place-items: center;
+  width: 30px;
+}
+
+.games-flow-step p {
+  color: #334155;
+  line-height: 1.5;
+  margin: 3px 0 0;
+}
+
 .games-tactic-row {
   margin-top: 14px;
 }
@@ -2116,6 +2157,38 @@ button:active,
   margin: 8px 0 0;
 }
 
+.games-answer-review,
+.games-review-panel {
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.games-answer-review p,
+.games-review-panel p {
+  color: #334155;
+  line-height: 1.55;
+  margin: 4px 0 0;
+}
+
+.games-answer-review strong,
+.games-review-panel strong {
+  color: #0f172a;
+}
+
+.games-review-panel {
+  margin-top: 4px;
+}
+
+.games-review-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .games-quest-list,
 .games-upgrade-list,
 .games-leaderboard,
@@ -2187,7 +2260,7 @@ button:active,
 .games-lower-grid {
   display: grid;
   gap: 18px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
 .games-leader-row {
@@ -2236,6 +2309,36 @@ button:active,
   padding: 6px 10px;
 }
 
+.games-mastery-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  max-height: 460px;
+  overflow-y: auto;
+}
+
+.card .games-mastery-row {
+  background: #ffffff;
+  border: 1px solid #dbe4ee;
+  border-radius: 12px;
+  color: #0f172a;
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 12px;
+  text-align: left;
+}
+
+.card .games-mastery-row.mastered {
+  background: #ecfdf5;
+  border-color: #86efac;
+}
+
+.games-mastery-row span {
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
 .card .games-reset-btn {
   background: transparent;
   border: 1px solid #fca5a5;
@@ -2270,6 +2373,10 @@ button:active,
   .games-action-row,
   .games-mode-tabs {
     display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .games-review-grid {
     grid-template-columns: 1fr;
   }
 

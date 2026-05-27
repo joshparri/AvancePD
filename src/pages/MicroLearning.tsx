@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { microLearningCards, type MicroLearningCard } from '../data/microLearning';
 import { mspScenarios } from '../data/mspScenarios';
 import { mspSkills } from '../data/mspSkills';
@@ -7,12 +7,13 @@ import type { AvanceProgress } from '../utils/progressStorage';
 type MicroLearningProps = {
   progress: AvanceProgress;
   markMicroCardViewed: (cardId: string) => void;
-  onNavigate?: (page: string) => void;
+  focusCardId?: string;
+  onNavigate?: (page: string, focusId?: string) => void;
 };
 
 const allCategories = ['All', ...Array.from(new Set(microLearningCards.map((c) => c.category)))];
 
-function MicroLearning({ progress, markMicroCardViewed, onNavigate }: MicroLearningProps) {
+function MicroLearning({ progress, markMicroCardViewed, focusCardId, onNavigate }: MicroLearningProps) {
   const [selectedId, setSelectedId] = useState(microLearningCards[0]?.id ?? '');
   const [categoryFilter, setCategoryFilter] = useState('All');
 
@@ -22,6 +23,16 @@ function MicroLearning({ progress, markMicroCardViewed, onNavigate }: MicroLearn
     : microLearningCards.filter((c) => c.category === categoryFilter);
 
   const selected = microLearningCards.find((c) => c.id === selectedId) ?? microLearningCards[0];
+
+  useEffect(() => {
+    const focusedCard = microLearningCards.find((card) => card.id === focusCardId);
+    if (!focusedCard) return;
+    setSelectedId(focusedCard.id);
+    setCategoryFilter('All');
+    window.setTimeout(() => {
+      document.getElementById('micro-learning-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }, [focusCardId]);
 
   const handleSelect = (card: MicroLearningCard) => {
     setSelectedId(card.id);
@@ -81,7 +92,7 @@ function MicroLearning({ progress, markMicroCardViewed, onNavigate }: MicroLearn
           </aside>
 
           {selected && (
-            <div className="ml-detail">
+            <div className="ml-detail" id="micro-learning-detail">
               <div>
                 <div className="metric-row">
                   <span className="status-chip info">{selected.category}</span>
@@ -131,7 +142,7 @@ function MicroLearning({ progress, markMicroCardViewed, onNavigate }: MicroLearn
                           <button
                             type="button"
                             className="ml-goto-btn"
-                            onClick={() => onNavigate('mspScenarios')}
+                            onClick={() => onNavigate('mspScenarios', selected.linkedScenarioIds[0])}
                           >
                             Open Scenarios →
                           </button>

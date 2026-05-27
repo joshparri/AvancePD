@@ -79,6 +79,7 @@ type MissionOption = {
   id: string;
   text: string;
   correct: boolean;
+  feedback: string;
 };
 
 type GameMission = {
@@ -95,7 +96,9 @@ type GameMission = {
   clue: string;
   successText: string;
   failureText: string;
+  flowSteps: string[];
   scenarioTitle?: string;
+  scenarioId?: string;
 };
 
 type MissionLog = {
@@ -129,6 +132,11 @@ type AvancePDGameState = {
 
 type MissionOutcome = {
   correct: boolean;
+  cardId: string;
+  missionId: string;
+  selectedAnswer: string;
+  correctAnswer: string;
+  answerFeedback: string;
   title: string;
   message: string;
   explanation: string;
@@ -239,11 +247,23 @@ function scenarioTitleFor(card: MicroLearningCard) {
   return mspScenarios.find((scenario) => scenario.relatedSkillIds.some((skillId) => card.linkedSkillIds.includes(skillId)))?.title;
 }
 
-function buildMissionOptions(missionId: string, correctText: string, distractors: string[], rotateBy: number) {
+function scenarioIdFor(card: MicroLearningCard) {
+  const directScenario = mspScenarios.find((scenario) => card.linkedScenarioIds.includes(scenario.id));
+  if (directScenario) return directScenario.id;
+  return mspScenarios.find((scenario) => scenario.relatedSkillIds.some((skillId) => card.linkedSkillIds.includes(skillId)))?.id;
+}
+
+function buildMissionOptions(
+  missionId: string,
+  correctText: string,
+  correctFeedback: string,
+  distractors: Array<{ text: string; feedback: string }>,
+  rotateBy: number
+) {
   const options = rotateOptions(
     [
-      { text: correctText, correct: true },
-      ...distractors.slice(0, 3).map((text) => ({ text, correct: false }))
+      { text: correctText, correct: true, feedback: correctFeedback },
+      ...distractors.slice(0, 3).map((distractor) => ({ ...distractor, correct: false }))
     ],
     missionId,
     rotateBy
@@ -258,19 +278,36 @@ function buildMissions(cards: MicroLearningCard[]): GameMission[] {
   return cards.flatMap((card, cardIndex) => {
     const factionId = factionForCategory(card.category);
     const scenarioTitle = scenarioTitleFor(card);
+    const scenarioId = scenarioIdFor(card);
     const difficulties: MissionDifficulty[] = ['cadet', 'operator', 'veteran'];
     const concept = shorten(firstSentence(card.concept));
     const specificRisk = shorten(card.commonMistake);
     const teachBack = shorten(firstSentence(card.whyItMatters));
+    const flowSteps = [
+      `Intake: identify whether this is ${card.topic.toLowerCase()} and confirm the user impact before changing anything.`,
+      `Safe check: ${shorten(card.practiceTask, 120)}`,
+      `Risk guard: ${shorten(card.commonMistake, 120)}`,
+      `Teach-back: ${shorten(firstSentence(card.whyItMatters), 120)}`
+    ];
 
     const scopeId = `${card.id}-scope`;
     const scopeOptions = buildMissionOptions(
       scopeId,
       `Scope the issue first, then apply this concept: ${concept}`,
+      'Correct: this keeps the first move tied to evidence, not guessing.',
       [
-        'Perform the largest reset available and see what changes.',
-        'Ask for private credentials so you can test as the user.',
-        'Close the ticket as soon as the user stops replying.'
+        {
+          text: 'Perform the largest reset available and see what changes.',
+          feedback: 'That is overreach. A broad reset can disrupt users and hide the original cause before you have scoped it.'
+        },
+        {
+          text: 'Ask for private credentials so you can test as the user.',
+          feedback: 'That breaks a core support boundary. Never ask for passwords or private credentials.'
+        },
+        {
+          text: 'Close the ticket as soon as the user stops replying.',
+          feedback: 'That skips confirmation. A quiet user is not proof the root cause is fixed or safely documented.'
+        }
       ],
       cardIndex
     );
@@ -279,10 +316,20 @@ function buildMissions(cards: MicroLearningCard[]): GameMission[] {
     const riskOptions = buildMissionOptions(
       riskId,
       `Avoid this exact trap: ${specificRisk}`,
+      'Correct: the common mistake is the highest-value trap to recognize before acting.',
       [
-        'Avoid writing any ticket notes until the whole queue is empty.',
-        'Avoid asking scope questions because they slow the first response.',
-        'Avoid checking evidence when the user sounds confident.'
+        {
+          text: 'Avoid writing any ticket notes until the whole queue is empty.',
+          feedback: 'Poor documentation is bad practice, but it is not the specific risk this concept is warning you about.'
+        },
+        {
+          text: 'Avoid asking scope questions because they slow the first response.',
+          feedback: 'Scope questions are usually the fast path. Skipping them makes the fix less reliable.'
+        },
+        {
+          text: 'Avoid checking evidence when the user sounds confident.',
+          feedback: 'User confidence is useful context, not proof. You still need evidence before changing systems.'
+        }
       ],
       cardIndex + 1
     );
@@ -291,10 +338,20 @@ function buildMissions(cards: MicroLearningCard[]): GameMission[] {
     const teachOptions = buildMissionOptions(
       teachId,
       teachBack,
+      'Correct: this explains the operational reason the concept matters.',
       [
-        'It matters mostly because tickets look better when they have more technical words.',
-        'It matters because fast action is always safer than asking one more question.',
-        'It matters only when a manager is watching the queue.'
+        {
+          text: 'It matters mostly because tickets look better when they have more technical words.',
+          feedback: 'That confuses appearance with skill. Good IT learning is about safer decisions, less rework, and clearer outcomes.'
+        },
+        {
+          text: 'It matters because fast action is always safer than asking one more question.',
+          feedback: 'Speed helps only after you know the risk. One precise question can prevent the wrong fix.'
+        },
+        {
+          text: 'It matters only when a manager is watching the queue.',
+          feedback: 'That misses the point. The concept matters even when nobody is watching because it protects the user, client, and system.'
+        }
       ],
       cardIndex + 2
     );
@@ -312,7 +369,9 @@ function buildMissions(cards: MicroLearningCard[]): GameMission[] {
         clue: card.concept,
         successText: 'You narrowed the fault before changing the environment.',
         failureText: 'That choice creates avoidable risk. Start by scoping, preserving evidence, and using the safest first check.',
+        flowSteps,
         scenarioTitle,
+        scenarioId,
         ...scopeOptions
       },
       {
@@ -327,7 +386,9 @@ function buildMissions(cards: MicroLearningCard[]): GameMission[] {
         clue: card.commonMistake,
         successText: 'You spotted the trap before it became technical debt.',
         failureText: 'The dangerous move is the one the card warns about directly. Slow down and protect the system state.',
+        flowSteps,
         scenarioTitle,
+        scenarioId,
         ...riskOptions
       },
       {
@@ -342,7 +403,9 @@ function buildMissions(cards: MicroLearningCard[]): GameMission[] {
         clue: card.whyItMatters,
         successText: 'Clean teach-back. That knowledge is now easier to use under pressure.',
         failureText: 'The best explanation connects the concept to risk, time, safety, or repeat tickets.',
+        flowSteps,
         scenarioTitle,
+        scenarioId,
         ...teachOptions
       }
     ];
@@ -455,7 +518,11 @@ function getDailyQuests(state: AvancePDGameState, today: string) {
   ];
 }
 
-function AvancePDGames() {
+type AvancePDGamesProps = {
+  onNavigate?: (page: string, focusId?: string) => void;
+};
+
+function AvancePDGames({ onNavigate }: AvancePDGamesProps) {
   const missions = useMemo(() => buildMissions(microLearningCards), []);
   const [gameState, setGameState] = useState<AvancePDGameState>(loadGameState);
   const [selectedOptionId, setSelectedOptionId] = useState('');
@@ -464,6 +531,7 @@ function AvancePDGames() {
   const [lastOutcome, setLastOutcome] = useState<MissionOutcome | null>(null);
 
   const currentMission = missions.find((mission) => mission.id === gameState.currentMissionId) ?? missions[0];
+  const currentCard = microLearningCards.find((card) => card.id === currentMission?.cardId);
   const currentFaction = factions.find((faction) => faction.id === currentMission?.factionId);
   const activeTacticConfig = tactics.find((tactic) => tactic.id === activeTactic) ?? tactics[0];
   const levelInfo = getLevelInfo(gameState.xp);
@@ -479,6 +547,25 @@ function AvancePDGames() {
     { name: 'Signal Desk', score: 980 },
     { name: 'Night Queue', score: 720 }
   ].sort((a, b) => b.score - a.score);
+  const reviewedCard = lastOutcome
+    ? microLearningCards.find((card) => card.id === lastOutcome.cardId)
+    : currentCard;
+  const reviewedMission = lastOutcome
+    ? missions.find((mission) => mission.id === lastOutcome.missionId)
+    : currentMission;
+  const reviewedScenarioId = reviewedMission?.scenarioId ?? reviewedCard?.linkedScenarioIds[0];
+  const conceptMastery = microLearningCards.map((card) => {
+    const cardHistory = gameState.history.filter((entry) => entry.cardId === card.id);
+    const correct = cardHistory.filter((entry) => entry.correct).length;
+    return {
+      card,
+      attempts: cardHistory.length,
+      correct,
+      mastered: gameState.masteredCardIds.includes(card.id)
+    };
+  });
+  const practisedConcepts = conceptMastery.filter((row) => row.attempts > 0 || row.mastered);
+  const masteryPercent = Math.round((gameState.masteredCardIds.length / microLearningCards.length) * 100);
 
   const visibleOptions = useMemo(() => {
     if (!currentMission) return [];
@@ -513,6 +600,9 @@ function AvancePDGames() {
       currentMission: currentMission?.title,
       selectedOptionId,
       visibleOptions: visibleOptions.map((option) => ({ id: option.id, text: option.text })),
+      reviewConcept: reviewedCard?.topic,
+      masteredConcepts: gameState.masteredCardIds.length,
+      masteryPercent,
       lastOutcome
     });
     window.advanceTime = () => undefined;
@@ -521,7 +611,7 @@ function AvancePDGames() {
       delete window.render_game_to_text;
       delete window.advanceTime;
     };
-  }, [currentMission, gameState, lastOutcome, levelInfo.level, mode, rankName, selectedOptionId, visibleOptions]);
+  }, [currentMission, gameState, lastOutcome, levelInfo.level, masteryPercent, mode, rankName, reviewedCard, selectedOptionId, visibleOptions]);
 
   const buyUpgrade = (upgradeId: UpgradeId) => {
     const upgrade = upgrades.find((item) => item.id === upgradeId);
@@ -639,6 +729,11 @@ function AvancePDGames() {
     setGameState(nextState);
     setLastOutcome({
       correct,
+      cardId: currentMission.cardId,
+      missionId: currentMission.id,
+      selectedAnswer: selected?.text ?? 'No answer selected',
+      correctAnswer: currentMission.options.find((option) => option.id === currentMission.correctOptionId)?.text ?? '',
+      answerFeedback: selected?.feedback ?? 'Review the concept card before trying the next contract.',
       title: correct ? 'Contract cleared' : protectedWrong ? 'Streak protected' : 'Contract failed',
       message: correct ? currentMission.successText : protectedWrong ? 'The change window caught the mistake. Review the clue and keep moving.' : currentMission.failureText,
       explanation: currentMission.clue,
@@ -759,9 +854,21 @@ function AvancePDGames() {
                 disabled={tactic.cost > gameState.focus}
               >
                 <strong>{tactic.name}</strong>
-                <span>{tactic.cost === 0 ? 'Free' : `${tactic.cost} focus`} · {tactic.detail}</span>
+                <span>{tactic.cost === 0 ? 'Free' : `${tactic.cost} focus`} - {tactic.detail}</span>
               </button>
             ))}
+          </div>
+
+          <div className="games-flow-panel">
+            <h3>Troubleshooting flow</h3>
+            <div className="games-flow-steps">
+              {currentMission.flowSteps.map((step, index) => (
+                <div key={step} className="games-flow-step">
+                  <span>{index + 1}</span>
+                  <p>{step}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="games-options">
@@ -793,6 +900,22 @@ function AvancePDGames() {
                 <h3>{lastOutcome.reward}</h3>
               </div>
               <p>{lastOutcome.message}</p>
+              <div className="games-answer-review">
+                <div>
+                  <strong>Your answer</strong>
+                  <p>{lastOutcome.selectedAnswer}</p>
+                </div>
+                {!lastOutcome.correct && (
+                  <div>
+                    <strong>Correct answer</strong>
+                    <p>{lastOutcome.correctAnswer}</p>
+                  </div>
+                )}
+                <div>
+                  <strong>{lastOutcome.correct ? 'Why it works' : 'Why that answer failed'}</strong>
+                  <p>{lastOutcome.answerFeedback}</p>
+                </div>
+              </div>
               <p className="games-outcome-note">{lastOutcome.explanation}</p>
               <div className="metric-row">
                 <span className="status-chip info">+{lastOutcome.xp} XP</span>
@@ -800,6 +923,43 @@ function AvancePDGames() {
                 <span className="status-chip warn">{lastOutcome.streak} streak</span>
                 {lastOutcome.raidCleared && <span className="status-chip success">Raid cache opened</span>}
               </div>
+              {reviewedCard && (
+                <div className="games-review-panel">
+                  <div className="games-panel-header">
+                    <h3>Review this concept</h3>
+                    <span className="status-chip info">{reviewedCard.category}</span>
+                  </div>
+                  <h4>{reviewedCard.topic}</h4>
+                  <div className="games-review-grid">
+                    <div>
+                      <strong>Concept</strong>
+                      <p>{reviewedCard.concept}</p>
+                    </div>
+                    <div>
+                      <strong>Why it matters</strong>
+                      <p>{reviewedCard.whyItMatters}</p>
+                    </div>
+                    <div>
+                      <strong>Common mistake</strong>
+                      <p>{reviewedCard.commonMistake}</p>
+                    </div>
+                    <div>
+                      <strong>Practice task</strong>
+                      <p>{reviewedCard.practiceTask}</p>
+                    </div>
+                  </div>
+                  <div className="games-action-row">
+                    <button type="button" className="secondary-action" onClick={() => onNavigate?.('microLearning', reviewedCard.id)}>
+                      Open exact concept card
+                    </button>
+                    {reviewedScenarioId && (
+                      <button type="button" className="secondary-action" onClick={() => onNavigate?.('mspScenarios', reviewedScenarioId)}>
+                        Open linked scenario
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </section>
@@ -891,6 +1051,29 @@ function AvancePDGames() {
                 </div>
               );
             })}
+          </div>
+        </section>
+
+        <section className="card games-panel games-mastery-panel">
+          <div className="games-panel-header">
+            <h2>Concept Mastery</h2>
+            <span className="status-chip success">{masteryPercent}%</span>
+          </div>
+          <p className="games-muted">
+            {gameState.masteredCardIds.length} of {microLearningCards.length} IT concepts have been cleared at least once.
+          </p>
+          <div className="games-mastery-list">
+            {(practisedConcepts.length > 0 ? practisedConcepts : conceptMastery.slice(0, 6)).slice(0, 10).map(({ card, attempts, correct, mastered }) => (
+              <button
+                key={card.id}
+                type="button"
+                className={mastered ? 'games-mastery-row mastered' : 'games-mastery-row'}
+                onClick={() => onNavigate?.('microLearning', card.id)}
+              >
+                <strong>{card.topic}</strong>
+                <span>{mastered ? 'mastered' : attempts > 0 ? 'practised' : 'not started'} - {correct}/{attempts || 0} correct</span>
+              </button>
+            ))}
           </div>
         </section>
 

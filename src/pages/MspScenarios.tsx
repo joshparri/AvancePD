@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { mspScenarios } from '../data/mspScenarios';
 import { getScenarioFeedback, type CoachFeedback, type ScenarioFeedbackRequest } from '../utils/groqClient';
 import FeedbackCard from '../components/FeedbackCard';
@@ -9,9 +9,10 @@ const scenarioStatuses: ScenarioStatus[] = ['not-started', 'practised', 'confide
 type MspScenariosProps = {
   progress: AvanceProgress;
   updateScenarioProgress: (scenarioId: string, status: ScenarioStatus, reflection?: string) => void;
+  focusScenarioId?: string;
 };
 
-function MspScenarios({ progress, updateScenarioProgress }: MspScenariosProps) {
+function MspScenarios({ progress, updateScenarioProgress, focusScenarioId }: MspScenariosProps) {
   const [selectedScenarioId, setSelectedScenarioId] = useState(mspScenarios[0]?.id ?? '');
   const [reflectionDrafts, setReflectionDrafts] = useState<Record<string, string>>({});
   const [userInputs, setUserInputs] = useState<Record<string, { firstQuestions: string; checks: string; escalationDecision: string; ticketNote: string }>>({});
@@ -25,6 +26,15 @@ function MspScenarios({ progress, updateScenarioProgress }: MspScenariosProps) {
     () => mspScenarios.find((scenario) => scenario.id === selectedScenarioId) ?? mspScenarios[0],
     [selectedScenarioId]
   );
+
+  useEffect(() => {
+    const focusedScenario = mspScenarios.find((scenario) => scenario.id === focusScenarioId);
+    if (!focusedScenario) return;
+    setSelectedScenarioId(focusedScenario.id);
+    window.setTimeout(() => {
+      document.getElementById('msp-scenario-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }, [focusScenarioId]);
 
   if (!selectedScenario) {
     return null;
@@ -161,7 +171,7 @@ Ticket note: ${userInput.ticketNote || '(blank)'}
           </div>
         </section>
 
-        <section className="card">
+        <section className="card" id="msp-scenario-detail">
           <div className="skill-card-header">
             <div>
               <h2>{selectedScenario.title}</h2>
