@@ -1,14 +1,34 @@
 # Avance KB Learning Guide
 
-This guide explains how to use the local Avance knowledge base with the two Avance apps.
+This guide explains how the Avance KB Learning Machine should work as a guided learning experience, not just a KB reference page.
 
-> Important: The raw KB files under `docs/Avance KB_s` are local reference material only. Do not copy private customer data or internal-only content into public repo docs or GitHub.
+> Important: The raw KB files under `docs/Avance KB_s` are local reference material only. Do not copy private customer data, ticket text, or internal-only content into GitHub-tracked docs.
 
 ## What the KB library is for
 
-The `docs/Avance KB_s` folder contains procedure and troubleshooting guides for MSP topics such as device enrollment, remote access, cloud migrations, security policies, phone and printer configuration, and recovery workflows.
+The `docs/Avance KB_s` folder contains safe reference material for MSP topics such as device enrollment, remote access, cloud migrations, security policies, phone and printer configuration, and recovery workflows.
 
-The KB library is a reference source, not app data. Use it to connect real work to learning and to seed App 2 with relevant skill categories, scenarios, and evidence notes.
+The KB library is the source material for lessons. It is not the final destination.
+
+## The new guided learning flow
+
+The KB Learning Machine should present learning as a session:
+
+1. **Today’s lesson**
+2. **Learn**
+3. **Quiz**
+4. **Recall**
+5. **Practical task**
+6. **Ticket note drill**
+7. **AI coach feedback**
+8. **Evidence**
+9. **Spaced review**
+
+Each stage should feel like a calm guided tutor asking:
+
+- What are we learning today?
+- How will you practise it?
+- What evidence did you create?
 
 ## How the apps use the KB
 
@@ -18,73 +38,53 @@ The KB library is a reference source, not app data. Use it to connect real work 
   - Send learning-worthy captures into a local learning queue if the app supports it.
 
 - **Avance PD** is the learning cockpit.
-  - Use it to study KB-related skills, practise scenarios, and build manager-safe evidence.
-  - Map captured work to skill cards, scenarios, ticket note practice, and evidence pack entries.
-  - Keep the KB library local and use it as the source of truth for task-specific guidance.
+  - Use it to turn KB cards into lessons, quizzes, recall prompts, practical tasks, and ticket-note drills.
+  - Use AI coach feedback only when server-side Groq is enabled.
+  - Save evidence locally and keep it manager-safe.
 
-## Learning flow
+## Recommended learning session pattern
 
-1. **Capture work in App 1**
-   - Create a quick log or ticket note immediately after completing a task.
-   - Mark whether the item is a learning seed, a follow-up, or a reusable knowledge item.
+- Start with a short, friendly lesson prompt.
+- Show one recommended topic from due reviews or the first available KB card.
+- Offer activity buttons for learning, quiz, recall, task, ticket note, and coach feedback.
+- Keep card summaries short and collapsible.
+- Show a learning path strip with the next steps.
+- Track progress locally for the session and save it in browser storage.
 
-2. **Link the capture to a KB topic**
-   - Choose the nearest KB topic category from the local library.
-   - If App 1 supports it, add a `relatedKb` or `learningQueue` marker.
+## What to avoid
 
-3. **Use App 2 to deepen the learning**
-   - Open the relevant skill category in the `MSP Skills` section.
-   - Find a matching scenario in `MSP Scenarios`.
-   - Practise writing a clean `Ticket Note` based on the issue.
-   - Add the result to the `Evidence Pack` when the learning is useful.
+- Avoid long KB cards displayed as a wall of text.
+- Avoid making the KB page the destination.
+- Avoid exposing `VITE_GROQ_API_KEY` in the client bundle.
+- Avoid copying raw KB content, ticket text, client names, hostnames, IPs, passwords, or other private data.
 
-4. **Review and repeat**
-   - Use the `Weekly Review` or `Learning Cockpit` to track progress.
-   - Convert repeated issues into reusable playbooks or knowledge notes.
-   - Keep the evidence pack manager-safe by excluding private customer data.
+## Safe AI coach design
 
-## Recommended KB topic categories
+- Use a server-side endpoint such as `/api/coach` if the project supports it.
+- Store the API key as `GROQ_API_KEY` on the server.
+- Do not send raw KB content or private data to the AI coach.
+- Send only generic KB title, user answer, and rubric guidance.
+- If the key is missing, show:
+  - “AI coach unavailable. Add GROQ_API_KEY server-side to enable feedback.”
 
-Use the following categories as a starting point rather than individual file titles:
+## Practical usage
 
-- Device onboarding and management
-  - Apple device enrollment
-  - Intune enrollment
-  - JumpCloud and Entra account migration
+1. Choose a recommended lesson topic.
+2. Read the short summary and expand only the details you need.
+3. Take the multiple-choice quiz for that card.
+4. Write a quick recall answer in your own words.
+5. Describe a safe practical task for a real MSP ticket.
+6. Complete a ticket-note drill with structured fields.
+7. Save evidence and review progress.
 
-- Remote access and network access
-  - SSH proxy and remote desktop access
-  - VPN and remote application configuration
-  - Firewall rules for remote management
-
-- Cloud identity and email
-  - Microsoft 365 and Google Workspace migration
-  - Exchange Online administration
-  - Password and credential provider setup
-
-- Security and policy
-  - Anti-phishing policy creation
-  - Safe links and security hardening
-  - Certificate and authentication troubleshooting
-
-- Phone, printer, and peripheral setup
-  - Yealink phone configuration
-  - Printer installation and network printing
-  - Device-specific MDM policies
-
-- Troubleshooting and recovery
-  - Application repair and driver issues
-  - File recovery and system restore guidance
-  - Permission and admin rights workflows
-
-## Notes on privacy and public docs
+## Notes on privacy and docs
 
 - Keep raw KB content local to `docs/Avance KB_s`.
-- Do not include customer names, ticket details, or internal case notes in GitHub-tracked docs.
-- The public docs should describe the learning process, not reproduce the KB content.
+- Public docs should describe the learning model and safe usage.
+- Do not publish customer data, private tickets, or sensitive operational details.
 
 ## Next documentation steps
 
-- Add this KB learning guide to the root and docs TODO trackers.
-- Update the user guide with a short KB workflow section.
-- Keep the local KB folder private and treat it as reference-only material for learning and app guidance.
+- Keep this guide aligned with the actual KB Learning Machine UI.
+- Add the learning experience model and acceptance criteria to docs.
+- Keep the local KB folder private and use it as source material only.
