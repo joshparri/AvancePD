@@ -30,6 +30,8 @@ import { useSaveStatus } from '@/hooks/useSaveStatus';
 import { recordLearningActivityEvidence } from '@/lib/learningEvidence';
 import { Layout } from '@/components/Layout';
 import { HeroPanel, LearningCard, PageShell, SectionHeader, StatCard } from '@/components/academy';
+import { LearningIllustration } from '@/components/learning/LearningIllustration';
+import { LearningDiagram } from '@/components/learning/LearningDiagram';
 import type { StatusBadgeVariant } from '@/components/academy/StatusBadge';
 import { 
   Brain, 
@@ -495,6 +497,7 @@ export default function LearningCockpit() {
         <HeroPanel
           title="Keep your momentum going"
           subtitle="Start with the next best move, mix in today's practice, and save progress to your Evidence Pack."
+          illustration={<LearningIllustration variant="learning-cockpit" size="lg" decorative />}
           stats={[
             { label: 'Completed', value: stats.completedCount, helper: `of ${activities.length}` },
             { label: 'Minutes', value: stats.totalMinutes, helper: `${Math.round(stats.totalMinutes / 60 * 10) / 10}h logged` },
@@ -676,11 +679,24 @@ export default function LearningCockpit() {
           </Card>
         )}
 
+        {!selectedActivity && (
+          <div className="academy-surface-muted flex flex-col items-center gap-3 px-6 py-8 text-center sm:flex-row sm:text-left">
+            <LearningIllustration variant="learning-cockpit" size="md" />
+            <div>
+              <p className="text-sm font-medium text-slate-900 dark:text-white">Select an activity to begin</p>
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                Browse the cards below or start with a recommended activity above.
+              </p>
+            </div>
+          </div>
+        )}
+
         <Card>
           <CardHeader>
             <SectionHeader icon={Filter} title="Browse activities" description="Filter by domain, type, or difficulty." />
           </CardHeader>
           <CardContent>
+            <LearningDiagram variant="ticket-lifecycle" className="mb-4" compact />
             <div className="flex flex-wrap gap-4 mb-4">
               <div>
                 <label className="text-sm font-medium mb-1 block">Domain</label>

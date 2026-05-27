@@ -18,6 +18,11 @@ import {
 } from '@/lib/mspProgress';
 import { AlertTriangle, CheckCircle2, ClipboardList, ShieldAlert } from 'lucide-react';
 import { HeroPanel, PageShell } from '@/components/academy';
+import {
+  LearningIllustration,
+  scenarioCategoryToIllustration,
+} from '@/components/learning/LearningIllustration';
+import { LearningDiagram } from '@/components/learning/LearningDiagram';
 
 const difficultyClasses: Record<MspScenarioDifficulty, string> = {
   easy: 'border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-200',
@@ -86,7 +91,10 @@ export default function MspScenariosPage() {
         <HeroPanel
           title="Guided scenario practice"
           subtitle="Compare your thinking with model checks, unsafe shortcuts, and ideal ticket notes."
+          illustration={<LearningIllustration variant="scenario-practice" size="lg" decorative />}
         />
+
+        <LearningDiagram variant="ticket-lifecycle" compact />
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[360px_1fr]">
             <Card>
@@ -97,15 +105,17 @@ export default function MspScenariosPage() {
               <CardContent className="space-y-2">
                 {mspScenarios.map((scenario) => {
                   const isSelected = scenario.id === selectedScenario.id;
+                  const categoryIllustration = scenarioCategoryToIllustration(scenario.category);
 
                   return (
                     <Button
                       key={scenario.id}
                       type="button"
                       variant={isSelected ? 'default' : 'outline'}
-                      className="h-auto w-full justify-start whitespace-normal px-3 py-3 text-left"
+                      className="h-auto w-full justify-start gap-3 whitespace-normal px-3 py-3 text-left"
                       onClick={() => setSelectedScenarioId(scenario.id)}
                     >
+                      <LearningIllustration variant={categoryIllustration} size="sm" decorative />
                         <span>
                         <span className="block font-medium">{scenario.title}</span>
                         <span className="block text-xs opacity-80">{scenario.category}</span>
@@ -123,9 +133,15 @@ export default function MspScenariosPage() {
               <Card>
                 <CardHeader>
                   <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="flex items-start gap-4">
+                      <LearningIllustration
+                        variant={scenarioCategoryToIllustration(selectedScenario.category)}
+                        size="md"
+                      />
                     <div>
                       <CardTitle className="text-2xl leading-tight">{selectedScenario.title}</CardTitle>
                       <p className="mt-2 text-sm text-muted-foreground">{selectedScenario.category}</p>
+                    </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <Badge variant="outline" className={difficultyClasses[selectedScenario.difficulty]}>

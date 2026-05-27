@@ -1,5 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { StatusBadge, type StatusBadgeVariant } from '@/components/academy/StatusBadge';
+import {
+  LearningIllustration,
+  activityTypeToIllustration,
+} from '@/components/learning/LearningIllustration';
+import type { MspLearningActivityType } from '@/data/mspLearningActivities';
 import { cn } from '@/lib/utils';
 
 type LearningCardProps = {
@@ -29,6 +34,8 @@ export function LearningCard({
   onToggleComplete,
   className,
 }: LearningCardProps) {
+  const illustrationVariant = activityTypeToIllustration(activityType as MspLearningActivityType);
+
   return (
     <article
       className={cn(
@@ -40,9 +47,12 @@ export function LearningCard({
         className
       )}
     >
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <StatusBadge variant="saved">{activityType}</StatusBadge>
-        <StatusBadge variant={difficulty}>{difficulty}</StatusBadge>
+      <div className="mb-3 flex items-start justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusBadge variant="saved">{activityType}</StatusBadge>
+          <StatusBadge variant={difficulty}>{difficulty}</StatusBadge>
+        </div>
+        <LearningIllustration variant={illustrationVariant} size="sm" decorative />
       </div>
       <h3 className="text-sm font-semibold leading-snug text-slate-900 dark:text-white">{title}</h3>
       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">

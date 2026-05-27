@@ -6,6 +6,7 @@ type HeroPanelProps = {
   primaryAction?: React.ReactNode;
   secondaryAction?: React.ReactNode;
   stats?: Array<{ label: string; value: string | number; helper?: string }>;
+  illustration?: React.ReactNode;
   className?: string;
 };
 
@@ -15,6 +16,7 @@ export function HeroPanel({
   primaryAction,
   secondaryAction,
   stats,
+  illustration,
   className,
 }: HeroPanelProps) {
   return (
@@ -24,8 +26,13 @@ export function HeroPanel({
         className
       )}
     >
+      {illustration && (
+        <div className="pointer-events-none absolute right-4 top-4 opacity-90 sm:right-6 sm:top-6" aria-hidden>
+          {illustration}
+        </div>
+      )}
       <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-        <div className="max-w-2xl space-y-3">
+        <div className={cn('max-w-2xl space-y-3', illustration && 'pr-24 sm:pr-28')}>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
             {title}
           </h2>

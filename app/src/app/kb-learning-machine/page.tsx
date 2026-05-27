@@ -13,6 +13,8 @@ import { ExternalLearningLinks } from '@/components/ExternalLearningLinks';
 import { SaveStatus } from '@/components/SaveStatus';
 import { useSaveStatus } from '@/hooks/useSaveStatus';
 import { HeroPanel, PageShell, SectionHeader } from '@/components/academy';
+import { LearningIllustration } from '@/components/learning/LearningIllustration';
+import { LearningDiagram } from '@/components/learning/LearningDiagram';
 import {
   recordKbFlashcardEvidence,
   recordKbReflectionEvidence,
@@ -276,12 +278,15 @@ export default function KbLearningMachinePage() {
         <HeroPanel
           title="Today's study cockpit"
           subtitle="Review due cards, run flashcards, practise scenarios, and save ticket-note evidence."
+          illustration={<LearningIllustration variant="kb-field-card" size="lg" decorative />}
           stats={[
             { label: 'Due today', value: dueCards.length },
             { label: 'KB cards', value: cards.length },
             { label: 'Scenarios saved', value: evidenceSummary.scenariosCompleted },
           ]}
         />
+
+          <LearningDiagram variant="troubleshooting-ladder" compact />
 
           <Card>
             <CardHeader>

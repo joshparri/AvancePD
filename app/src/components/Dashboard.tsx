@@ -15,6 +15,8 @@ import { getLearningStats, getDueReviewSuggestions } from '@/lib/mspLearningProg
 import { PendingActionTracker } from '@/components/PendingActionTracker';
 import { HealthyShiftCard } from '@/components/HealthyShiftCard';
 import { HeroPanel, PageShell, SectionHeader, StatCard } from '@/components/academy';
+import { LearningIllustration } from '@/components/learning/LearningIllustration';
+import { LearningDiagram } from '@/components/learning/LearningDiagram';
 
 export function Dashboard() {
   const [nextShift, setNextShift] = useState<Shift | null>(null);
@@ -157,6 +159,7 @@ export function Dashboard() {
         <HeroPanel
           title="One clear next step"
           subtitle="Balance work, learning, wellbeing, and follow-up — start with PD focus or your next shift."
+          illustration={<LearningIllustration variant="dashboard-command-centre" size="lg" decorative />}
           primaryAction={
             nextBestActivity ? (
               <Button size="sm" asChild>
@@ -202,6 +205,7 @@ export function Dashboard() {
             <SectionHeader icon={Lightbulb} title="PD focus today" description="Learning" />
           </CardHeader>
           <CardContent>
+            <LearningDiagram variant="learning-loop" className="mb-4" compact />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Learning Progress Summary */}
               <div className="space-y-2">

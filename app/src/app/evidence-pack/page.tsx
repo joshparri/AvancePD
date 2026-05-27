@@ -30,6 +30,8 @@ import {
   type LearningEvidenceSource,
 } from '@/lib/learningEvidence';
 import { HeroPanel, PageShell, SectionHeader } from '@/components/academy';
+import { LearningIllustration } from '@/components/learning/LearningIllustration';
+import { LearningDiagram } from '@/components/learning/LearningDiagram';
 
 const countBy = <T,>(items: T[], getKey: (item: T) => string) =>
   items.reduce<Record<string, number>>((counts, item) => {
@@ -222,12 +224,15 @@ ${formatList(practicalOutputs)}
         <HeroPanel
           title="Your professional growth report"
           subtitle="Evidence from Learning Cockpit, KB drills, and quizzes flows here as you study."
+          illustration={<LearningIllustration variant="evidence-pack" size="lg" decorative />}
           stats={[
             { label: 'Activities', value: evidenceSummary.activitiesCompleted },
             { label: 'KB reviews', value: evidenceSummary.kbReviews },
             { label: 'Quiz avg', value: evidenceSummary.averageQuizScore ?? '—' },
           ]}
         />
+
+          <LearningDiagram variant="learning-loop" className="mb-2" />
 
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-8">
             <Card>
