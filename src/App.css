@@ -304,6 +304,49 @@ section {
   margin: 0 0 8px 0;
 }
 
+.kb-session-card {
+  border-left: 4px solid #2563eb;
+}
+
+.kb-activity-panel {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.kb-quiz-list {
+  display: grid;
+  gap: 12px;
+}
+
+.kb-quiz-options {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.kb-quiz-options .small-action {
+  text-align: left;
+  white-space: normal;
+}
+
+.kb-card-details {
+  border-top: 1px solid #e2e8f0;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.kb-card-details summary {
+  color: #1e40af;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.card button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .error-panel {
   background: #fee2e2;
   border: 1px solid #fca5a5;

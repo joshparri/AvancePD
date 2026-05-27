@@ -1,9 +1,18 @@
 import type { LearningItem } from '../../types';
 import type { AvanceProgress } from '../../utils/progressStorage';
 import { demoKbFieldCards } from './kbSeedCards';
-import type { KbFieldCard, KbLearningMetrics } from './kbLearningTypes';
+import type {
+  KbActivityProgressMap,
+  KbCardActivityProgress,
+  KbConfidence,
+  KbFieldCard,
+  KbLearningActivity,
+  KbLearningMetrics,
+  KbQuizAttempt
+} from './kbLearningTypes';
 
 export const kbFieldCardsStorageKey = 'avancepd.kbFieldCards';
+export const kbActivityProgressStorageKey = 'avancepd.kbActivityProgress';
 
 function createId(prefix: string) {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -42,6 +51,30 @@ export function saveUserKbCards(cards: KbFieldCard[]): void {
   window.localStorage.setItem(kbFieldCardsStorageKey, JSON.stringify(cards.filter((card) => !card.isDemo).map(normalizeUserCard)));
 }
 
+export function loadStoredKbCards(): KbFieldCard[] {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return [];
+  }
+
+  const raw = window.localStorage.getItem(kbFieldCardsStorageKey);
+  if (!raw) return [];
+
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.map(normalizeStoredCard) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveKbCards(cards: KbFieldCard[]): void {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return;
+  }
+
+  window.localStorage.setItem(kbFieldCardsStorageKey, JSON.stringify(cards.map(normalizeStoredCard)));
+}
+
 export function createKbFieldCard(data: Omit<KbFieldCard, 'id' | 'createdAt' | 'updatedAt' | 'isDemo'>): KbFieldCard {
   const now = new Date().toISOString();
   return {
@@ -54,8 +87,15 @@ export function createKbFieldCard(data: Omit<KbFieldCard, 'id' | 'createdAt' | '
 }
 
 export function getAllKbCards(demoCards: KbFieldCard[] = demoKbFieldCards): KbFieldCard[] {
-  const userCards = loadUserKbCards();
-  return [...demoCards, ...userCards];
+  const storedCards = loadStoredKbCards();
+  const storedById = new Map(storedCards.map((card) => [card.id, card]));
+  const mergedDemoCards = demoCards.map((card) => ({
+    ...card,
+    ...storedById.get(card.id),
+    isDemo: true
+  }));
+  const userCards = storedCards.filter((card) => !card.isDemo && !demoCards.some((demoCard) => demoCard.id === card.id));
+  return [...mergedDemoCards, ...userCards];
 }
 
 export function updateKbCard(card: KbFieldCard): void {
@@ -90,6 +130,74 @@ export function scheduleNextKbReview(card: KbFieldCard): KbFieldCard {
     reviewStage: nextStage,
     updatedAt: new Date().toISOString(),
     nextReviewAt: nextDate.toISOString().slice(0, 10)
+  };
+}
+
+export function advanceKbCardProgress(card: KbFieldCard, scoreHint?: number): KbFieldCard {
+  const confidence: KbConfidence = scoreHint === undefined
+    ? nextConfidence(card.confidence)
+    : scoreHint >= 4
+      ? 'high'
+      : scoreHint >= 3
+        ? 'medium'
+        : card.confidence === 'high'
+          ? 'medium'
+          : card.confidence;
+
+  return {
+    ...scheduleNextKbReview(card),
+    confidence
+  };
+}
+
+export function loadKbActivityProgress(): KbActivityProgressMap {
+  if (typeof window === 'undefined' || !window.localStorage) return {};
+
+  const raw = window.localStorage.getItem(kbActivityProgressStorageKey);
+  if (!raw) return {};
+
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed as KbActivityProgressMap : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveKbActivityProgress(progress: KbActivityProgressMap): void {
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  window.localStorage.setItem(kbActivityProgressStorageKey, JSON.stringify(progress));
+}
+
+export function updateKbActivityProgress(
+  progress: KbActivityProgressMap,
+  cardId: string,
+  activity: KbLearningActivity,
+  update: Partial<KbCardActivityProgress> & { textResponse?: string; quizAttempt?: KbQuizAttempt }
+): KbActivityProgressMap {
+  const current = progress[cardId] ?? {
+    textResponses: {},
+    assessments: {},
+    completedActivities: [],
+    updatedAt: new Date().toISOString()
+  };
+  const completedActivities = current.completedActivities.includes(activity)
+    ? current.completedActivities
+    : [...current.completedActivities, activity];
+
+  return {
+    ...progress,
+    [cardId]: {
+      ...current,
+      ...update,
+      textResponses: update.textResponse
+        ? { ...current.textResponses, [activity]: update.textResponse }
+        : current.textResponses,
+      quizAttempt: update.quizAttempt ?? current.quizAttempt,
+      assessments: update.assessments ?? current.assessments,
+      completedActivities,
+      updatedAt: new Date().toISOString()
+    }
   };
 }
 
@@ -131,4 +239,17 @@ function normalizeUserCard(card: KbFieldCard): KbFieldCard {
     nextReviewAt: card.nextReviewAt || todayIso(),
     isDemo: false
   };
+}
+
+function normalizeStoredCard(card: KbFieldCard): KbFieldCard {
+  return {
+    ...normalizeUserCard(card),
+    isDemo: Boolean(card.isDemo)
+  };
+}
+
+function nextConfidence(confidence: KbConfidence): KbConfidence {
+  if (confidence === 'low') return 'medium';
+  if (confidence === 'medium') return 'high';
+  return 'high';
 }

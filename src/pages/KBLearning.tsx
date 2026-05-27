@@ -1,18 +1,26 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { assessKbResponseWithGroq } from '../features/kb-learning/kbGroqAssessment';
 import {
+  advanceKbCardProgress,
   getAllKbCards,
   getKbLearningMetrics,
-  saveUserKbCards,
-  scheduleNextKbReview,
-  todayIso
+  loadKbActivityProgress,
+  saveKbActivityProgress,
+  saveKbCards,
+  todayIso,
+  updateKbActivityProgress
 } from '../features/kb-learning/kbLearningStorage';
 import {
   kbConfidenceLevels,
   kbFieldCardCategories,
+  type KbAssessmentResult,
   type KbConfidence,
   type KbFieldCard,
-  type KbFieldCardCategory
+  type KbFieldCardCategory,
+  type KbLearningActivity,
+  type KbQuizAttempt
 } from '../features/kb-learning/kbLearningTypes';
+import { buildKbQuiz, scoreQuiz } from '../features/kb-learning/kbQuiz';
 import type { AvanceProgress } from '../utils/progressStorage';
 import type { LearningItem } from '../types';
 
@@ -48,22 +56,56 @@ const blankForm: FieldCardForm = {
   confidence: 'low'
 };
 
+const activityLabels: Record<KbLearningActivity, string> = {
+  quiz: 'Start multiple-choice quiz',
+  recall: 'Quick recall',
+  practical: 'Practical task',
+  'ticket-note': 'Ticket note drill',
+  reflect: 'Reflect'
+};
+
 function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
   const [fieldCards, setFieldCards] = useState<KbFieldCard[]>(getAllKbCards);
+  const [activityProgress, setActivityProgress] = useState(loadKbActivityProgress);
   const [form, setForm] = useState<FieldCardForm>(blankForm);
   const [filter, setFilter] = useState('all');
-  const [reviewMessage, setReviewMessage] = useState('');
+  const [selectedCardId, setSelectedCardId] = useState('');
+  const [activeActivity, setActiveActivity] = useState<KbLearningActivity>('quiz');
+  const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
+  const [textAnswer, setTextAnswer] = useState('');
+  const [activityStatus, setActivityStatus] = useState('');
 
   useEffect(() => {
-    saveUserKbCards(fieldCards);
+    saveKbCards(fieldCards);
   }, [fieldCards]);
+
+  useEffect(() => {
+    saveKbActivityProgress(activityProgress);
+  }, [activityProgress]);
 
   const metrics = useMemo(() => getKbLearningMetrics(fieldCards, progress, learningItems), [fieldCards, learningItems, progress]);
   const dueCards = useMemo(() => fieldCards.filter((card) => card.nextReviewAt.slice(0, 10) <= todayIso()), [fieldCards]);
+  const recommendedCard = useMemo(() => getRecommendedCard(fieldCards, dueCards), [dueCards, fieldCards]);
+  const selectedCard = fieldCards.find((card) => card.id === selectedCardId) ?? recommendedCard ?? fieldCards[0];
+  const selectedProgress = selectedCard ? activityProgress[selectedCard.id] : undefined;
+  const quizQuestions = useMemo(() => selectedCard ? buildKbQuiz(selectedCard) : [], [selectedCard]);
   const visibleCards = useMemo(
     () => filter === 'all' ? fieldCards : fieldCards.filter((card) => card.category === filter),
     [fieldCards, filter]
   );
+
+  useEffect(() => {
+    if (!selectedCardId && recommendedCard) {
+      setSelectedCardId(recommendedCard.id);
+    }
+  }, [recommendedCard, selectedCardId]);
+
+  useEffect(() => {
+    if (!selectedCard) return;
+    setQuizAnswers(selectedProgress?.quizAttempt?.answers ?? {});
+    setTextAnswer(selectedProgress?.textResponses[activeActivity] ?? '');
+    setActivityStatus('');
+  }, [activeActivity, selectedCard, selectedProgress]);
 
   const updateForm = <K extends keyof FieldCardForm>(field: K, value: FieldCardForm[K]) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -92,32 +134,127 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
     };
 
     setFieldCards((current) => [newCard, ...current]);
+    setSelectedCardId(newCard.id);
     setForm(blankForm);
   };
 
-  const markReviewed = (card: KbFieldCard) => {
-    if (card.isDemo) {
-      setReviewMessage('Demo cards show the review flow. Add your own field card to save review progress.');
+  const setCardProgress = (card: KbFieldCard, scoreHint?: number) => {
+    setFieldCards((current) => current.map((item) => (
+      item.id === card.id ? advanceKbCardProgress(item, scoreHint) : item
+    )));
+  };
+
+  const submitQuiz = () => {
+    if (!selectedCard) return;
+    const score = scoreQuiz(quizQuestions, quizAnswers);
+    const attempt: KbQuizAttempt = {
+      answers: quizAnswers,
+      score,
+      total: quizQuestions.length,
+      completedAt: new Date().toISOString()
+    };
+
+    setActivityProgress((current) => updateKbActivityProgress(current, selectedCard.id, 'quiz', { quizAttempt: attempt }));
+    setCardProgress(selectedCard, Math.max(1, Math.round((score / quizQuestions.length) * 5)));
+    setActivityStatus(`Quiz saved: ${score}/${quizQuestions.length}.`);
+  };
+
+  const submitTextActivity = async () => {
+    if (!selectedCard) return;
+    const answer = textAnswer.trim();
+    if (!answer) {
+      setActivityStatus('Write a short answer before asking for assessment.');
       return;
     }
 
-    setFieldCards((current) => current.map((item) => item.id === card.id ? scheduleNextKbReview(item) : item));
-    setReviewMessage(`${card.title} moved to the next review stage.`);
+    setActivityStatus('Assessing...');
+    const result = await assessKbResponseWithGroq({
+      kbTitle: selectedCard.title,
+      activity: activeActivity,
+      userAnswer: answer
+    });
+
+    setActivityProgress((current) => {
+      const currentCardProgress = current[selectedCard.id];
+      return updateKbActivityProgress(current, selectedCard.id, activeActivity, {
+        textResponse: answer,
+        assessments: {
+          ...(currentCardProgress?.assessments ?? {}),
+          [activeActivity]: result
+        }
+      });
+    });
+    setCardProgress(selectedCard, result.score);
+    setActivityStatus(`${result.source === 'groq' ? 'Groq' : 'Local'} assessment saved.`);
   };
+
+  const savedQuizAttempt = selectedProgress?.quizAttempt;
+  const assessment = selectedProgress?.assessments[activeActivity];
 
   return (
     <div>
-      <section className="card">
-        <h1>KB Learning Machine</h1>
-        <p>Turn KBs into recall, scenarios, ticket-note practice, and evidence.</p>
-        <div className="privacy-note">Use field cards for safe summaries only. Do not import raw KB content, passwords, tickets, hostnames, IPs, screenshots, or copied internal text.</div>
-        <div className="card-grid">
-          <Metric label="KB cards" value={metrics.kbCards} />
-          <Metric label="Reviews due" value={metrics.reviewsDue} />
-          <Metric label="Scenarios completed" value={metrics.scenariosCompleted} />
-          <Metric label="Evidence items" value={metrics.evidenceItems} />
+      <section className="card kb-session-card">
+        <div className="skill-card-header">
+          <div>
+            <h1>What are we learning today?</h1>
+            <p>Hi Josh. Today’s recommended topic is <strong>{recommendedCard?.title ?? 'your first KB field card'}</strong>.</p>
+          </div>
+          <span className="status-chip info">{recommendedCard?.relatedSkill ?? 'KB Learning'}</span>
+        </div>
+        <p className="page-help">Pick one short activity. The app will save progress locally and move the topic to its next review stage.</p>
+        <div className="status-button-row">
+          {(Object.keys(activityLabels) as KbLearningActivity[]).map((activity) => (
+            <button
+              key={activity}
+              type="button"
+              className={activeActivity === activity ? 'small-action active' : 'small-action'}
+              onClick={() => setActiveActivity(activity)}
+            >
+              {activityLabels[activity]}
+            </button>
+          ))}
+        </div>
+        <div className="metric-row">
+          <span className="status-chip info">{metrics.kbCards} KB cards</span>
+          <span className="status-chip warn">{metrics.reviewsDue} reviews due</span>
+          <span className="status-chip success">{metrics.scenariosCompleted} scenarios completed</span>
+          <span className="status-chip info">{metrics.evidenceItems} evidence items</span>
         </div>
       </section>
+
+      {selectedCard && (
+        <section className="card">
+          <div className="skill-card-header">
+            <div>
+              <h2>{selectedCard.title}</h2>
+              <p className="page-help">{selectedCard.whenToUse}</p>
+            </div>
+            <div className="metric-row">
+              {selectedCard.isDemo && <span className="status-chip info">Demo</span>}
+              <span className="status-chip warn">confidence: {selectedCard.confidence}</span>
+              <span className="status-chip success">stage {selectedCard.reviewStage}</span>
+            </div>
+          </div>
+          {activeActivity === 'quiz' ? (
+            <QuizActivity
+              answers={quizAnswers}
+              questions={quizQuestions}
+              savedAttempt={savedQuizAttempt}
+              onAnswer={(questionId, optionId) => setQuizAnswers((current) => ({ ...current, [questionId]: optionId }))}
+              onSubmit={submitQuiz}
+            />
+          ) : (
+            <TextActivity
+              activity={activeActivity}
+              assessment={assessment}
+              value={textAnswer}
+              onChange={setTextAnswer}
+              onSubmit={submitTextActivity}
+            />
+          )}
+          {activityStatus && <p className="health-muted">{activityStatus}</p>}
+        </section>
+      )}
 
       <section className="card">
         <h2>KB Map</h2>
@@ -145,42 +282,24 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
                 <span className="status-chip warn">{card.relatedSkill}</span>
                 <span className="status-chip success">stage {card.reviewStage}</span>
               </div>
-              <h4>First checks</h4>
-              <ul>
-                {card.firstChecks.map((check) => <li key={check}>{check}</li>)}
-              </ul>
-              <h4>Core steps</h4>
-              <ul>
-                {card.coreSteps.map((step) => <li key={step}>{step}</li>)}
-              </ul>
-              <p><strong>Common mistake:</strong> {card.commonMistake}</p>
-              <p><strong>Escalate if:</strong> {card.escalateIf}</p>
-              <p><strong>Next review:</strong> {card.nextReviewAt}</p>
+              <details className="kb-card-details">
+                <summary>Show field card details</summary>
+                <h4>Prerequisites</h4>
+                <p>{card.prerequisites}</p>
+                <h4>First checks</h4>
+                <ul>{card.firstChecks.map((check) => <li key={check}>{check}</li>)}</ul>
+                <h4>Core steps</h4>
+                <ul>{card.coreSteps.map((step) => <li key={step}>{step}</li>)}</ul>
+                <p><strong>Common mistake:</strong> {card.commonMistake}</p>
+                <p><strong>Escalate if:</strong> {card.escalateIf}</p>
+                <p><strong>Next review:</strong> {card.nextReviewAt.slice(0, 10)}</p>
+              </details>
+              <button type="button" className="small-action" onClick={() => setSelectedCardId(card.id)}>
+                Study this
+              </button>
             </article>
           ))}
         </div>
-      </section>
-
-      <section className="card">
-        <h2>Today's Reviews</h2>
-        {reviewMessage && <p className="health-muted">{reviewMessage}</p>}
-        {dueCards.length ? (
-          <div className="health-plan-grid">
-            {dueCards.slice(0, 4).map((card) => (
-              <article key={card.id} className="mini-card">
-                <div className="skill-card-header">
-                  <h3>{card.title}</h3>
-                  {card.isDemo && <span className="status-chip info">Demo</span>}
-                </div>
-                <p>Explain the KB from memory, then check the field card.</p>
-                <p><strong>Prompt:</strong> What would you check first, what would you do next, and when would you escalate?</p>
-                <button type="button" onClick={() => markReviewed(card)}>Mark reviewed</button>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <p>No KB reviews due today. Add a card to begin the review rhythm.</p>
-        )}
       </section>
 
       <section className="card">
@@ -255,13 +374,115 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
   );
 }
 
-function Metric({ label, value }: { label: string; value: number }) {
+function QuizActivity({
+  answers,
+  questions,
+  savedAttempt,
+  onAnswer,
+  onSubmit
+}: {
+  answers: Record<string, string>;
+  questions: ReturnType<typeof buildKbQuiz>;
+  savedAttempt?: KbQuizAttempt;
+  onAnswer: (questionId: string, optionId: string) => void;
+  onSubmit: () => void;
+}) {
+  const answeredCount = Object.keys(answers).length;
   return (
-    <article className="mini-card">
-      <h3>{value}</h3>
-      <p>{label}</p>
-    </article>
+    <div className="kb-activity-panel">
+      <div className="metric-row">
+        <span className="status-chip info">{answeredCount}/{questions.length} answered</span>
+        {savedAttempt && <span className="status-chip success">last score {savedAttempt.score}/{savedAttempt.total}</span>}
+      </div>
+      <div className="kb-quiz-list">
+        {questions.map((question) => (
+          <article key={question.id} className="mini-card">
+            <h3>{question.stem}</h3>
+            <div className="kb-quiz-options">
+              {question.options.map((option) => {
+                const selected = answers[question.id] === option.id;
+                const showCorrect = savedAttempt && option.id === question.correctOptionId;
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    className={selected ? 'small-action active' : 'small-action'}
+                    onClick={() => onAnswer(question.id, option.id)}
+                  >
+                    {option.text}
+                    {showCorrect ? ' (correct)' : ''}
+                  </button>
+                );
+              })}
+            </div>
+            {savedAttempt && <p className="health-muted">{question.explanation}</p>}
+          </article>
+        ))}
+      </div>
+      <button type="button" disabled={answeredCount < questions.length} onClick={onSubmit}>
+        Save quiz result
+      </button>
+    </div>
   );
+}
+
+function TextActivity({
+  activity,
+  assessment,
+  value,
+  onChange,
+  onSubmit
+}: {
+  activity: KbLearningActivity;
+  assessment?: KbAssessmentResult;
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+}) {
+  return (
+    <div className="kb-activity-panel">
+      <label className="inline-control">
+        {getTextPrompt(activity)}
+        <textarea value={value} onChange={(event) => onChange(event.target.value)} placeholder={getTextPlaceholder(activity)} />
+      </label>
+      <div className="metric-row">
+        <span className="status-chip info">{value.trim().split(/\s+/).filter(Boolean).length} words</span>
+        <span className={`status-chip ${assessment ? 'success' : 'warn'}`}>
+          {assessment ? `${assessment.source} score ${assessment.score}/5` : 'not assessed yet'}
+        </span>
+      </div>
+      <button type="button" onClick={onSubmit}>Assess and save</button>
+      {assessment && (
+        <div className="feedback-panel">
+          <h4>Assessment</h4>
+          <p>{assessment.summary}</p>
+          <p><strong>Tip:</strong> {assessment.tip}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function getRecommendedCard(cards: KbFieldCard[], dueCards: KbFieldCard[]) {
+  if (dueCards[0]) return dueCards[0];
+  const confidenceRank: Record<KbConfidence, number> = { low: 0, medium: 1, high: 2 };
+  return [...cards].sort((a, b) => (
+    confidenceRank[a.confidence] - confidenceRank[b.confidence] || a.reviewStage - b.reviewStage
+  ))[0];
+}
+
+function getTextPrompt(activity: KbLearningActivity) {
+  if (activity === 'recall') return 'Quick recall';
+  if (activity === 'practical') return 'Practical task';
+  if (activity === 'ticket-note') return 'Ticket note drill';
+  return 'Reflection';
+}
+
+function getTextPlaceholder(activity: KbLearningActivity) {
+  if (activity === 'recall') return 'Summarise what you remember before looking at the field card.';
+  if (activity === 'practical') return 'Describe the safe steps you would perform and what you would check first.';
+  if (activity === 'ticket-note') return 'Write a concise note: summary, checks, action, result, follow-up.';
+  return 'What did you understand, what still feels unclear, and what will you practise next?';
 }
 
 function splitLines(value: string) {

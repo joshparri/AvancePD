@@ -48,3 +48,43 @@ export type KbLearningMetrics = {
   scenariosCompleted: number;
   evidenceItems: number;
 };
+
+export type KbLearningActivity = 'quiz' | 'recall' | 'practical' | 'ticket-note' | 'reflect';
+
+export interface KbQuizOption {
+  id: string;
+  text: string;
+}
+
+export interface KbQuizQuestion {
+  id: string;
+  stem: string;
+  options: KbQuizOption[];
+  correctOptionId: string;
+  explanation: string;
+}
+
+export interface KbQuizAttempt {
+  answers: Record<string, string>;
+  score: number;
+  total: number;
+  completedAt: string;
+}
+
+export interface KbAssessmentResult {
+  score: number;
+  tip: string;
+  summary: string;
+  assessedAt: string;
+  source: 'groq' | 'local';
+}
+
+export interface KbCardActivityProgress {
+  quizAttempt?: KbQuizAttempt;
+  textResponses: Partial<Record<KbLearningActivity, string>>;
+  assessments: Partial<Record<KbLearningActivity, KbAssessmentResult>>;
+  completedActivities: KbLearningActivity[];
+  updatedAt: string;
+}
+
+export type KbActivityProgressMap = Record<string, KbCardActivityProgress>;
