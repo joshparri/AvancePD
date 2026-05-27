@@ -103,6 +103,7 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
     () => selectedCard ? getResourcesForKbCard(selectedCard) : [],
     [selectedCard]
   );
+  const topExternalResources = useMemo(() => externalResources.slice(0, 3), [externalResources]);
   const visibleCards = useMemo(
     () => filter === 'all' ? fieldCards : fieldCards.filter((card) => card.category === filter),
     [fieldCards, filter]
@@ -215,6 +216,7 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
         <div className="skill-card-header">
           <div>
             <h1>What are we learning today?</h1>
+            <p>Pick one MSP skill, practise it, and link it to helpful resources.</p>
             <p>Hi Josh. Today’s recommended topic is <strong>{recommendedCard?.title ?? 'your first KB field card'}</strong>.</p>
           </div>
           <span className="status-chip info">{recommendedCard?.relatedSkill ?? 'KB Learning'}</span>
@@ -238,6 +240,20 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
           <span className="status-chip success">{metrics.scenariosCompleted} scenarios completed</span>
           <span className="status-chip info">{metrics.evidenceItems} evidence items</span>
         </div>
+        {topExternalResources.length > 0 && (
+          <div className="mini-card" style={{ marginTop: '1rem' }}>
+            <h3>Recommended external resources</h3>
+            <p className="page-help">These links match the recommended KB topic and MSP skill.</p>
+            <ul>
+              {topExternalResources.map((resource) => (
+                <li key={resource.id} style={{ marginBottom: '0.5rem' }}>
+                  <a href={resource.url} target="_blank" rel="noreferrer">{resource.title}</a>
+                  <span className="status-chip info" style={{ marginLeft: '0.5rem' }}>{resource.provider}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </section>
 
       {selectedCard && (
