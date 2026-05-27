@@ -106,4 +106,6 @@
 - [ ] App 1: add Change Guardrail for risky work
 - [ ] App 1/App 2: add local privacy/safety linting for user-entered notes and evidence
 - [ ] Use the prompt packs to guide small UI improvements in dashboard visibility, follow-up triage, and PD progress flows
+- [ ] Add `docs/KB_LEARNING_GUIDE.md` to explain how the local Avance KB supports App 1 and App 2 without publishing private content
+- [ ] Update `docs/USER_GUIDE.md` with a KB workflow section
 - [ ] Keep AI prompt features aligned with local-first privacy and avoid overbuilding into a full PSA

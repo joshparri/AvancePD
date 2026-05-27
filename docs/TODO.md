@@ -11,7 +11,7 @@ This file exists so documentation readers can find the project status without le
 - Avoid references to private planning folders or untracked local source material.
 - Add screenshots or deployment notes only after the chosen deployment target is confirmed.
 - Use `VIBE_CODER_PROMPT_PACKS.md` and `LEARNING_MACHINE_TODO.md` as the source of truth for the next learning-machine build sequence.
-- Keep `docs/VIBE_CODER_PROMPT_PACKS.md` and `docs/LEARNING_MACHINE_TODO.md` in sync with the root TODO.
+- Keep `docs/VIBE_CODER_PROMPT_PACKS.md`, `docs/LEARNING_MACHINE_TODO.md`, and `docs/KB_LEARNING_GUIDE.md` in sync with the root TODO.
 
 ## Open Product Work
 

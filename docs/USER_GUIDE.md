@@ -32,6 +32,14 @@ This guide describes a simple Avance shift routine.
 3. Update evidence where useful.
 4. Use the Health & Outdoors shutdown prompt: close loops, note next actions, breathe, and let work stay at work.
 
+## Using the Avance KBs
+
+- The local KB folder at `docs/Avance KB_s` is reference-only.
+- Use it to identify the correct topic category for a captured issue, such as device enrollment, remote access, cloud identity, security policy, or printer/phone setup.
+- Mark work logs in App 1 with the related KB topic or skill area when it is learning-worthy.
+- In App 2, use the KB category to choose a matching scenario, skill card, or evidence pack item.
+- Keep the KB content local and generic in app docs; do not copy private or customer-specific material into public GitHub files.
+
 ## Privacy Reminder
 
 Keep client details, credentials, IPs, hostnames, copied tickets, screenshots, and private medical notes out of the app.

@@ -36,3 +36,6 @@ docs/integration/
 
 # Raw local prompt-pack exports and agent transcripts
 *prompt packs*.txt
+
+# Raw Avance KB exports stay local-only
+docs/Avance KB_s/
