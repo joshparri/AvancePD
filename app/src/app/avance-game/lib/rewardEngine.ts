@@ -18,6 +18,7 @@ export interface RewardState {
   nodeProgress: Record<string, number>;
   lastSessionRankPercentile: number;
   bossAttemptsToday: Record<string, string>;
+  mysteryMeter: number;
 }
 
 const STORAGE_KEY = 'avance_game_reward_state';
@@ -25,6 +26,7 @@ const LEGACY_KEY = 'avance:game-progress';
 const XP_PER_LEVEL = 500;
 const MAX_SHIELDS = 3;
 const BONUS_CHANCE = 0.15;
+const MYSTERY_METER_MAX = 5;
 
 const canUseStorage = () => typeof window !== 'undefined' && Boolean(window.localStorage);
 
@@ -50,6 +52,7 @@ const defaultState = (): RewardState => ({
   nodeProgress: {},
   lastSessionRankPercentile: 62,
   bossAttemptsToday: {},
+  mysteryMeter: 0,
 });
 
 const migrateLegacy = (): Partial<RewardState> | null => {
@@ -98,6 +101,7 @@ export const loadRewardState = (): RewardState => {
       nodeProgress: parsed.nodeProgress ?? {},
       unlockedBadges: parsed.unlockedBadges ?? [],
       bossAttemptsToday: parsed.bossAttemptsToday ?? {},
+      mysteryMeter: parsed.mysteryMeter ?? 0,
     };
   } catch {
     return defaultState();
@@ -109,29 +113,64 @@ export const saveRewardState = (state: RewardState): void => {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 };
 
-const rollBonus = (): BonusEvent | null => {
-  if (Math.random() >= BONUS_CHANCE) return null;
+export const rollBonus = (forceReward = false): BonusEvent | null => {
+  if (!forceReward && Math.random() >= BONUS_CHANCE) return null;
   const roll = Math.random();
   if (roll < 0.4) {
-    return { type: 'multiplier', value: 2, message: 'Perfect round! 2× XP bonus!' };
+    return { type: 'multiplier', value: 2, message: 'Mystery drop: 2x XP bonus.' };
   }
   if (roll < 0.75) {
-    return { type: 'shield', value: 1, message: 'Streak shield earned! 🛡' };
+    return { type: 'shield', value: 1, message: 'Mystery drop: streak shield earned.' };
   }
   return {
     type: 'rare_scenario',
     value: Math.floor(Math.random() * 6) + 1,
-    message: 'Rare scenario unlocked — bonus challenge awaits!',
+    message: 'Mystery drop: rare scenario bonus unlocked.',
   };
+};
+
+export const spinForBonus = (
+  state: RewardState
+): { newState: RewardState; bonusEvent: BonusEvent | null; xpGained: number } => {
+  const nextMeter = Math.min(MYSTERY_METER_MAX, state.mysteryMeter + 1);
+  const guaranteedDrop = nextMeter >= MYSTERY_METER_MAX;
+  const bonusEvent = rollBonus(guaranteedDrop);
+  const base = 8 + Math.floor(Math.random() * 8);
+  let xpGained = base;
+  let next: RewardState = {
+    ...state,
+    mysteryMeter: bonusEvent ? 0 : nextMeter,
+  };
+
+  if (bonusEvent?.type === 'multiplier') {
+    xpGained = base * bonusEvent.value;
+  }
+  if (bonusEvent?.type === 'shield') {
+    next = { ...next, streakShields: Math.min(MAX_SHIELDS, next.streakShields + bonusEvent.value) };
+  }
+
+  next = {
+    ...next,
+    xp: next.xp + xpGained,
+    level: levelFromXp(next.xp + xpGained),
+    totalSessionsCompleted: next.totalSessionsCompleted + 1,
+  };
+
+  return { newState: next, bonusEvent, xpGained };
 };
 
 export const addXP = (
   state: RewardState,
   amount: number
 ): { newState: RewardState; bonusEvent: BonusEvent | null; xpGained: number } => {
-  const bonusEvent = rollBonus();
+  const nextMeter = Math.min(MYSTERY_METER_MAX, state.mysteryMeter + 1);
+  const guaranteedDrop = nextMeter >= MYSTERY_METER_MAX;
+  const bonusEvent = rollBonus(guaranteedDrop);
   let xpGained = amount;
-  let next: RewardState = { ...state };
+  let next: RewardState = {
+    ...state,
+    mysteryMeter: bonusEvent ? 0 : nextMeter,
+  };
 
   if (bonusEvent?.type === 'multiplier') {
     xpGained = amount * bonusEvent.value;
@@ -153,6 +192,12 @@ export const addXP = (
 
   return { newState: next, bonusEvent, xpGained };
 };
+
+export const mysteryMeterProgress = (state: RewardState) => ({
+  current: state.mysteryMeter,
+  max: MYSTERY_METER_MAX,
+  percent: Math.round((state.mysteryMeter / MYSTERY_METER_MAX) * 100),
+});
 
 const todayKey = () => new Date().toISOString().slice(0, 10);
 

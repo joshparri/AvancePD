@@ -1,0 +1,2502 @@
+﻿ChatGPT
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * Pasted markdown(40).md
+File
+Lets use all this knowledge to improve the Avance apps
+
+
+https://avance-pd.vercel.app/
+
+
+https://avance-professional-development.vercel.app/ (i notice the name at the top of the tab is "create Next App" I want to change this to be something better like "Avance PD"
+
+
+Write 2 x prompt packs for both apps to improve both apps, use their actual live dashboards right now to see where you can upgrade or add features, ect
+
+
+Worked for 6 minutes
+I explored both apps to see what’s currently working and where there are gaps. Below are “prompt packs” – sets of specific, reusable prompts you could wire into each app’s AI coach to upgrade the user experience. Each prompt either surfaces latent information (e.g., summarising work logs) or nudges the user toward better habits (e.g., health breaks). Where relevant I’ve also suggested minor feature tweaks, like updating the document title.
+________________
+
+
+Avance Work Companion (avance‑pd.vercel.app)
+The current dashboard shows next shift info, billable hours and a “Getting started” checklist
+avance-pd.vercel.app
+. Deeper sections encourage healthy habits
+avance-pd.vercel.app
+, micro‑learning and quick capture of work logs
+avance-pd.vercel.app
+; there are open follow‑ups and recent work logs
+avance-pd.vercel.app
+, plus backup/export options
+avance-pd.vercel.app
+. Building on this, your AI assistant could offer:
+Prompt Idea
+	Purpose
+	Daily Briefing: “What’s on my schedule today? Summarise my next shift, any open follow‑ups, pending tasks and recent work logs so I know what to focus on.”
+	Helps users plan the day by consolidating shift times, outstanding reminders and recent tickets from the dashboard
+avance-pd.vercel.app
+.
+	Health Check: “Review my Healthy MSP Shift stats and tell me if I need water, an eye break or time outdoors. Suggest a quick reset if I’ve been at my desk too long.”
+	Leverages the health cards that track water, eye breaks and outdoor minutes
+avance-pd.vercel.app
+ to gently nudge better habits.
+	Repeated Issue Coach: “Look at my recent work logs and tell me if there are recurring problems. Propose a playbook or knowledge‑base entry so we fix things faster next time.”
+	Turns the repeated‑issue suggestions into actionable guidance, encouraging creation of new playbooks or knowledge notes
+avance-pd.vercel.app
+.
+	Work Log Summariser: “I just captured a work log. Summarise it into a concise ticket note, pull out the key actions and tag any skills or playbooks it relates to.”
+	Converts quick‑capture entries
+avance-pd.vercel.app
+ into well‑structured ticket notes, making follow‑up easier.
+	Micro‑Learning Booster: “Recommend a micro‑learning card or scenario that pairs well with my current tasks. Briefly explain why it’s relevant and how long it takes.”
+	Keeps upskilling in the flow of work, using the existing micro‑learning cards on the dashboard
+avance-pd.vercel.app
+.
+	Backup Reminder: “It’s been a while since my last backup. Remind me to export my data or push a copy to Supabase and explain why this matters.”
+	Echoes the Backup & export and Supabase sync sections
+avance-pd.vercel.app
+avance-pd.vercel.app
+, helping users protect their notes and progress.
+	Small feature tweaks
+* Update the page <title> to a meaningful name (e.g., “Avance Work Companion”) so users don’t see the default Next.js label in their browser tab.
+* Consider visual indicators for overdue follow‑ups and tasks; at the moment the “Open follow‑ups” list is easy to miss
+* avance-pd.vercel.app
+* .
+* Add quick‑add buttons for common log types (ticket note, client call, learning) so the Quick Capture form is faster to use.
+________________
+
+
+Avance Professional Development (avance‑professional‑development.vercel.app)
+This version has a richer dashboard: next shift, hours worked, pending tasks and recent logs, plus “PD Focus Today” summarising learning progress and a “Next Best Move” recommendation
+avance-professional-development.vercel.app
+. It also shows follow‑up tickets, recent logs and a clear list of pending tasks
+avance-professional-development.vercel.app
+. To make the most of these features, try prompts like:
+Prompt Idea
+	Purpose
+	PD Focus Overview: “Summarise my learning progress, hours worked this month and remaining targets. Highlight my next best move from the PD Focus area and explain why it’s important.”
+	Draws on the “Learning Progress,” “Hours This Month,” and “Next Best Move” cards
+avance-professional-development.vercel.app
+ to keep professional development aligned with workload.
+	Weekly Retrospective: “Review my recent work logs and pending tasks from the last week. What patterns do you notice? Suggest improvements and identify skills I should practise.”
+	Uses the recent work logs and pending tasks sections
+avance-professional-development.vercel.app
+ to drive reflection and continuous improvement.
+	Task Breakdown: “For each pending task, break it into smaller actionable steps. Estimate how long each step might take and flag any dependencies or risks.”
+	Transforms the high‑level pending tasks list into a manageable plan
+avance-professional-development.vercel.app
+.
+	Learning Cockpit Navigator: “Show me what’s in the Learning Cockpit that matches today’s client issues or the skills gaps you’ve spotted in my logs. Recommend one module to start next.”
+	Personalises micro‑learning suggestions using the Learning Cockpit description
+avance-professional-development.vercel.app
+ and log patterns.
+	Follow‑Up Triage: “Review my follow‑up area. For each ticket waiting on a client or third party, suggest a concise action step or template message to move it forward.”
+	Encourages proactive follow‑up based on the dedicated follow‑up section
+avance-professional-development.vercel.app
+.
+	Shift‑Health Monitor: “Based on my Healthy MSP Shift stats, tell me whether I’m on track with water intake, eye breaks and outdoor minutes. Recommend a simple exercise or mindfulness technique if I’m falling behind.”
+	Extends the healthy shift tracker
+avance-professional-development.vercel.app
+ into an AI‑driven wellbeing coach.
+	Improved Title: Update the <title> tag from “Create Next App” to something recognisable like “Avance PD” so the browser tab reflects the product
+avance-professional-development.vercel.app
+.
+	
+
+	Additional feature ideas
+   * Add a weekly calendar view of shifts and training sessions to complement the numeric “Hours This Month” card.
+   * Provide a way to link learning modules to specific tasks or logs, so knowledge transfer is explicit.
+   * Integrate simple analytics (e.g., hours spent per category, skills practised) to give users a sense of progress over time.
+________________
+
+
+These prompt packs and small tweaks should help users get more value out of the Avance dashboards, turning the static widgets into a dynamic coaching experience while keeping the interface tidy and purposeful.
+
+
+Sources
+
+
+_Avance Google Meet Chats.docx
+Document
+Avance Google Meet Chats Spreadsheet Living App Backlog (1)Sheet1
+Ok but where is the prompt pack? You should have 
+
+
+App 1 - avance‑pd.vercel.app
+
+
+Prompt 1 for codex vibe coder in VScode
+
+
+Prompt 2
+
+
+Ect
+
+
+App 2
+
+
+Prompt 1
+
+
+Prompt 2
+
+
+Promp 8
+
+
+Ect
+
+
+
+
+Worked for 50 seconds
+Here’s a more concrete “prompt pack” for each app, laid out with explicit, numbered prompts. I’ve started each pack with a coder‑focused prompt for implementing changes in VS Code, followed by operational prompts that improve day‑to‑day use of the apps.
+________________
+
+
+App 1 – avance‑pd.vercel.app (Avance Work Companion)
+   1. Codex (VS Code) Prompt – Rename and Improve Dashboard Title
+“Open the Next.js project for Avance Work Companion. In the _app.tsx or page component, update the <title> tag from its placeholder to Avance Work Companion and ensure it shows in the browser tab. Then commit and push these changes.”
+Why: The current dashboard already shows shift details and invoice cycle
+   2. avance-pd.vercel.app
+   3. , but the tab title should reflect the brand.
+   4. Daily Briefing Prompt
+“Look at my next shift info, invoice cycle, open follow‑ups and recent work logs on the dashboard
+   5. avance-pd.vercel.app
+   6. avance-pd.vercel.app
+   7. . Summarise what I need to focus on today and flag any overdue items.”
+   8. Health Check Prompt
+“Review the Healthy MSP Shift section for water intake, outdoor time and eye‑break stats
+   9. avance-pd.vercel.app
+   10. . Suggest a quick reset or break if any metric is low, and encourage sustainable habits.”
+   11. Repeat‑Issue Coach Prompt
+“Scan my recent work logs and repeated issue suggestions
+   12. avance-pd.vercel.app
+   13. . Identify common problems and draft a short playbook or knowledge note I could save for future reference.”
+   14. Micro‑Learning Booster Prompt
+“From the ‘Today’s Tiny Practice’ cards
+   15. avance-pd.vercel.app
+   16. , recommend the most relevant scenario or micro‑learning card based on my current client tasks. Explain how it will help me improve.”
+   17. Backup Reminder Prompt
+“Check when I last exported a backup or synced to Supabase
+   18. avance-pd.vercel.app
+   19. . If it’s been more than a week, remind me to export my data and explain how to do it safely.”
+________________
+
+
+App 2 – avance‑professional‑development.vercel.app (Avance PD)
+      1. Codex (VS Code) Prompt – Fix Page Title and Branding
+“Open the Avance PD Next.js project. Change the document title from Create Next App to Avance PD. Adjust any references so the app header reads ‘Avance PD’ instead of the generic label.”
+Why: The current tab shows “Create Next App” despite the dashboard having its own branding
+      2. avance-professional-development.vercel.app
+      3. .
+      4. PD Focus Overview Prompt
+“Summarise my learning progress, hours logged this month, and pending tasks. Highlight the ‘Next Best Move’ from the PD Focus section
+      5. avance-professional-development.vercel.app
+      6.  and explain why it’s the priority.”
+      7. Weekly Retrospective Prompt
+“Review my recent work logs and pending tasks
+      8. avance-professional-development.vercel.app
+      9. . Identify patterns or bottlenecks, suggest areas for improvement, and recommend one skill or scenario to practise.”
+      10. Task Breakdown Prompt
+“For each pending task in my dashboard, break it into smaller steps with estimated durations
+      11. avance-professional-development.vercel.app
+      12. . Highlight any dependencies or risks.”
+      13. Follow‑Up Triage Prompt
+“Examine the follow‑up area
+      14. avance-professional-development.vercel.app
+      15. . For each ticket waiting on a client or third party, draft a concise action or follow‑up message to move it forward.”
+      16. Learning Cockpit Navigator Prompt
+“Using the Learning Cockpit info on the dashboard
+      17. avance-professional-development.vercel.app
+      18. , suggest a module that aligns with my current tasks or skill gaps. Briefly describe why it’s a good fit.”
+      19. Shift Health Monitor Prompt
+“From the Healthy MSP Shift stats
+      20. avance-professional-development.vercel.app
+      21. , tell me whether I’m on track with water check‑ins, outdoor minutes and eye breaks. If I’m behind, propose a short exercise or mindfulness activity.”
+      22. Progress Analytics Prompt
+“Generate a simple report showing hours worked, tasks completed and skills practised over the past month. Use charts or bullet points to make trends obvious.”
+These prompts provide a structured way for coders and AI assistants to enhance each app while keeping daily operations efficient and user‑focused.
+
+
+Sources
+
+
+The level of detail on your codex prompts is seriously lacking 
+
+
+Prompt 1 should be way longer and more detailed
+
+
+Same with all the prompts
+
+
+You need to mention the actual stack, where it fits in the app, the context so the codex or trae or windsurf vibe coder doesn't go off the rails
+
+
+Thought for 15s
+You’re right. I undershot it. A useful vibe-coding prompt pack needs to constrain the agent, name the stack, explain the product intent, name the exact app area, define success criteria, and warn against overbuilding.
+Below is a much stronger version.
+This uses what we’ve learned from the Avance chat analysis: the apps should help turn messy operational chat/work into structured action, ticket notes, follow-ups, learning, evidence, and healthy sustainable MSP work. The uploaded Avance Google Meet summary shows recurring patterns around Ironscales, Halo, SentinelOne, laptop setups, follow-ups, invoicing, change management, and hidden work that should become structured app data.  It also builds from the earlier analysis that chat is acting as an informal operations system: communication, ticket context, evidence locker, task tracker, client memory, and escalation trail. 
+________________
+App 1 — avance-pd.vercel.app
+Prompt 1 — Codex / Trae / Windsurf: Rename, stabilise, and clarify the app shell
+You are working on the Avance Work Companion app.
+
+
+Context:
+This is a lightweight internal MSP work-companion app for Josh at Avance Technology. It is not a full PSA, not HaloPSA, not a replacement for tickets, and not a client-data system. It should help capture local work logs, follow-ups, learning notes, task reminders, shift context, and healthy-work habits.
+
+
+Current live app:
+https://avance-pd.vercel.app/
+
+
+Observed live dashboard:
+- Sidebar app name: “Avance Work Companion”
+- Main page: Dashboard
+- Sections include:
+ - Next shift
+ - Invoice cycle
+ - Getting started
+ - Healthy MSP Shift
+ - Today’s tiny practice
+ - Quick capture
+ - Open follow-ups
+ - Recent work logs
+ - Repeated issue suggestions
+ - Backup & export
+ - Optional Supabase sync
+- App appears to use browser/local state with backup JSON and optional Supabase sync.
+- The UI already has a clean card-based layout with sidebar navigation.
+
+
+Likely stack:
+- Next.js / React
+- TypeScript if present
+- Tailwind CSS or utility-style classes
+- LocalStorage or browser storage
+- Optional Supabase sync
+- Vercel deployment
+
+
+Your task:
+Improve the app shell and identity without changing the core data model unnecessarily.
+
+
+Required changes:
+1. Set the browser tab title to:
+  “Avance Work Companion”
+2. Add or update metadata so the app has:
+  - title: “Avance Work Companion”
+  - description: “Local-first work companion for Avance shifts, tasks, follow-ups, work logs, and professional development.”
+3. Ensure the header, sidebar, and dashboard use consistent naming:
+  - Primary product name: “Avance Work Companion”
+  - Short name where space is tight: “Work Companion”
+4. Add a small subtitle under the dashboard title:
+  “Capture work, follow up clearly, and keep the shift sustainable.”
+5. Do not rename the product to “Avance PD” in this app. That name belongs to the second app.
+6. Do not add authentication.
+7. Do not add external APIs.
+8. Do not pull real HaloPSA, client, email, Google Chat, or ticket data.
+9. Do not store client secrets, credentials, or private client details.
+
+
+Implementation requirements:
+- Find the correct Next.js metadata location.
+- If the app uses the App Router, update `src/app/layout.tsx` or equivalent metadata export.
+- If the app uses the Pages Router, update `_document`, `_app`, or page-level `Head` usage.
+- Keep changes minimal and production safe.
+- Preserve existing styles and layout.
+- Make sure `npm run build` passes.
+- Do not refactor unrelated components.
+
+
+Acceptance criteria:
+- Browser tab no longer says “Create Next App”.
+- App title is consistent.
+- Dashboard subtitle is visible and helpful.
+- Build passes.
+- No existing dashboard sections disappear.
+- No localStorage or backup/export behaviour breaks.
+
+
+After implementation:
+- Summarise changed files.
+- Explain exactly how you verified it.
+- Mention any assumptions.
+Prompt 2 — Codex / Trae / Windsurf: Upgrade Quick Capture into a structured “ticket note builder”
+You are improving the Quick Capture section of the Avance Work Companion app.
+
+
+Context:
+The app currently has a Quick Capture area with buttons such as:
+- Follow-up
+- Learned today
+- Shift note
+- Communication note
+- work log
+- task
+- learning
+
+
+It also has fields like:
+- Client
+- Title
+- Details
+- Tags
+- Capture work log button
+
+
+The purpose of this app is to help Josh turn messy MSP work into structured notes without storing sensitive client data. The Avance chat history shows that lots of operational work happens in informal chat: ticket decisions, follow-ups, technical findings, reminders, invoicing notes, and change-management warnings. The app should help capture that into a clean local record.
+
+
+Important constraints:
+- This is local-first.
+- Do not connect to HaloPSA.
+- Do not scrape emails or Google Chat.
+- Do not add backend auth.
+- Do not store private client data by default.
+- Avoid fields that encourage storing passwords, credentials, private health data, or client secrets.
+
+
+Your task:
+Upgrade Quick Capture into a safer, more useful structured note builder.
+
+
+Required UI changes:
+1. Add a “Note quality” helper panel beside or below the capture form.
+2. The panel should show a simple checklist:
+  - Outcome clear?
+  - Next action clear?
+  - Ticket/client reference generic?
+  - No passwords or secrets?
+  - Follow-up needed?
+3. Add a “Convert to ticket note” button.
+4. When clicked, generate a formatted text block from the form fields.
+
+
+Generated ticket note format:
+- Summary:
+- What happened:
+- Action taken:
+- Current status:
+- Follow-up required:
+- Tags:
+
+
+If some fields are missing, use plain placeholders like:
+“Not captured yet.”
+
+
+Add a copy-to-clipboard button for the generated note.
+
+
+Behaviour:
+- The generated note should not overwrite the user’s original entry.
+- It should be visible in a preview area.
+- It should work offline.
+- It should not require AI or external API calls.
+- It should not send data anywhere.
+
+
+Data model:
+- If existing work log entries already have fields for title/details/tags/type/client, reuse those.
+- If a new field is needed, keep it minimal.
+- Avoid schema churn unless necessary.
+- Preserve import/export compatibility if possible.
+- If backup JSON shape changes, add safe migration/default handling.
+
+
+Design:
+- Match the current card-based dashboard style.
+- Keep it clean and low-cognitive-load.
+- Use short labels.
+- Avoid huge forms.
+- Mobile should remain usable.
+
+
+Acceptance criteria:
+- User can enter a work log.
+- User can generate a clean ticket-note preview.
+- User can copy the generated note.
+- Existing capture still works.
+- Backup/export still works.
+- Build passes.
+Prompt 3 — Codex / Trae / Windsurf: Add “Follow-up Triage” without becoming a PSA
+You are improving the Open Follow-ups section of Avance Work Companion.
+
+
+Context:
+The dashboard currently shows “Open follow-ups” with demo items like:
+“Demo follow-up: write a clear ticket note — due 2026-05-08”
+
+
+The Avance chat history shows recurring follow-up patterns:
+- waiting on clients
+- waiting on Andrew/Andy
+- waiting on James
+- tickets awaiting invoice
+- hardware setup needing pickup
+- client has to confirm next step
+- third-party vendor needs to respond
+- internal change needs approval
+
+
+This app should help track follow-ups locally. It must not become HaloPSA. It must not sync real ticket data unless the user manually enters it.
+
+
+Your task:
+Add a lightweight Follow-up Triage panel.
+
+
+Required features:
+1. Add a follow-up status field:
+  - Waiting on client
+  - Waiting on Avance
+  - Waiting on vendor
+  - Waiting on invoice
+  - Waiting on user action
+  - Done
+2. Add a due date field.
+3. Add a “next nudge” field.
+4. Add a priority:
+  - low
+  - medium
+  - high
+5. Add a compact dashboard summary:
+  - Due today
+  - Overdue
+  - Waiting on others
+  - Waiting on me
+6. Add a “Generate follow-up wording” button.
+
+
+Generated wording format:
+“Hi [name/client], just following up on [generic issue/ticket reference]. Could you please confirm [next step]? Thanks.”
+
+
+Safety constraints:
+- Do not require real client name.
+- Encourage generic ticket references.
+- Do not store emails, phone numbers, credentials, private addresses, or sensitive client details.
+- Add helper text:
+ “Keep this generic. Use Halo for official client records.”
+
+
+Data model:
+- Store follow-ups locally.
+- Reuse existing localStorage/data store patterns.
+- Preserve backup/export behaviour.
+- Add safe defaults for old data.
+
+
+UI:
+- Add the triage panel either inside the existing Follow-ups page or as an enhanced section on the dashboard.
+- Keep the dashboard summary compact.
+- Do not overload the dashboard with a huge table.
+
+
+Acceptance criteria:
+- User can create a follow-up.
+- User can assign waiting status and due date.
+- User can see overdue/due counts.
+- User can generate simple follow-up wording.
+- Existing demo follow-ups still render.
+- Build passes.
+Prompt 4 — Codex / Trae / Windsurf: Build “Repeated Issue → Playbook Draft”
+You are improving the Repeated Issue Suggestions area in Avance Work Companion.
+
+
+Context:
+The dashboard already shows repeated issue suggestions, for example:
+“demo ticket — Seen 2 times in local work logs. Consider turning this into a generic playbook or knowledge note.”
+
+
+The Avance work context includes recurring MSP issue types:
+- Outlook not updating
+- Wi-Fi slow in one area
+- MFA/authenticator problems
+- SentinelOne causing high CPU
+- OneDrive sync confusion
+- shared drive permissions
+- printer offline after updates
+- Halo mailbox/reply workflow confusion
+- phishing mailbox / Report Phishing setup
+- laptop setup and onboarding steps
+
+
+Your task:
+Turn repeated issues into a lightweight playbook draft workflow.
+
+
+Required features:
+1. When a repeated issue is detected, show a button:
+  “Draft playbook”
+2. Draft playbook should prefill:
+  - Title
+  - When to use
+  - Symptoms
+  - First checks
+  - Safe next steps
+  - Escalate when
+  - Related tags
+3. Use local work log titles/details/tags to populate what is possible.
+4. Do not use AI or external APIs.
+5. Allow user to edit the draft before saving.
+6. Save the draft into the existing Knowledge or Playbooks area, depending on current app structure.
+
+
+Example playbook format:
+Title: Outlook not updating
+When to use: User reports Outlook is not receiving or sending mail.
+Symptoms:
+- Mailbox appears stale
+- Webmail may work while desktop app fails
+First checks:
+- Confirm internet
+- Confirm webmail works
+- Check account sign-in
+- Check Outlook profile
+Safe next steps:
+- Restart Outlook
+- Check sync status
+- Test webmail
+Escalate when:
+- Tenant-wide issue
+- Authentication loop
+- Licensing problem
+- Data loss risk
+
+
+Constraints:
+- Do not create complex AI features.
+- Do not add new pages unless needed.
+- Do not break existing Playbooks/Knowledge nav items.
+- Do not store sensitive client data.
+- Keep content generic.
+
+
+Acceptance criteria:
+- Repeated issue card can become editable playbook draft.
+- Draft can be saved.
+- Saved draft appears in existing playbook/knowledge area.
+- Existing logs still work.
+- Build passes.
+Prompt 5 — Codex / Trae / Windsurf: Improve Healthy MSP Shift into an actual rhythm coach
+You are improving the Healthy MSP Shift section.
+
+
+Context:
+The app already has a Healthy MSP Shift area with cards for:
+- Next health action
+- Water
+- Outdoor time
+- Last eye break
+- urgent ticket mode
+- 2-minute reset
+- Health & Outdoors
+
+
+This is important because MSP work can become high-pressure, reactive, screen-heavy, and cognitively draining. The aim is not wellness fluff. The aim is to keep Josh steady, sustainable, and useful during shifts.
+
+
+Your task:
+Make Healthy MSP Shift more actionable.
+
+
+Required features:
+1. Add a “current mode” selector:
+  - normal shift
+  - urgent ticket mode
+  - admin catch-up
+  - learning block
+  - off shift
+2. Change recommendations based on mode.
+3. Add simple suggested actions:
+  normal shift:
+  - drink water
+  - check posture
+  - capture one note
+  urgent ticket mode:
+  - slow breath
+  - write the next concrete step
+  - avoid changing major systems without approval
+  admin catch-up:
+  - process follow-ups
+  - update notes
+  - export backup if due
+  learning block:
+  - choose one micro-learning card
+  - write one learned-today note
+  off shift:
+  - stop logging unless urgent
+  - transition away from work
+4. Add a “2-minute reset done” action that records a timestamp.
+5. Show “last reset” time.
+6. Keep all data local.
+
+
+Important behavioural guidance:
+- Avoid guilt language.
+- Avoid over-optimisation.
+- Keep suggestions short.
+- Do not add medical claims.
+- Do not create health analytics beyond simple check-ins.
+
+
+Acceptance criteria:
+- Mode selector works.
+- Recommendations update by mode.
+- Reset timestamp saves locally.
+- Dashboard remains clean.
+- Build passes.
+Prompt 6 — Codex / Trae / Windsurf: Add “Change Management Guardrail” for risky work
+You are adding a lightweight change-management guardrail to Avance Work Companion.
+
+
+Context:
+The Avance chat history shows that major technical changes can create risk if done too quickly. A key example was the reminder to practise change management and ask before making fundamental changes, such as major Ironscales setup or security configuration changes.
+
+
+The app should help Josh pause before risky actions. It should not block work. It should act as a quick checklist.
+
+
+Your task:
+Add a “Change Guardrail” quick tool.
+
+
+Where it fits:
+- Add it under Quick Tools or Command Center.
+- Optionally surface it on the dashboard when a work log tag includes:
+ security
+ m365
+ ironscales
+ sentinelone
+ dns
+ firewall
+ migration
+ user setup
+ tenant
+ backup
+ deletion
+
+
+Required checklist:
+- Is there an existing ticket?
+- Is the client impact understood?
+- Is this reversible?
+- Has approval been given?
+- Have I captured a before-state?
+- Do I know the rollback step?
+- Should Andrew/James be asked first?
+
+
+Output:
+Generate a short change note:
+- Proposed change:
+- Reason:
+- Risk:
+- Approval needed:
+- Rollback:
+- Evidence captured:
+
+
+Constraints:
+- No external API.
+- No real Halo integration.
+- No client data required.
+- Keep it simple and local.
+- This is a thinking tool, not a compliance system.
+
+
+Acceptance criteria:
+- User can open Change Guardrail.
+- User can tick checklist items.
+- App generates a simple change note.
+- User can copy the note.
+- Build passes.
+________________
+
+
+________________
+App 2 — avance-professional-development.vercel.app
+Prompt 1 — Codex / Trae / Windsurf: Fix browser title, clarify app purpose, and separate it from App 1
+You are working on the Avance Professional Development app.
+
+
+Current live app:
+https://avance-professional-development.vercel.app/
+
+
+Observed issue:
+The browser tab title currently says:
+“Create Next App”
+
+
+This needs to be fixed.
+
+
+Important product distinction:
+This app is not the same as avance-pd.vercel.app.
+This app is more focused on professional development, learning progress, skill growth, scenarios, evidence packs, and readiness.
+The other app is more of a work companion.
+This app should be branded as “Avance PD”.
+
+
+Likely stack:
+- Next.js / React
+- TypeScript if present
+- Tailwind or utility CSS
+- Vercel deployment
+- Local app state unless a backend already exists
+
+
+Current live dashboard includes:
+- Avance Companion header
+- Dashboard nav
+- Shifts
+- Work Logs
+- MSP Skills
+- MSP Scenarios
+- MSP Quiz
+- Learning Cockpit
+- Tool Primers
+- Ticket Notes
+- Evidence Pack
+- Health & Outdoors
+- Dashboard cards:
+ - Next Shift
+ - Hours This Month
+ - Pending Tasks
+ - Recent Logs
+ - PD Focus Today
+ - Healthy MSP Shift
+ - Follow-Up Area
+ - Recent Work Logs
+ - Pending Tasks
+
+
+Your task:
+Fix the product metadata and sharpen the app’s identity.
+
+
+Required changes:
+1. Change browser tab title to:
+  “Avance PD”
+2. Add metadata description:
+  “Professional development cockpit for MSP skills, scenarios, ticket notes, learning evidence, and sustainable work habits.”
+3. Update visible product naming:
+  - Header should say “Avance PD”
+  - Secondary subtitle should say:
+    “MSP learning, evidence, and skill growth.”
+4. Keep “Avance Work Companion” wording out of this app unless it appears as a comparison or migration note.
+5. Do not remove existing dashboard sections.
+6. Do not add auth.
+7. Do not connect to HaloPSA, Gmail, Google Chat, or Drive.
+8. Do not store real client secrets or private customer data.
+
+
+Implementation notes:
+- If using Next.js App Router, update metadata in `layout.tsx`.
+- If using Pages Router, update `Head`.
+- Search the codebase for “Create Next App”.
+- Search for generic names that should become “Avance PD”.
+- Keep the implementation minimal and safe.
+
+
+Acceptance criteria:
+- Browser tab says “Avance PD”.
+- Header branding is consistent.
+- Build passes.
+- No existing navigation item disappears.
+- Existing local data still works.
+Prompt 2 — Codex / Trae / Windsurf: Upgrade PD Focus Today into a proper Next Best Action engine
+You are improving the “PD Focus Today” section in Avance PD.
+
+
+Context:
+The current dashboard has a “PD Focus Today” card with:
+- Learning Progress
+- Activities completed
+- Minutes logged
+- Next Best Move
+- A scenario suggestion
+- Learning Cockpit link
+
+
+The app should help Josh grow from L1 MSP support into stronger L1/L2 capability by connecting daily work to learning. It should not just show static demo data.
+
+
+Relevant Avance work patterns:
+- MFA/authenticator issues
+- Report Phishing setup
+- Ironscales configuration
+- SentinelOne performance troubleshooting
+- OneDrive/Outlook setup
+- laptop onboarding
+- Halo ticket workflow confusion
+- DNS / website handover issues
+- follow-ups waiting on clients or invoicing
+- change management reminders
+
+
+Your task:
+Create a simple local “Next Best Action” engine for the PD dashboard.
+
+
+Required logic:
+The app should recommend one next action based on available local data:
+1. If there are overdue tasks:
+  recommend the most urgent overdue task.
+2. Else if there are follow-ups due:
+  recommend follow-up triage.
+3. Else if there are recent repeated work log tags:
+  recommend a matching skill/scenario.
+4. Else if no learning has been logged today:
+  recommend a micro-learning activity.
+5. Else:
+  recommend a reflection note or evidence-pack update.
+
+
+Required UI:
+- Add a compact “Why this?” explanation under Next Best Move.
+- Add estimated time.
+- Add action type:
+ - task
+ - scenario
+ - learning
+ - follow-up
+ - evidence
+ - reflection
+- Add a button:
+ “Start next action”
+
+
+Constraints:
+- No external AI call.
+- No database migration unless already supported.
+- Use current local data structures.
+- Keep logic simple and readable.
+- Do not invent complex scoring.
+
+
+Acceptance criteria:
+- Next Best Move changes based on local data.
+- Explanation is visible.
+- It never shows blank.
+- It handles empty/demo data.
+- Build passes.
+Prompt 3 — Codex / Trae / Windsurf: Add scenario-to-ticket-note practice flow
+You are improving the MSP Scenarios and Ticket Notes learning flow in Avance PD.
+
+
+Context:
+The app has navigation items for:
+- MSP Scenarios
+- MSP Quiz
+- Ticket Notes
+- Learning Cockpit
+- Evidence Pack
+
+
+The Avance work context shows that a major skill area is writing clear ticket notes and turning messy troubleshooting into structured evidence. Examples include:
+- laptop setup completed
+- SentinelOne suspected high CPU
+- Outlook profile or Gmail account setup
+- Halo email workflow issue
+- Ironscales integration completed
+- follow-up waiting on invoice
+- client has been advised to contact Andrew
+
+
+Your task:
+Create a scenario practice flow that ends with a ticket note.
+
+
+Required flow:
+1. User opens an MSP scenario.
+2. Scenario shows:
+  - client-safe scenario title
+  - context
+  - symptoms
+  - constraints
+  - first checks
+3. User writes:
+  - what they would check first
+  - what they would say to the client
+  - final ticket note
+4. App provides a local rubric checklist, not AI:
+  - Clear summary
+  - Action taken
+  - Current status
+  - Follow-up required
+  - No sensitive data
+  - Escalation noted if needed
+5. App gives simple feedback based on missing fields.
+6. User can save the completed practice as evidence.
+
+
+Scenario examples to include:
+- Outlook not sending or receiving on one workstation
+- SentinelOne causing high CPU on a slow laptop
+- Report Phishing mailbox was accidentally created as licensed user instead of shared mailbox
+- New laptop setup requires Office, OneDrive and Outlook
+- Halo ticket cannot send email because wrong mailbox workflow is selected
+- Client waiting on hardware quote or invoice
+
+
+Constraints:
+- Use static seed scenarios.
+- No external APIs.
+- No real client names unless already demo/generic.
+- No complex gamification.
+- Keep it professional and simple.
+
+
+Acceptance criteria:
+- At least 6 scenarios exist.
+- User can complete a scenario.
+- User gets rubric-based feedback.
+- Completed scenario can be saved to Evidence Pack.
+- Build passes.
+Prompt 4 — Codex / Trae / Windsurf: Build Evidence Pack export for manager-safe progress
+You are improving the Evidence Pack section in Avance PD.
+
+
+Context:
+The app is meant to help Josh show growth and readiness through evidence, not vague self-reporting. The dashboard already includes work logs, pending tasks, learning progress, scenarios, quizzes, ticket notes and PD focus.
+
+
+The Evidence Pack should create a manager-safe summary. It must not expose private client data, passwords, personal health notes, or sensitive details.
+
+
+Your task:
+Build or improve an Evidence Pack export.
+
+
+Required output:
+A Markdown-style summary that can be copied/downloaded.
+
+
+Sections:
+1. Date range
+2. Summary of learning activity
+3. Skills practised
+4. Scenarios completed
+5. Ticket note quality examples
+6. Work patterns noticed
+7. Follow-ups managed
+8. Areas to keep improving
+9. Next development goals
+
+
+Safety rules:
+- Redact or avoid client names by default.
+- Use generic labels like “client”, “ticket”, “workstation”, “mailbox”.
+- Never include credentials, emails, phone numbers, private health notes, or exact client-sensitive details.
+- Add a warning before export:
+ “Review before sharing. Remove client-specific details.”
+
+
+Implementation:
+- Use existing local state.
+- If no data exists, show a useful empty state.
+- Add a “Copy evidence pack” button.
+- Add a “Download .md” button if easy and already consistent with the app.
+- Do not introduce a backend.
+- Do not add login.
+
+
+Acceptance criteria:
+- Evidence Pack can be generated.
+- Copy works.
+- Empty state works.
+- Sensitive-data warning appears.
+- Build passes.
+Prompt 5 — Codex / Trae / Windsurf: Add skill map for MSP growth
+You are improving the MSP Skills section in Avance PD.
+
+
+Context:
+The app should help Josh grow in practical MSP skills. It should connect actual work patterns to skill categories.
+
+
+Relevant skill areas from Avance context:
+- Microsoft 365 basics
+- MFA/authenticator support
+- Outlook profile troubleshooting
+- OneDrive sync
+- Halo ticketing and notes
+- Datto RMM basics
+- SentinelOne basics
+- Ironscales / phishing protection
+- Report Phishing mailbox setup
+- laptop setup/onboarding
+- printer troubleshooting
+- DNS/domain basics
+- change management
+- client communication
+- follow-up discipline
+- invoicing awareness
+
+
+Your task:
+Create a structured MSP skill map.
+
+
+Required UI:
+- Show skill categories as cards.
+- Each card has:
+ - skill name
+ - confidence level
+ - evidence count
+ - next recommended practice
+ - related scenarios
+- Confidence levels:
+ - new
+ - practising
+ - reliable with support
+ - independent
+ - can teach
+- Allow manual confidence update.
+- Link skill cards to related scenarios and evidence entries.
+
+
+Constraints:
+- Do not use AI.
+- Do not infer too aggressively.
+- Keep calculations explainable.
+- Use local state.
+- Avoid bloated dashboards.
+
+
+Acceptance criteria:
+- Skill map displays.
+- User can update confidence.
+- Evidence count appears.
+- Related scenarios link correctly.
+- Build passes.
+Prompt 6 — Codex / Trae / Windsurf: Improve Follow-Up Area into operational discipline training
+You are improving the Follow-Up Area in Avance PD.
+
+
+Context:
+The current Follow-Up Area says:
+“Track tickets waiting on a client or third party. Store only the ticket ID and a generic action reminder; no client names, email addresses, or PSA data are pulled in.”
+
+
+This is excellent and should be preserved.
+
+
+The Avance chat context shows follow-ups often involve:
+- waiting on client response
+- waiting on invoice
+- waiting on Andrew/James
+- client hardware pickup
+- vendor/web developer response
+- confirming whether client wants further investigation
+- ticket awaiting closure
+
+
+Your task:
+Enhance Follow-Up Area while preserving the privacy-first design.
+
+
+Required features:
+1. Add follow-up categories:
+  - client response
+  - internal approval
+  - vendor/third party
+  - invoice/admin
+  - hardware pickup
+  - investigation decision
+  - close/check later
+2. Add next-action templates for each category.
+3. Add due date and reminder label.
+4. Add a “stale follow-up” indicator if overdue.
+5. Add a “what to do next” helper.
+
+
+Example templates:
+client response:
+“Send polite follow-up asking for confirmation.”
+internal approval:
+“Ask senior tech/manager before proceeding.”
+invoice/admin:
+“Confirm work is complete and mark awaiting invoice.”
+hardware pickup:
+“Confirm device ready and pickup/delivery arranged.”
+
+
+Constraints:
+- Do not store private client contact details.
+- Do not connect to HaloPSA.
+- Keep ticket references generic.
+- Keep UI compact.
+
+
+Acceptance criteria:
+- Follow-up can be created with category.
+- Template appears.
+- Overdue state is visible.
+- Empty state still works.
+- Build passes.
+Prompt 7 — Codex / Trae / Windsurf: Add “communication practice” for client-safe wording
+You are adding a communication practice feature to Avance PD.
+
+
+Context:
+Josh is learning MSP support communication. The app should help practise calm, concise, professional wording for:
+- client updates
+- escalation notes
+- asking a senior tech before making a risky change
+- explaining delays
+- follow-up messages
+- closing the loop
+
+
+This should support growth without sending real emails.
+
+
+Your task:
+Create a Communication Practice page or section.
+
+
+Required practice types:
+1. Client update
+2. Internal escalation
+3. Change approval request
+4. Follow-up nudge
+5. Ticket closure summary
+6. “I’m not sure yet, but I’m investigating” message
+
+
+Each practice should include:
+- scenario
+- user draft field
+- local checklist feedback:
+ - clear
+ - calm
+ - concise
+ - next step included
+ - no sensitive/private data
+ - appropriate escalation
+- improved example answer
+
+
+Constraints:
+- No external AI.
+- No email sending.
+- No Gmail integration.
+- No real client data.
+- Keep examples generic.
+
+
+Acceptance criteria:
+- Communication Practice exists.
+- User can draft response.
+- Checklist feedback appears.
+- Example answer appears.
+- Practice can be saved to Evidence Pack.
+- Build passes.
+Prompt 8 — Codex / Trae / Windsurf: Add onboarding-safe demo data and reset controls
+You are improving demo/local data handling in Avance PD.
+
+
+Context:
+The dashboard currently contains demo-style entries such as:
+- Printer offline after Windows update
+- Outlook send/receive mismatch
+- RustDesk slow laptop triage
+- Shared drive permissions confusion
+- Wi-Fi dropouts in front office
+- Complete Datto RMM training
+- Set up backup monitoring alerts
+- Update client documentation
+
+
+These are useful, but the app should make clear what is demo data and what is user-entered data.
+
+
+Your task:
+Add demo data controls.
+
+
+Required features:
+1. Add a small “Demo data” badge where seeded examples appear.
+2. Add a Settings or Command Center action:
+  “Clear demo data”
+3. Add another action:
+  “Restore demo data”
+4. Make sure user-created entries are not deleted unless the user explicitly chooses:
+  “Clear all local data”
+5. Add confirmation dialogs for destructive actions.
+6. Add safe backup reminder before clearing data.
+
+
+Constraints:
+- Do not break localStorage.
+- Do not remove backup/export.
+- Do not add server sync.
+- Keep UX simple.
+
+
+Acceptance criteria:
+- Demo entries are labelled.
+- User can clear demo data only.
+- User can restore demo data.
+- User data remains safe.
+- Build passes.
+Prompt 9 — Codex / Trae / Windsurf: Add privacy and safety linting for entries
+You are adding a local privacy/safety helper to Avance PD.
+
+
+Context:
+The app deals with work logs, ticket notes, evidence packs, follow-ups and learning notes. It must avoid storing sensitive client or personal data.
+
+
+Your task:
+Add a local “safety check” for user-entered text.
+
+
+This should be simple pattern checking, not AI.
+
+
+Warn if text appears to contain:
+- email addresses
+- phone numbers
+- passwords
+- API keys
+- long secret-looking tokens
+- private addresses
+- credit card-like numbers
+- medical/private personal notes
+- real client credentials
+
+
+Behaviour:
+- Warning should not block saving by default.
+- It should say:
+ “This looks like it may contain sensitive information. Consider replacing it with a generic reference before saving.”
+- Add a “Save anyway” option.
+- Add a “Copy redacted version” option if easy.
+
+
+Constraints:
+- Local only.
+- No external API.
+- No storing the detected sensitive patterns separately.
+- Do not overcomplicate.
+- Avoid false authority. It is a helper, not a guarantee.
+
+
+Acceptance criteria:
+- Safety warning appears for obvious email/password/token patterns.
+- User can still save if needed.
+- Warning does not break forms.
+- Build passes.
+Prompt 10 — Codex / Trae / Windsurf: Create a manager-ready weekly PD review
+You are adding a Weekly Review feature to Avance PD.
+
+
+Context:
+The app should help Josh turn weekly work and learning into a professional, manager-safe review. This review should help demonstrate progress, not overshare client details.
+
+
+Inputs:
+Use existing local app data:
+- work logs
+- completed scenarios
+- skill confidence changes
+- ticket note practice
+- evidence pack entries
+- pending tasks
+- follow-ups
+- learning minutes if available
+
+
+Required weekly review sections:
+1. This week I worked on
+2. Skills I practised
+3. Scenarios or training completed
+4. Ticket-note quality improvements
+5. Follow-ups managed
+6. Risks or blockers
+7. What I need help with
+8. Focus for next week
+
+
+Add buttons:
+- Generate weekly review
+- Copy review
+- Save to Evidence Pack
+
+
+Tone:
+Professional.
+Short.
+Concrete.
+No fluff.
+No client secrets.
+
+
+Constraints:
+- No external AI.
+- Use deterministic summaries.
+- Keep empty states graceful.
+- Do not require login.
+- Do not send data anywhere.
+
+
+Acceptance criteria:
+- Weekly review can be generated from existing local data.
+- Copy works.
+- Save to Evidence Pack works.
+- Empty state gives guidance.
+- Build passes.
+________________
+
+
+How I’d actually use these
+I’d give one prompt at a time to Codex, Trae, Windsurf, or Cursor.
+Start with:
+         1. App 2 Prompt 1 — fix the embarrassing Create Next App title.
+         2. App 1 Prompt 2 — ticket note builder.
+         3. App 2 Prompt 4 — Evidence Pack export.
+         4. App 2 Prompt 5 — skill map.
+         5. App 1 Prompt 6 — change-management guardrail.
+That order gives the biggest practical value without letting the agents wander off and rebuild the whole thing.
+
+
+________________
+
+
+Yes — this is the right direction.
+Make the apps work like this:
+App 1 captures real work. App 2 turns that work + KBs into skill.
+The learning system should be based on what we already mapped: KB Map → 5-line field cards → active recall → scenario drills → ticket-note drills → spaced repetition → evidence pack. That exact learning flow came from the KB learning plan we built from the Avance KB folder.
+The Drive folder also confirms this is the right target: the KB library includes practical MSP topics like Intune enrolment, Entra profile migration, JumpCloud imports, SSH SOCKS proxy access, AD-synced cloud user deletion, Apple device enrolment, Veeam recovery, Google 2FA, Outlook/Exchange, Yealink phones, RDP USB drive passthrough, and printer config.
+Below are the proper detailed vibe-coder prompts.
+________________
+
+
+Overall product model
+Use this mental model for both apps:
+Real work → captured clearly → mapped to skill → converted into drill → reviewed later → proven in evidence pack
+
+
+App 1: avance-pd.vercel.app
+Role: in-shift capture, ticket notes, follow-ups, quick learning capture.
+App 2: avance-professional-development.vercel.app
+Role: full learning cockpit, KB study, flashcards, scenarios, spaced repetition, skills, evidence.
+________________
+
+
+________________
+App 1 — avance-pd.vercel.app
+Prompt 1 — Turn Work Companion into the “capture engine” for learning
+You are working on the Avance Work Companion app at:
+
+
+https://avance-pd.vercel.app/
+
+
+Goal:
+Turn this app into the “capture engine” for Josh’s MSP learning system.
+
+
+Product role:
+This app is used during or immediately after Avance shifts. It should help Josh capture:
+- work logs
+- follow-ups
+- ticket note drafts
+- what he learned
+- what skill a task relates to
+- what KB might apply
+- what he needs to practise later
+
+
+This app is not the main learning cockpit. The learning cockpit is the second app:
+https://avance-professional-development.vercel.app/
+
+
+Likely stack:
+- Next.js
+- React
+- TypeScript if present
+- Tailwind CSS or utility classes
+- localStorage / browser state
+- optional Supabase sync if already implemented
+- deployed on Vercel
+
+
+Before coding:
+1. Inspect package.json.
+2. Identify whether this uses App Router or Pages Router.
+3. Identify where dashboard components live.
+4. Identify current localStorage/state schema.
+5. Do not rewrite the app.
+6. Do not add auth.
+7. Do not add external APIs.
+8. Do not connect to HaloPSA, Google Drive, Gmail, or Google Chat.
+9. Do not store passwords, credentials, client secrets, private emails, or private customer details.
+
+
+Current live dashboard sections include:
+- Next shift
+- Invoice cycle
+- Getting started
+- Healthy MSP Shift
+- Today’s tiny practice
+- Quick capture
+- Open follow-ups
+- Recent work logs
+- Repeated issue suggestions
+- Backup/export
+- optional Supabase sync
+
+
+Required feature:
+Upgrade “Quick capture” so every captured item can optionally become a learning seed.
+
+
+Add these fields to the capture form:
+- Work type:
+  - ticket note
+  - follow-up
+  - learned today
+  - client communication
+  - troubleshooting
+  - change/check
+  - admin/invoice
+- Skill area:
+  - Microsoft 365
+  - Outlook
+  - OneDrive
+  - Intune
+  - Entra ID
+  - JumpCloud
+  - SentinelOne
+  - Datto RMM
+  - Ironscales
+  - DNS/domain
+  - printers
+  - phones/Yealink
+  - backup/recovery
+  - HaloPSA
+  - client communication
+  - change management
+  - unknown
+- Confidence:
+  - new
+  - practising
+  - can follow KB
+  - can do with support
+  - independent
+  - can teach
+- Needs review:
+  - yes/no
+- Related KB:
+  - optional free-text field
+  - placeholder: “e.g. Enrolling a New Computer into Intune”
+- Follow-up date:
+  - optional
+- Learning note:
+  - optional short text
+
+
+Add a compact “Send to learning queue” button.
+
+
+Behaviour:
+- When user clicks “Send to learning queue”, save a local learningQueue item.
+- The learningQueue item should include:
+  - id
+  - createdAt
+  - title
+  - summary
+  - workType
+  - skillArea
+  - confidence
+  - relatedKb
+  - sourceWorkLogId
+  - needsReview
+  - reviewDueAt
+- Set reviewDueAt to tomorrow by default if needsReview is true.
+- Keep everything local-first.
+- Preserve backup/export.
+
+
+UI requirements:
+- Do not make the form huge.
+- Use progressive disclosure if needed.
+- Keep labels short.
+- Keep the dashboard clean.
+- Show a small card called “Learning seeds captured today”.
+- Show count and latest 3 items.
+
+
+Acceptance criteria:
+- Existing Quick Capture still works.
+- User can capture a work log and mark it as a learning seed.
+- Learning queue saves locally.
+- Backup/export includes learning queue.
+- App still builds.
+- No existing dashboard sections disappear.
+- No private data is required.
+
+
+Prompt 2 — Add “After Action Review” to convert work into learning
+You are improving Avance Work Companion.
+
+
+Goal:
+Add a fast After Action Review feature that helps Josh learn from real tickets without overthinking.
+
+
+Where it fits:
+- Add it near Recent Work Logs or as a button on each work log card.
+- Button label: “Review this”
+- It should open a small panel/modal.
+
+
+Context:
+Josh is trying to build MSP skill through real work. He needs to learn from tasks like:
+- laptop setup
+- Outlook setup
+- MFA issues
+- Intune enrolment
+- HaloPSA workflow issues
+- SentinelOne performance troubleshooting
+- Report Phishing / Ironscales setup
+- client follow-ups
+- invoicing/admin tasks
+
+
+The After Action Review should be short and practical.
+
+
+Required fields:
+1. What was the issue?
+2. What did I check first?
+3. What fixed it or moved it forward?
+4. What did I not understand yet?
+5. What KB or skill does this relate to?
+6. What would I do faster next time?
+7. Do I need to review this later?
+
+
+Add buttons:
+- Save review
+- Copy as reflection note
+- Add to learning queue
+
+
+Generated reflection note format:
+Summary:
+First checks:
+Action taken:
+Gap noticed:
+KB/skill:
+Next time:
+Review needed:
+
+
+Data:
+- Save reviews locally.
+- Link review to the source work log if available.
+- If “review later” is ticked, create a learningQueue item.
+- Set first review due tomorrow.
+
+
+Constraints:
+- No AI call.
+- No external API.
+- No HaloPSA integration.
+- No Google Drive integration.
+- No client-sensitive data required.
+- Do not store credentials or private client details.
+
+
+Acceptance criteria:
+- Each work log can have an After Action Review.
+- Review can become a learning queue item.
+- Review is included in backup/export.
+- Existing work log display still works.
+- Build passes.
+
+
+Prompt 3 — Add “Ticket note drill” from real work
+You are improving Avance Work Companion.
+
+
+Goal:
+Help Josh practise writing clear MSP ticket notes from real work logs.
+
+
+Where it fits:
+- Add a “Ticket note drill” button on work log cards.
+- Add a small Ticket Note Builder panel/page if needed.
+
+
+Context:
+Good ticket notes are one of Josh’s key MSP skill gaps and growth areas. The app should train him to turn messy work into structured notes.
+
+
+Required ticket note structure:
+- Summary
+- Environment/context
+- Checks performed
+- Action taken
+- Result/status
+- Follow-up required
+- Escalation/approval
+- Next step
+
+
+Add local checklist feedback:
+- Has summary?
+- Has action taken?
+- Has current status?
+- Has next step?
+- Has follow-up owner?
+- Avoids passwords/secrets?
+- Avoids unnecessary client-sensitive details?
+
+
+Behaviour:
+- User writes a note.
+- App checks which sections are blank.
+- App displays missing items as gentle prompts.
+- App gives a simple score:
+  - Needs work
+  - Usable
+  - Strong
+- Do not use AI.
+- Do not judge tone harshly.
+- This is a local rubric.
+
+
+Add copy button:
+- “Copy ticket note”
+
+
+Add save button:
+- “Save as practice evidence”
+
+
+Acceptance criteria:
+- Ticket note drill works from a work log.
+- Missing fields show.
+- User can copy final note.
+- User can save note as learning evidence.
+- No data leaves browser.
+- Build passes.
+
+
+Prompt 4 — Add “KB hint” without scraping Drive
+You are improving Avance Work Companion.
+
+
+Goal:
+When Josh captures work, suggest possible KB categories or KB titles to study later.
+
+
+Important:
+Do not connect to Google Drive.
+Do not fetch private KB PDFs.
+Do not scrape the KB folder.
+This app should only use a local static list of generic KB titles/categories.
+
+
+Context:
+The Avance KB library includes topics like:
+- Enrolling a New Computer into Intune
+- Migrating Local User Account to Entra Account
+- Importing a User from Office 365 or Google GSuite into JumpCloud
+- Turning on 2 Factor Authentication for Google Account
+- Veeam Agent Recovery Guide
+- Outlook Opening Links in Edge
+- Increase Outlook PST and OST capacity
+- Editing Exchange Calendar Permissions with PowerShell
+- Yealink phone provisioning/config
+- RDP not passing through USB drives
+- MHC printer configuration
+
+
+Task:
+Create a local kbHints.ts or equivalent data file.
+
+
+Each KB hint should have:
+- id
+- title
+- category
+- keywords
+- skillArea
+- cautionLevel:
+  - low
+  - medium
+  - high
+- studyPrompt
+
+
+Example:
+{
+  title: "Migrating Local User Account to Entra Account",
+  category: "Identity / Device migration",
+  keywords: ["entra", "local profile", "profile migration", "intune", "ForensIT"],
+  skillArea: "Entra ID",
+  cautionLevel: "high",
+  studyPrompt: "Practise explaining when to migrate a local profile and what can go wrong."
+}
+
+
+Feature:
+- When a work log title/details/tags match keywords, show “Possible KB to study”.
+- User can click “Add to learning queue”.
+- Store only the title/category, not KB content.
+
+
+Constraints:
+- Local only.
+- No external API.
+- No sensitive KB content.
+- Do not imply the app has read the full KB.
+- Keep matching simple and explainable.
+
+
+Acceptance criteria:
+- KB hints appear when relevant.
+- User can add a hint to learning queue.
+- Works offline.
+- Build passes.
+
+
+________________
+
+
+________________
+App 2 — avance-professional-development.vercel.app
+Prompt 1 — Turn Avance PD into the main “learning machine”
+You are working on the Avance Professional Development app:
+
+
+https://avance-professional-development.vercel.app/
+
+
+Goal:
+Turn Avance PD into the main learning machine for MSP skill growth.
+
+
+Product role:
+This app is not just a dashboard. It is the learning cockpit where Josh studies Avance KBs, practises scenarios, reviews learning cards, tracks skill confidence, and builds evidence of growth.
+
+
+Likely stack:
+- Next.js
+- React
+- TypeScript if present
+- Tailwind CSS or utility classes
+- Vercel deployment
+- localStorage / IndexedDB / local browser state
+- maybe existing seed/demo data
+
+
+Before coding:
+1. Inspect package.json.
+2. Identify App Router vs Pages Router.
+3. Find dashboard, Learning Cockpit, MSP Skills, MSP Scenarios, Ticket Notes, Evidence Pack components.
+4. Identify current local state/data schema.
+5. Do not do a full rewrite.
+6. Do not add auth.
+7. Do not connect to HaloPSA, Google Drive, Gmail, Google Chat, or external AI.
+8. Keep it local-first.
+9. Do not store passwords, secrets, API keys, private client data, or sensitive customer details.
+
+
+Core learning model to implement:
+KB → field card → active recall → scenario → ticket note drill → spaced review → evidence.
+
+
+Add a new section/page:
+“KB Learning Machine”
+
+
+It should include:
+1. KB Map
+2. Learning Queue
+3. Today’s Reviews
+4. Field Cards
+5. Flashcards
+6. Scenario Drills
+7. Ticket Note Drills
+8. Evidence Pack connection
+
+
+Add dashboard card:
+Title: “KB Learning Machine”
+Subtitle: “Turn Avance KBs into recall, scenarios, and ticket-note practice.”
+Stats:
+- KB cards created
+- Reviews due today
+- Scenarios completed
+- Skills improving
+
+
+Acceptance criteria:
+- New KB Learning Machine section exists.
+- Dashboard links to it.
+- Existing navigation still works.
+- Existing PD Focus still works.
+- Build passes.
+
+
+Prompt 2 — Build the KB Map and field card system
+You are adding the KB Map and Field Card system to Avance PD.
+
+
+Context:
+The Avance KBs are procedural playbooks, not textbook chapters. The best way to learn them is to summarise each one into a short field card.
+
+
+Field card structure:
+- KB title
+- Category
+- When to use
+- Prerequisites
+- First checks
+- Core steps
+- Common mistake
+- Escalate if
+- Related skill
+- Confidence level
+- Review due date
+
+
+Required categories:
+- Identity
+- Microsoft 365
+- Devices
+- Security
+- Backup/recovery
+- Phones
+- Printing
+- Client-specific
+- Networking
+- Business/admin
+- Unknown
+
+
+Seed example KB cards:
+1. Enrolling a New Computer into Intune
+2. Migrating Local User Account to Entra Account
+3. Importing Office 365 or Google GSuite User into JumpCloud
+4. Turning on 2 Factor Authentication for Google Account
+5. Veeam Agent Recovery Guide
+6. Outlook Opening Links in Edge
+7. Increase Outlook PST and OST capacity
+8. Editing Exchange Calendar Permissions with PowerShell
+9. RDP Not Passing Through USB Drives
+10. MHC Printer Configuration
+11. Adding a New Yealink Phone to Provisioning Server
+12. Creating a Policy for Detecting Malicious Files in SharePoint and OneDrive
+
+
+Important:
+Do not include private client details.
+Do not include credentials.
+Do not pretend to have imported every KB from Drive.
+These are seed cards/manual cards.
+
+
+UI:
+- KB Map page with category filters.
+- Card list.
+- Add/edit field card form.
+- Confidence selector:
+  - I recognise it
+  - I can explain it
+  - I can follow it with the KB open
+  - I can do it with support
+  - I can do it independently
+  - I can teach it
+- Review status:
+  - new
+  - due
+  - learning
+  - confident
+  - mastered
+
+
+Acceptance criteria:
+- User can create/edit/delete KB field cards.
+- Seed cards appear only as demo/seed data.
+- User can filter by category.
+- User can change confidence.
+- Cards save locally.
+- Build passes.
+
+
+Prompt 3 — Add spaced repetition review scheduling
+You are adding spaced repetition to Avance PD.
+
+
+Goal:
+The app should tell Josh what KBs to review today.
+
+
+Learning intervals:
+- First review: same day
+- Review 1: next day
+- Review 2: 3 days later
+- Review 3: 1 week later
+- Review 4: 2 weeks later
+- Review 5: 1 month later
+
+
+Data needed on each field card:
+- createdAt
+- lastReviewedAt
+- nextReviewAt
+- reviewStage
+- easeRating
+- confidence
+
+
+Review result options:
+- Again
+- Hard
+- Good
+- Easy
+
+
+Scheduling rules:
+- Again: review tomorrow, keep same stage
+- Hard: review in 2 days
+- Good: move to next interval
+- Easy: move forward one extra stage if safe
+
+
+UI:
+Add “Today’s Reviews” page/section.
+
+
+Each review card should show:
+- KB title
+- Category
+- Prompt:
+  “Explain this KB without looking.”
+- Buttons:
+  - Show field card
+  - Again
+  - Hard
+  - Good
+  - Easy
+- Small notes field:
+  “What did I forget?”
+
+
+Dashboard:
+Add card:
+“Reviews due today”
+Show:
+- number due
+- next review title
+- start review button
+
+
+Constraints:
+- No external API.
+- Local only.
+- Keep algorithm simple.
+- Do not over-engineer with Anki-level complexity.
+
+
+Acceptance criteria:
+- Reviews become due based on date.
+- User can complete a review.
+- nextReviewAt updates.
+- Dashboard count updates.
+- Build passes.
+
+
+Prompt 4 — Build active recall flashcards from field cards
+You are adding active recall flashcards to Avance PD.
+
+
+Goal:
+Each KB field card should generate recall questions.
+
+
+For each KB, generate these question types locally:
+1. When would I use this KB?
+2. What should I check first?
+3. What tool/admin portal is involved?
+4. What is the riskiest step?
+5. What mistake should I avoid?
+6. When should I escalate?
+7. What would I write in the ticket note?
+
+
+Implementation:
+- Do not use AI.
+- Generate questions from field card fields.
+- Let user manually add/edit flashcards.
+- Store flashcards locally.
+- Link flashcards to KB card id.
+
+
+UI:
+Add Flashcards section inside KB Learning Machine.
+
+
+Flashcard flow:
+- Show question.
+- User thinks/answers.
+- Button: “Show answer”
+- Buttons:
+  - Missed it
+  - Nearly
+  - Got it
+- Save result to review history.
+
+
+Acceptance criteria:
+- Each KB can have flashcards.
+- User can review flashcards.
+- Answers come from field card content.
+- User can add custom flashcards.
+- Review results are saved.
+- Build passes.
+
+
+Prompt 5 — Build scenario-first learning mode
+You are adding Scenario Mode to Avance PD.
+
+
+Goal:
+Josh should learn KBs by practising realistic fake tickets, not just rereading.
+
+
+Scenario structure:
+- Scenario title
+- Related KB
+- Skill area
+- Situation
+- Symptoms
+- Constraints
+- What should you check first?
+- What would you do next?
+- When would you escalate?
+- What ticket note would you write?
+
+
+Seed scenarios:
+1. Local profile must be preserved while moving a computer to Entra/Intune.
+2. New laptop needs Intune enrolment.
+3. User needs Google 2FA enabled.
+4. User needs Office 365/Google user imported into JumpCloud.
+5. User needs a file restored from Veeam backup.
+6. Outlook links keep opening in Edge.
+7. PST/OST mailbox file is too large.
+8. Exchange calendar permissions need to be adjusted.
+9. RDP session does not pass through USB drives.
+10. Yealink phone needs provisioning.
+11. Printer config needs to be recreated.
+12. SharePoint/OneDrive malicious file detection policy needs checking.
+
+
+Practice flow:
+1. Show scenario.
+2. Ask user to answer:
+   - first checks
+   - safest next step
+   - risk
+   - escalation point
+   - ticket note
+3. Show rubric checklist:
+   - identified likely KB
+   - first checks clear
+   - safe next step
+   - risk noted
+   - escalation noted
+   - ticket note complete
+4. User can save as evidence.
+
+
+No AI required.
+No real client names.
+No credentials.
+No private data.
+
+
+Acceptance criteria:
+- Scenario Mode exists.
+- At least 12 scenarios exist.
+- User can complete a scenario.
+- Rubric gives local checklist feedback.
+- Completed scenario can save to Evidence Pack.
+- Build passes.
+
+
+Prompt 6 — Add ticket-note drill scoring
+You are improving Ticket Notes in Avance PD.
+
+
+Goal:
+Ticket-note writing should become a trained skill.
+
+
+Create a ticket-note drill system linked to:
+- KB cards
+- scenarios
+- work logs if available
+- evidence pack
+
+
+Ticket note required sections:
+- Summary
+- Environment
+- Checks performed
+- Action taken
+- Result
+- Follow-up
+- Escalation
+- Next step
+
+
+Rubric:
+- Clear summary
+- Mentions relevant system/tool
+- Notes first checks
+- States action taken
+- States current status
+- Names follow-up/owner
+- Avoids secrets
+- Avoids unnecessary sensitive details
+- Is short enough for a real PSA note
+
+
+Scoring:
+- 0–3: needs work
+- 4–6: usable
+- 7–9: strong
+
+
+Feature:
+- User writes ticket note.
+- App checks sections and gives deterministic score.
+- User can copy note.
+- User can save to Evidence Pack.
+- User can link note to a KB card.
+
+
+Constraints:
+- No AI.
+- No sending to HaloPSA.
+- No real client data required.
+- Local only.
+
+
+Acceptance criteria:
+- Ticket note drill exists.
+- Scoring works.
+- Copy works.
+- Save to Evidence Pack works.
+- Build passes.
+
+
+Prompt 7 — Build skill tree / mastery map
+You are improving MSP Skills in Avance PD.
+
+
+Goal:
+Make the app show Josh’s skill growth as a practical MSP skill tree.
+
+
+Skill areas:
+- Microsoft 365
+- Outlook
+- OneDrive/SharePoint
+- Entra ID
+- Intune
+- JumpCloud
+- Google Workspace
+- SentinelOne
+- Datto RMM
+- Ironscales / phishing protection
+- DNS/domains
+- printers
+- phones/Yealink
+- backup/recovery
+- HaloPSA ticketing
+- client communication
+- change management
+- documentation/ticket notes
+
+
+Each skill card should show:
+- skill name
+- confidence level
+- linked KB cards
+- due reviews
+- scenarios completed
+- ticket-note drills completed
+- evidence count
+- next recommended action
+
+
+Confidence levels:
+1. I recognise it
+2. I can explain it
+3. I can follow a KB
+4. I can do it with support
+5. I can do it independently
+6. I can teach it
+
+
+Rules:
+- Skill confidence can be manually set.
+- App can suggest confidence changes, but user confirms.
+- Do not auto-upgrade aggressively.
+- Evidence count should be explainable.
+
+
+UI:
+- MSP Skills page becomes a skill map.
+- Add filters:
+  - due today
+  - weak areas
+  - improving
+  - confident
+- Add “Study next” button.
+
+
+Acceptance criteria:
+- Skill tree/map displays.
+- Skills link to KB cards, scenarios, flashcards and evidence.
+- User can update confidence.
+- Dashboard can show weakest skill and next skill.
+- Build passes.
+
+
+Prompt 8 — Build Evidence Pack as proof of learning
+You are improving Evidence Pack in Avance PD.
+
+
+Goal:
+Turn learning activity into manager-safe evidence.
+
+
+Evidence sources:
+- completed KB reviews
+- completed flashcards
+- completed scenarios
+- ticket-note drills
+- field cards created
+- skill confidence changes
+- weekly reflections
+- work logs marked as learning seeds
+
+
+Evidence Pack output:
+Generate a clean summary with these sections:
+1. Date range
+2. Skills practised
+3. KBs studied
+4. Scenarios completed
+5. Ticket notes practised
+6. Confidence changes
+7. Gaps identified
+8. Next development goals
+9. Support needed
+
+
+Privacy rules:
+- Do not include passwords.
+- Do not include emails.
+- Do not include phone numbers.
+- Do not include private client details.
+- Use generic labels:
+  - client
+  - ticket
+  - workstation
+  - tenant
+  - mailbox
+  - device
+- Show warning:
+  “Review before sharing. Remove client-specific details.”
+
+
+Buttons:
+- Generate Evidence Pack
+- Copy
+- Download Markdown
+- Save snapshot
+
+
+Acceptance criteria:
+- Evidence Pack generates from local learning data.
+- Copy works.
+- Download works if existing app patterns support downloads.
+- Empty state gives useful guidance.
+- Build passes.
+
+
+Prompt 9 — Add Daily Learning Plan
+You are adding a Daily Learning Plan to Avance PD.
+
+
+Goal:
+Each day, the app should tell Josh exactly what to study next.
+
+
+Inputs:
+- reviews due today
+- weak skills
+- learning queue
+- pending scenarios
+- recent work logs if present
+- confidence levels
+- last study date
+
+
+Daily plan should include:
+1. One KB review
+2. One active recall drill
+3. One scenario or ticket note drill
+4. One tiny reflection
+5. Optional stretch item
+
+
+Keep it short:
+Total target time:
+- 15 minutes minimum
+- 30 minutes ideal
+- 45 minutes stretch
+
+
+UI:
+Dashboard card:
+“Today’s Learning Plan”
+
+
+Example:
+- Review: Migrating Local User Account to Entra Account
+- Recall: What can go wrong with profile migration?
+- Scenario: Local profile to Entra migration
+- Ticket note: write a clean completion note
+- Reflection: what would you check first next time?
+
+
+Buttons:
+- Start plan
+- Mark done
+- Skip today
+- Reschedule
+
+
+Constraints:
+- No AI.
+- Local scheduling only.
+- Keep it encouraging, not guilt-heavy.
+- If no data exists, suggest creating first KB field card.
+
+
+Acceptance criteria:
+- Daily plan appears.
+- Plan uses due reviews first.
+- User can complete or skip.
+- Build passes.
+
+
+Prompt 10 — Add “Teach-back mode”
+You are adding Teach-back Mode to Avance PD.
+
+
+Goal:
+Josh should be able to explain KBs as if teaching a new L1 tech. This uses the Feynman technique.
+
+
+Teach-back flow:
+1. Pick a KB card.
+2. App asks:
+   “Explain this in your own words without looking.”
+3. User writes or types explanation.
+4. App shows checklist:
+   - Did you explain when to use it?
+   - Did you mention prerequisites?
+   - Did you explain the safe order?
+   - Did you mention common mistake?
+   - Did you mention escalation point?
+   - Could a new L1 follow this?
+5. User marks:
+   - not yet
+   - nearly
+   - clear
+6. Save teach-back attempt to evidence.
+
+
+Optional:
+- Add “copy teach-back summary”.
+
+
+No AI.
+No external APIs.
+No speech-to-text.
+No private client data.
+
+
+Acceptance criteria:
+- Teach-back mode exists.
+- User can complete teach-back attempt.
+- Checklist feedback works.
+- Attempt saves to Evidence Pack.
+- Build passes.
+
+
+________________
+
+
+Best build order
+Don’t give all of these to an agent at once. That’ll invite chaos.
+Use this order:
+         1. App 2 Prompt 1 — create the KB Learning Machine shell.
+         2. App 2 Prompt 2 — KB Map + field cards.
+         3. App 2 Prompt 3 — spaced repetition.
+         4. App 2 Prompt 5 — scenario mode.
+         5. App 2 Prompt 6 — ticket-note drills.
+         6. App 2 Prompt 8 — evidence pack.
+         7. App 1 Prompt 1 — capture work as learning seeds.
+         8. App 1 Prompt 2 — after action review.
+That gives you the loop:
+work → learning seed → KB card → review → scenario → ticket note → evidence.
+That is the learning machine.
+________________
+
+
+I have started creating a set of study flashcards based directly on the Knowledge Base articles. They will be ready for you in the Studio tab shortly!
+While there isn't a single "New Starter Document," based on the 125+ Avance Business Technology KBs in the sources, a new IT technician should prioritise the following foundational areas and specific guides:
+1. Passwords, Credentials & Security Knowing how to access client systems securely and manage credentials is step one.
+         * Keeper Password Manager User Guide: Essential for accessing client passwords.
+         * Setting Up Account Password for Solutions Centric Staff: Outlines the process of using Incognito mode, setting up 2FA, and storing new user credentials in Keeper Shared Folders.
+         * Creating Conditional Access Policy: Important for setting up standard Microsoft 365 security, such as forcing 2FA and blocking foreign logins.
+2. Device Enrollment & Workstation Setup New technicians will frequently deploy or configure new computers.
+         * Enrolling a New Computer into Intune: Guides you through setting up a device for an organisation during the initial Windows out-of-box experience.
+         * Signing Into a New Windows Device with a Local Account: Essential for bypassing Microsoft's online-account requirements when setting up a fresh machine.
+         * Autologon Any Windows Computer: Provides the Registry Editor steps (AutoAdminLogon, DefaultUserName, DefaultPassword) for configuring kiosk or shared PCs.
+3. Backup Monitoring & Recovery As an MSP, validating and restoring backups is a critical daily task.
+         * Backup and Recovery Procedure for Customers: This is a master document outlining the specific backup software (Cove or Veeam) and target servers for various clients like Beaumont Tiles, Macquarie Health Collective, and IEC Advisory.
+         * Cove Recovery Testing Guide / Veeam Backup Troubleshooting: Required reading for resolving common backup failures and confirming disaster recovery readiness.
+4. Remote Access & Terminal Services Many clients rely on Avance for access to remote servers and shared files.
+         * Setting up Remote Access - End User Guide: Explains how to install Parallels, configure Standard RDP connections, and use Pritunl for VPN access.
+         * Accessing Sharepoint Files Through Remote Apps / Work Resources: Outlines specific workarounds for clients like Hines Construction when transitioning to OneDrive.
+         * RDP High DPI Screen Fix / Span RDP Session Across 2 out of 3 Monitors: Helpful guides for fixing common client complaints regarding remote desktop visual scaling and multi-monitor setups.
+5. Communications & VoIP (PBX) Avance manages phone systems for many of its clients.
+         * Yealink Phone Configuration / Yealink Common Config File Names: Covers MAC address provisioning, firmware files, and removing idle clocks from displays.
+         * MondoTalk Cloud PBX Manual / MondoTalk Dial Codes: Important for navigating the PBX portal, configuring BLF (Busy Lamp Field) keys, and setting up call forwarding/parking.
+Focusing on these articles will give you a solid foundation in how Avance handles daily operations, Microsoft 365 administration, and remote client support.

@@ -26,6 +26,7 @@ import {
   recordNodeActivity,
   saveRewardState,
   updateStreak,
+  spinForBonus,
   type BonusEvent,
   type RewardState,
 } from './lib/rewardEngine';
@@ -50,6 +51,7 @@ export default function AvanceGamePage() {
     init.shieldUsed ? { message: '🛡 Streak Shield used — streak protected!', variant: 'shield' } : null
   );
   const [xpDelta, setXpDelta] = useState(0);
+  const [spinning, setSpinning] = useState(false);
   const [activeMode, setActiveMode] = useState<AvanceGameMode | null>(null);
   const [currentChallenge, setCurrentChallenge] = useState<ReturnType<typeof pickChallenge>>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -76,6 +78,18 @@ export default function AvanceGamePage() {
       });
     }
   }, []);
+
+  const handleSpin = async () => {
+    if (spinning) return;
+    setSpinning(true);
+    try {
+      const result = spinForBonus(reward);
+      applyReward(result.newState, result.bonusEvent, result.xpGained);
+      setToast({ message: result.bonusEvent?.message ?? `+${result.xpGained} XP`, variant: 'bonus' });
+    } finally {
+      setSpinning(false);
+    }
+  };
 
   const startMode = (mode: AvanceGameMode) => {
     const challenge = pickChallenge(mode, unlockedNodes, legacy.completedChallengeIds, legacy.sessionCorrectStreak);
@@ -152,6 +166,19 @@ export default function AvanceGamePage() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-4">
             <DailyChallenge reward={reward} onRewardUpdate={applyReward} />
+            <Card className="border-yellow-200/80 bg-gradient-to-r from-yellow-50/60 to-amber-50/40 dark:border-yellow-900/40">
+              <CardContent className="flex items-center justify-between p-4">
+                <div>
+                  <p className="font-semibold text-yellow-800 dark:text-yellow-200">Spin for Bonus</p>
+                  <p className="text-xs text-muted-foreground">Small variable XP + chance for shields or rare scenarios.</p>
+                </div>
+                <div>
+                  <Button size="sm" onClick={handleSpin} disabled={spinning}>
+                    {spinning ? 'Spinning…' : 'Spin now'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
           <StreakDisplay reward={reward} playedToday={playedToday} atRisk={atRisk} />
         </div>
