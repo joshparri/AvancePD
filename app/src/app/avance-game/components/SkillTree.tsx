@@ -35,7 +35,12 @@ function isNodeUnlocked(node: (typeof SKILL_NODES)[number], reward: RewardState)
   return checkNodeUnlock(reward, node.requires, node.unlockThreshold);
 }
 
-export function SkillTree({ reward, onUnlockToast, onBossComplete }: SkillTreeProps) {
+import type { AvanceGameProgress } from '@/lib/avanceGameProgress';
+import { avanceGameChallenges } from '@/data/avanceGameContent';
+
+type SkillTreePropsWithProgress = SkillTreeProps & { progress?: AvanceGameProgress };
+
+export function SkillTree({ reward, onUnlockToast, onBossComplete, progress }: SkillTreePropsWithProgress) {
   const [bossNode, setBossNode] = useState<{ id: string; label: string } | null>(null);
   const [tooltip, setTooltip] = useState<string | null>(null);
   const prevUnlocked = useRef<Set<string>>(new Set());
@@ -64,10 +69,20 @@ export function SkillTree({ reward, onUnlockToast, onBossComplete }: SkillTreePr
       )}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {SKILL_NODES.map((node) => {
+          // compute mastery for the node from progress.challengeStats
+          const nodeChallenges = avanceGameChallenges.filter((c) => c.skillNode === node.id);
+          const mastered = nodeChallenges.filter((c) => {
+            const stats = progress?.challengeStats?.[c.id];
+            if (!stats) return false;
+            if (stats.correct >= 3) return true;
+            if (stats.attempts >= 5 && stats.correct / stats.attempts >= 0.8) return true;
+            return false;
+          }).length;
+          const totalCh = nodeChallenges.length || 0;
           const unlocked = isNodeUnlocked(node, reward);
-          const progress = reward.nodeProgress[node.id] ?? 0;
+          const nodeProgressCount = reward.nodeProgress[node.id] ?? 0;
           const bossBadge = reward.unlockedBadges.includes(`boss_${node.id}_complete`);
-          const readyForBoss = unlocked && progress >= BOSS_ACTIVITY_THRESHOLD && !bossBadge;
+          const readyForBoss = unlocked && nodeProgressCount >= BOSS_ACTIVITY_THRESHOLD && !bossBadge;
           const parentLabel = SKILL_NODES.find((n) => n.id === node.requires)?.label;
 
           return (
@@ -101,8 +116,11 @@ export function SkillTree({ reward, onUnlockToast, onBossComplete }: SkillTreePr
                   <div className="flex-1">
                     <p className="font-medium text-sm">{node.label}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {progress} / {node.unlockThreshold || 5} activities
+                      {nodeProgressCount} / {node.unlockThreshold || 5} activities
                     </p>
+                    {totalCh > 0 && (
+                      <p className="mt-1 text-xs text-muted-foreground">Mastered: {mastered}/{totalCh}</p>
+                    )}
                     {readyForBoss && canAttemptBossToday(reward, node.id) && (
                       <Button
                         size="sm"

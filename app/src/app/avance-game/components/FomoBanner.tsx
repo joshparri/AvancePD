@@ -12,8 +12,10 @@ export default function FomoBanner({ onJoin }: { onJoin?: () => void }) {
   const [variant, setVariant] = useState('A');
 
   useEffect(() => {
-    const v = assignVariant('fomo_copy', ['A', 'B']);
-    setVariant(v);
+    const id = window.setTimeout(() => {
+      setVariant(assignVariant('fomo_copy', ['A', 'B']));
+    }, 0);
+    return () => window.clearTimeout(id);
   }, []);
 
   useEffect(() => {
@@ -35,8 +37,8 @@ export default function FomoBanner({ onJoin }: { onJoin?: () => void }) {
 
   const minutes = Math.ceil(remainingMs / 60000);
 
-  const copyA = `${evt.label} — ${evt.multiplier}× XP for a short time. Jump in and get ahead of your peers!`;
-  const copyB = `Limited-time ${evt.multiplier}× XP: complete quick sessions to earn the boost. ${minutes} minutes left.`;
+  const copyA = `${evt.label} - ${evt.multiplier}x XP for a short time. Jump in and get ahead of your peers.`;
+  const copyB = `Limited-time ${evt.multiplier}x XP: complete quick sessions to earn the boost. ${minutes} minutes left.`;
 
   const onClick = () => {
     recordClick('fomo_copy', variant);
@@ -47,7 +49,7 @@ export default function FomoBanner({ onJoin }: { onJoin?: () => void }) {
     <Card className="border-pink-200/70 bg-gradient-to-r from-pink-50/60 to-rose-50/30 dark:border-pink-900/30">
       <CardContent className="flex items-center justify-between p-3">
         <div>
-          <p className="font-semibold text-rose-800 dark:text-rose-200">{evt.label} · {evt.multiplier}× XP</p>
+          <p className="font-semibold text-rose-800 dark:text-rose-200">{evt.label} - {evt.multiplier}x XP</p>
           <p className="text-xs text-muted-foreground">{variant === 'A' ? copyA : copyB}</p>
         </div>
         <div>

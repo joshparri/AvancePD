@@ -2,9 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { mysteryMeterProgress } from '../lib/rewardEngine';
+import { mysteryMeterProgress, type RewardState } from '../lib/rewardEngine';
 
-type Props = { onSpin: () => Promise<void> | void; disabled?: boolean; rewardState?: any };
+type Props = { onSpin: () => Promise<void> | void; disabled?: boolean; rewardState?: RewardState };
+
+type WindowWithWebkitAudio = Window & typeof globalThis & {
+  webkitAudioContext?: typeof AudioContext;
+};
 
 export default function SpinWidget({ onSpin, disabled, rewardState }: Props) {
   const [spinning, setSpinning] = useState(false);
@@ -18,7 +22,9 @@ export default function SpinWidget({ onSpin, disabled, rewardState }: Props) {
 
   const playSound = () => {
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextCtor = window.AudioContext || (window as WindowWithWebkitAudio).webkitAudioContext;
+      if (!AudioContextCtor) return;
+      const ctx = new AudioContextCtor();
       const o = ctx.createOscillator();
       const g = ctx.createGain();
       o.type = 'sine';
@@ -31,7 +37,7 @@ export default function SpinWidget({ onSpin, disabled, rewardState }: Props) {
       o.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.18);
       g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
       setTimeout(() => { o.stop(); ctx.close(); }, 300);
-    } catch (e) {
+    } catch {
       // ignore audio errors
     }
   };
@@ -66,7 +72,7 @@ export default function SpinWidget({ onSpin, disabled, rewardState }: Props) {
           <p className="text-xs text-muted-foreground mt-1">Mystery meter: {meter.current}/{meter.max}</p>
         </div>
       </div>
-      <Button size="sm" onClick={handle} disabled={disabled || spinning}>{spinning ? 'Spinning…' : 'Spin'}</Button>
+      <Button size="sm" onClick={handle} disabled={disabled || spinning}>{spinning ? 'Spinning...' : 'Spin'}</Button>
     </div>
   );
 }

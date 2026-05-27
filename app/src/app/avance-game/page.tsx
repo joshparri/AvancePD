@@ -114,7 +114,7 @@ export default function AvanceGamePage() {
   };
 
   const startMode = (mode: AvanceGameMode) => {
-    const challenge = pickChallenge(mode, unlockedNodes, legacy.completedChallengeIds, legacy.sessionCorrectStreak);
+    const challenge = pickChallenge(mode, unlockedNodes, legacy);
     setActiveMode(mode);
     setCurrentChallenge(challenge);
     setSelectedIndex(null);
@@ -125,7 +125,7 @@ export default function AvanceGamePage() {
   const startSuggestedMode = () => {
     const modes = Object.keys(avanceGameModeMeta) as AvanceGameMode[];
     const mode = modes.find((candidate) =>
-      Boolean(pickChallenge(candidate, unlockedNodes, legacy.completedChallengeIds, legacy.sessionCorrectStreak))
+      Boolean(pickChallenge(candidate, unlockedNodes, legacy))
     );
     if (mode) startMode(mode);
   };
@@ -156,7 +156,7 @@ export default function AvanceGamePage() {
   const nextChallenge = () => {
     if (!activeMode) return;
     setCurrentChallenge(
-      pickChallenge(activeMode, getUnlockedNodeIds(reward), legacy.completedChallengeIds, legacy.sessionCorrectStreak)
+      pickChallenge(activeMode, getUnlockedNodeIds(reward), legacy)
     );
     setSelectedIndex(null);
     setFeedback('idle');
@@ -255,6 +255,7 @@ export default function AvanceGamePage() {
 
         <SkillTree
           reward={reward}
+          progress={legacy}
           onUnlockToast={(label) => setToast({ message: `${label} unlocked.`, variant: 'unlock' })}
           onBossComplete={handleBossComplete}
         />

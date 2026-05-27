@@ -12,6 +12,8 @@ export interface AvanceGameProgress {
   modeStats: Record<AvanceGameMode, { played: number; correct: number }>;
   sessionCorrectStreak: number;
   reviewsDue: string[];
+  challengeStats: Record<string, { attempts: number; correct: number; lastSeen?: string; lastCorrect?: string }>;
+  skillStats: Record<string, { attempts: number; correct: number; lastSeen?: string; mastered?: boolean }>;
 }
 
 const STORAGE_KEY = 'avance:game-progress';
@@ -34,6 +36,8 @@ const defaultProgress = (): AvanceGameProgress => ({
   modeStats: defaultModeStats(),
   sessionCorrectStreak: 0,
   reviewsDue: [],
+  challengeStats: {},
+  skillStats: {},
 });
 
 const canUseStorage = () => typeof window !== 'undefined' && Boolean(window.localStorage);
@@ -56,6 +60,8 @@ export const getAvanceGameProgress = (): AvanceGameProgress => {
       ...defaultProgress(),
       ...parsed,
       modeStats: { ...defaultModeStats(), ...parsed.modeStats },
+      challengeStats: parsed.challengeStats ?? {},
+      skillStats: parsed.skillStats ?? {},
     };
   } catch {
     return defaultProgress();
@@ -95,6 +101,7 @@ export const recordChallengeResult = (
     mode: AvanceGameMode;
     correct: boolean;
     xpEarned: number;
+    skillNode?: string;
   }
 ): AvanceGameProgress => {
   let next = updateStreakOnPlay(progress);
@@ -114,6 +121,31 @@ export const recordChallengeResult = (
     ? next.reviewsDue.filter((id) => id !== opts.challengeId)
     : [...new Set([...next.reviewsDue, opts.challengeId])].slice(-20);
 
+  // update challenge stats
+  const now = new Date().toISOString();
+  const cs = { ...next.challengeStats };
+  const prev = cs[opts.challengeId] ?? { attempts: 0, correct: 0 };
+  prev.attempts = prev.attempts + 1;
+  if (opts.correct) {
+    prev.correct = prev.correct + 1;
+    prev.lastCorrect = now;
+  }
+  prev.lastSeen = now;
+  cs[opts.challengeId] = prev;
+
+  // update skill stats (mastery tracking)
+  const ss = { ...next.skillStats };
+  if (opts.skillNode) {
+    const sPrev = ss[opts.skillNode] ?? { attempts: 0, correct: 0 };
+    sPrev.attempts = sPrev.attempts + 1;
+    if (opts.correct) sPrev.correct = sPrev.correct + 1;
+    sPrev.lastSeen = now;
+    // simple mastery rule: at least 5 attempts and >=80% accuracy, or 5 correct answers
+    const accuracy = sPrev.attempts > 0 ? sPrev.correct / sPrev.attempts : 0;
+    sPrev.mastered = sPrev.correct >= 5 || (sPrev.attempts >= 5 && accuracy >= 0.8);
+    ss[opts.skillNode] = sPrev;
+  }
+
   next = {
     ...next,
     totalXp,
@@ -121,6 +153,8 @@ export const recordChallengeResult = (
     sessionCorrectStreak,
     completedChallengeIds,
     reviewsDue,
+    challengeStats: cs,
+    skillStats: ss,
   };
   saveProgress(next);
   return next;
