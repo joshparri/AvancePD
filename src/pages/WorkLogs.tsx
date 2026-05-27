@@ -22,6 +22,7 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
   const [nextStep, setNextStep] = useState('');
   const [clientId, setClientId] = useState(clients[0]?.id ?? '');
   const [tags, setTags] = useState('');
+  const [relatedKbTopic, setRelatedKbTopic] = useState('');
   const [draft, setDraft] = useState(false);
   const [attachments, setAttachments] = useState<SafeAttachment[]>([]);
   const [attachmentStatus, setAttachmentStatus] = useState('');
@@ -35,6 +36,7 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
     setNextStep('');
     setClientId(clients[0]?.id ?? '');
     setTags('');
+    setRelatedKbTopic('');
     setDraft(false);
     setAttachments([]);
     setAttachmentStatus('');
@@ -54,9 +56,10 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
       result: result || 'To be reviewed.',
       nextStep: nextStep || 'Check this item in the next shift.',
       tags: tagList,
-      createdAt: new Date().toISOString(),
+      relatedKbTopic: relatedKbTopic || undefined,
       draft,
-      attachments
+      createdAt: new Date().toISOString(),
+      attachments,
     };
 
     if (editingLogId) {
@@ -77,6 +80,7 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
     setNextStep(log.nextStep);
     setClientId(log.clientId);
     setTags(log.tags.join(', '));
+    setRelatedKbTopic(log.relatedKbTopic ?? '');
     setDraft(log.draft);
     setAttachments(log.attachments ?? []);
   };
@@ -135,6 +139,10 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
             <input value={tags} onChange={(event) => setTags(event.target.value)} placeholder="comma-separated" />
           </label>
           <label>
+            Related KB topic
+            <input value={relatedKbTopic} onChange={(event) => setRelatedKbTopic(event.target.value)} placeholder="Optional KB topic" />
+          </label>
+          <label>
             Safe attachment
             <input type="file" accept=".txt,.md,.json,.csv,.pdf,text/plain,text/markdown,application/json,text/csv,application/pdf" onChange={(event) => handleAttachment(event.target.files)} />
           </label>
@@ -183,6 +191,7 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
                     {client?.name} — {new Date(log.createdAt).toLocaleDateString()} {log.draft && '(draft)'}
                   </p>
                   <p>{log.summary}</p>
+                  {log.relatedKbTopic ? <p><em>KB topic: {log.relatedKbTopic}</em></p> : null}
                   {log.attachments?.length ? (
                     <div>
                       <p>{log.attachments.length} safe attachment(s)</p>

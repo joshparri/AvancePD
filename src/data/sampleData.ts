@@ -75,6 +75,7 @@ export const workLogs: WorkLog[] = [
     result: 'Demo resolution: desktop email synced successfully after correcting the app state.',
     nextStep: 'Monitor for repeat sync symptoms and document if it recurs.',
     tags: ['Email', 'Microsoft 365', 'Demo Ticket'],
+    relatedKbTopic: 'Microsoft 365 / Exchange troubleshooting',
     createdAt: '2026-05-05T14:02:00Z',
     draft: false
   },
@@ -87,6 +88,7 @@ export const workLogs: WorkLog[] = [
     result: 'Demo resolution: issue documented for escalation to network support.',
     nextStep: 'Confirm whether the issue affects one area or the whole site.',
     tags: ['Wi-Fi', 'Networking', 'Demo Ticket'],
+    relatedKbTopic: 'Wi-Fi and wireless troubleshooting',
     createdAt: '2026-05-03T10:18:00Z',
     draft: false
   }

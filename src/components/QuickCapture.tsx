@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { kbHints } from '../data/kbHints';
 import type { Client, LearningItem, Task, WorkLog } from '../types';
 
 function createId(prefix: string) {
@@ -22,6 +23,8 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
   const [details, setDetails] = useState('');
   const [clientId, setClientId] = useState(clients[0]?.id ?? '');
   const [tags, setTags] = useState('');
+  const [relatedKbTopic, setRelatedKbTopic] = useState('');
+  const [ticketPreview, setTicketPreview] = useState('');
   const [nextReviewDate, setNextReviewDate] = useState('');
   const titleInputRef = useRef<HTMLInputElement>(null);
 
@@ -43,6 +46,8 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
     setTitle('');
     setDetails('');
     setTags('');
+    setRelatedKbTopic('');
+    setTicketPreview('');
     setNextReviewDate('');
   };
 
@@ -61,6 +66,7 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
         result: 'To be reviewed.',
         nextStep: 'Check this item in the next shift.',
         tags: tagList,
+        relatedKbTopic: relatedKbTopic || undefined,
         createdAt: new Date().toISOString(),
         draft: false
       });
@@ -151,6 +157,22 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
           Details
           <textarea value={details} onChange={(event) => setDetails(event.target.value)} placeholder="What happened?" />
         </label>
+        {captureType === 'work log' && (
+          <label>
+            Related KB topic
+            <input
+              list="kb-topics"
+              value={relatedKbTopic}
+              onChange={(event) => setRelatedKbTopic(event.target.value)}
+              placeholder="Optional KB topic"
+            />
+            <datalist id="kb-topics">
+              {kbHints.map((hint) => (
+                <option key={hint.id} value={hint.title} />
+              ))}
+            </datalist>
+          </label>
+        )}
         {captureType === 'learning' ? (
           <label>
             Review date
@@ -161,6 +183,29 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
             Tags
             <input value={tags} onChange={(event) => setTags(event.target.value)} placeholder="comma-separated" />
           </label>
+        )}
+        {captureType === 'work log' && (
+          <div className="ticket-preview-panel">
+            <button
+              type="button"
+              className="small-action"
+              onClick={() => setTicketPreview(`Summary: ${title || 'Quick work log'}\n\nWhat happened: ${details || 'Captured during shift.'}\n\nNext step: ${relatedKbTopic ? `${relatedKbTopic} follow-up` : 'Review this item next shift.'}`)}
+            >
+              Generate ticket note preview
+            </button>
+            {ticketPreview && (
+              <div className="ticket-preview">
+                <pre>{ticketPreview}</pre>
+                <button
+                  type="button"
+                  className="small-action"
+                  onClick={() => navigator.clipboard?.writeText(ticketPreview)}
+                >
+                  Copy ticket preview
+                </button>
+              </div>
+            )}
+          </div>
         )}
         <button type="submit">Capture {captureType}</button>
       </form>
