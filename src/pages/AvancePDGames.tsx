@@ -8,6 +8,10 @@ type GameMission = {
   xp: number;
   rating: string;
   tags: string[];
+  subject: string;
+  learningOutcome: string;
+  relatedPage?: string;
+  relatedStudy?: string;
 };
 
 type LootReward = {
@@ -35,10 +39,14 @@ const storageKey = 'avance-games-progress';
 const missions: GameMission[] = [
   {
     id: 'one-more-turn',
-    title: 'One More Turn: Empire Upgrade',
+    title: 'One More Turn: Build Your IT Empire',
     category: 'Strategy',
     description:
-      'Channel Civilization and Factorio with a planning loop that rewards you for polishing one more concept, one more automation, and one more skills upgrade.',
+      'A Civilization-style quest that rewards you for refining one more IT concept, one more process, and one more automation flow.',
+    subject: 'Identity & Automation',
+    learningOutcome: 'Sharpen your ability to scale access and automate routine cloud workflows.',
+    relatedPage: 'microLearning',
+    relatedStudy: 'Identity and Access concepts',
     xp: 120,
     rating: 'gold',
     tags: ['strategy', 'planning', 'automation']
@@ -48,7 +56,11 @@ const missions: GameMission[] = [
     title: 'Support Battle Royale',
     category: 'Competitive',
     description:
-      'Treat every ticket like a ranked match. Fast decisions, immediate feedback, and the drive to come back stronger after each loss.',
+      'Treat every ticket like a ranked match: quick triage, smart escalation, and a better run after every loss.',
+    subject: 'Triage & Response',
+    learningOutcome: 'Improve your speed and judgment on real MSP issues so each session feels like a competitive win.',
+    relatedPage: 'mspSkills',
+    relatedStudy: 'Incident triage and escalation skills',
     xp: 95,
     rating: 'silver',
     tags: ['competitive', 'speed', 'rank']
@@ -58,7 +70,11 @@ const missions: GameMission[] = [
     title: 'Sandbox Loop: Build and Iterate',
     category: 'Survival',
     description:
-      'Use a Minecraft/Stardew-style loop: build a concept foundation, test it, and expand again with better tools every time.',
+      'A Minecraft-like loop for IT learning: explore concepts, build small fixes, then expand your toolkit each time.',
+    subject: 'Problem Solving',
+    learningOutcome: 'Practice creative diagnostics and build repeatable troubleshooting habits that scale.',
+    relatedPage: 'microLearning',
+    relatedStudy: 'Diagnostic checklist and troubleshooting loops',
     xp: 90,
     rating: 'silver',
     tags: ['sandbox', 'experiment', 'growth']
@@ -68,7 +84,11 @@ const missions: GameMission[] = [
     title: 'Deck Builder Run',
     category: 'Roguelike',
     description:
-      'Learn like Slay the Spire: each run is different, every reward is unpredictable, and every choice makes the next run stronger.',
+      'Collect IT knowledge cards and use them in different scenarios — every run makes your next one stronger.',
+    subject: 'Knowledge Collection',
+    learningOutcome: 'Build a deck of essential MSP concepts and rewards for repeated practice.',
+    relatedPage: 'microLearning',
+    relatedStudy: 'Core MSP knowledge cards',
     xp: 110,
     rating: 'gold',
     tags: ['roguelike', 'replayable', 'reward']
@@ -78,7 +98,11 @@ const missions: GameMission[] = [
     title: 'Flow State Sprint',
     category: 'Live Service',
     description:
-      'Drop into a flow state with instant wins, clear goals, and a streak system that keeps your brain engaged and hungry for the next boost.',
+      'Hit a focused learning sprint with clear goals, instant feedback, and a streak bonus for keeping momentum.',
+    subject: 'Focus & Mastery',
+    learningOutcome: 'Keep your brain in flow as you grind through meaningful IT skill milestones.',
+    relatedPage: 'mspSkills',
+    relatedStudy: 'Focused skills mastery challenges',
     xp: 80,
     rating: 'bronze',
     tags: ['flow', 'goal', 'instant feedback']
@@ -190,7 +214,11 @@ function formatRarity(rarity: LootReward['rarity']) {
   }
 }
 
-function AvancePDGames() {
+type AvancePDGamesProps = {
+  onNavigate?: (page: string) => void;
+};
+
+function AvancePDGames({ onNavigate }: AvancePDGamesProps) {
   const [progress, setProgress] = useState<GamesProgress>(loadGameProgress);
   const [activeMissionId, setActiveMissionId] = useState(progress.dailyQuestId);
   const [lastAction, setLastAction] = useState('Ready for a new learning run.');
@@ -264,7 +292,7 @@ function AvancePDGames() {
         <h1>AvancePD Games</h1>
         <p>
           A learning playground built like the most addictive strategy and live-service games.
-          Complete fast quests, open surprise loot, level up your IT skill power, and keep coming back for one more run.
+          Complete fast quests, open surprise loot, level up your IT skill power, and jump straight into real IT study content after every reward.
         </p>
         <div className="metric-row">
           <span className="status-chip info">Level {progress.level}</span>
@@ -299,7 +327,11 @@ function AvancePDGames() {
               <p>{activeMission.description}</p>
               <div className="metric-row">
                 <span className="status-chip warn">{activeMission.xp} XP</span>
+                <span className="status-chip success">{activeMission.subject}</span>
                 <span className="status-chip info">{activeMission.tags.join(' · ')}</span>
+              </div>
+              <div className="mission-outcome">
+                <strong>Learning outcome:</strong> {activeMission.learningOutcome}
               </div>
               <div className="game-actions">
                 <button type="button" className="game-action-btn" onClick={() => handleCompleteMission(activeMission)}>
@@ -309,6 +341,18 @@ function AvancePDGames() {
                   Shuffle deck
                 </button>
               </div>
+              {activeMission.relatedPage && (
+                <div className="mission-link">
+                  <strong>Study tie:</strong> {activeMission.relatedStudy}
+                  <button
+                    type="button"
+                    className="game-action-btn secondary"
+                    onClick={() => onNavigate?.(activeMission.relatedPage ?? 'microLearning')}
+                  >
+                    Open related study page
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -320,10 +364,21 @@ function AvancePDGames() {
               Every play gives immediate results: earned XP, a loot reward, and a new game state that fuels the next session.
               That keeps your attention locked in, just like the best competitive and live-service games.
             </p>
+            <p>
+              Each victory also teaches a real IT skill: identity automation, ticket triage, troubleshooting loops, or knowledge card mastery.
+            </p>
             <button type="button" className="game-action-btn" onClick={handleOpenLootChest}>
               Open surprise loot chest
             </button>
             <p className="feedback-text">{progress.feedback}</p>
+            <div className="game-actions">
+              <button type="button" className="game-action-btn secondary" onClick={() => onNavigate?.('microLearning')}>
+                Open Micro-Learning
+              </button>
+              <button type="button" className="game-action-btn secondary" onClick={() => onNavigate?.('mspSkills')}>
+                Open MSP Skills
+              </button>
+            </div>
           </div>
 
           <div className="game-section leaderboard-card">
@@ -354,6 +409,9 @@ function AvancePDGames() {
                 ))
               )}
             </div>
+            <p className="game-note">
+              Every reward is a learning boost. Use the loot to unlock the next IT concept or skill card.
+            </p>
           </div>
 
           <div>
@@ -383,6 +441,15 @@ function AvancePDGames() {
           <li><strong>Clear goals:</strong> your active quest, progress bar, and streak are always visible so you know exactly what to do next.</li>
           <li><strong>Instant gratification:</strong> each button click gives feedback immediately, mirroring the dopamine burst of the best games.</li>
           <li><strong>Social pull:</strong> the leaderboard simulates the urge to stay competitive and not fall behind.</li>
+        </ul>
+        <h3>How this turns into IT learning</h3>
+        <ul>
+          <li>Your missions are framed around real MSP skills like identity, triage, endpoint support, and cloud automation.</li>
+          <li>Completing a quest gives you XP and makes the next IT concept feel like a natural upgrade.</li>
+          <li>Each mission includes a direct study tie to Micro-Learning or MSP Skills so your play session flows into actual learning.
+          </li>
+          <li>Your streak and leaderboard are designed to make returning feel like progressing in a training program, not just a distraction.</li>
+          <li>Every reward becomes a prompt to explore a new IT skill card or concept, turning the addictive loop into a study habit.</li>
         </ul>
       </section>
     </div>
