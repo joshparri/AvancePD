@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import {
   ArrowUpRight,
   Brain,
@@ -8,6 +9,7 @@ import {
   Globe,
   GraduationCap,
   MapPin,
+  Sparkles,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +28,7 @@ const categoryIcons: Record<EducationalGameCategory, LucideIcon> = {
   'math-logic': Calculator,
   'brain-training': Brain,
   academics: GraduationCap,
+  'it-gamified': Sparkles,
 };
 
 export function EducationalGamesSection() {
@@ -40,8 +43,8 @@ export function EducationalGamesSection() {
       <div className="academy-surface-muted flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:gap-4">
         <LearningIllustration variant="external-learning" size="sm" decorative />
         <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">
-          Top free options for adults: language drills, geography deduction, logic puzzles, brain workouts,
-          and academic practice. Open a platform below when you want structured play instead of passive scrolling.
+          Top free options for adults—plus AvanceGame, built into this app. External platforms open in a new tab;
+          AvanceGame keeps streaks, XP, and MSP modes inside Avance PD.
         </p>
       </div>
 
@@ -52,7 +55,9 @@ export function EducationalGamesSection() {
           return (
             <Card
               key={platform.id}
-              className="flex h-full flex-col border-slate-200/80 transition hover:border-blue-200/80 hover:shadow-md dark:border-slate-800 dark:hover:border-blue-900/50"
+              className={`flex h-full flex-col border-slate-200/80 transition hover:border-blue-200/80 hover:shadow-md dark:border-slate-800 dark:hover:border-blue-900/50 ${
+                platform.isBuiltIn ? 'ring-1 ring-blue-300/60 dark:ring-blue-700/50' : ''
+              }`}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-3">
@@ -108,12 +113,21 @@ export function EducationalGamesSection() {
                 )}
 
                 <div className="mt-auto flex flex-wrap gap-2 pt-2">
-                  <Button asChild size="sm" className="flex-1 sm:flex-none">
-                    <a href={platform.url} target="_blank" rel="noopener noreferrer">
-                      Play on {platform.name}
-                      <ArrowUpRight className="ml-1 h-4 w-4" />
-                    </a>
-                  </Button>
+                  {platform.internalPath ? (
+                    <Button asChild size="sm" className="flex-1 sm:flex-none">
+                      <Link href={platform.internalPath}>
+                        Open {platform.name}
+                        <Gamepad2 className="ml-1 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button asChild size="sm" className="flex-1 sm:flex-none">
+                      <a href={platform.url} target="_blank" rel="noopener noreferrer">
+                        Play on {platform.name}
+                        <ArrowUpRight className="ml-1 h-4 w-4" />
+                      </a>
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -122,7 +136,7 @@ export function EducationalGamesSection() {
       </div>
 
       <p className="text-center text-[11px] text-muted-foreground">
-        Avance PD links out only—games run on each provider&apos;s site. Check their terms, privacy, and workplace policies before signing in.
+        AvanceGame runs inside this app. Other tiles open third-party sites—check their terms, privacy, and workplace policies before signing in.
       </p>
     </section>
   );

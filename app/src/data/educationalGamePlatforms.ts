@@ -3,13 +3,17 @@ export type EducationalGameCategory =
   | 'geography'
   | 'math-logic'
   | 'brain-training'
-  | 'academics';
+  | 'academics'
+  | 'it-gamified';
 
 export type EducationalGamePlatform = {
   id: string;
   name: string;
   provider: string;
   url: string;
+  /** Internal Avance PD route; when set, tile links in-app instead of opening url in new tab */
+  internalPath?: string;
+  isBuiltIn?: boolean;
   category: EducationalGameCategory;
   categoryLabel: string;
   tagline: string;
@@ -27,6 +31,7 @@ export const educationalGameCategoryLabels: Record<EducationalGameCategory, stri
   'math-logic': 'Math & logic',
   'brain-training': 'Brain training',
   academics: 'Academic subjects',
+  'it-gamified': 'IT gamified learning',
 };
 
 export const educationalGamePlatforms: EducationalGamePlatform[] = [
@@ -125,5 +130,28 @@ export const educationalGamePlatforms: EducationalGamePlatform[] = [
     bestFor: 'Structured depth when you want academic foundations, not just trivia.',
     platforms: ['Web', 'iOS', 'Android'],
     costNote: 'Learning content is free; optional donations support the nonprofit.',
+  },
+  {
+    id: 'avance-game',
+    name: 'AvanceGame',
+    provider: 'Avance Business Technology',
+    url: '/avance-game',
+    internalPath: '/avance-game',
+    isBuiltIn: true,
+    category: 'it-gamified',
+    categoryLabel: educationalGameCategoryLabels['it-gamified'],
+    tagline: 'Duolingo-for-IT inside Avance PD — streaks, skill trees, and six MSP modes',
+    description:
+      'Built-in sub-app combining the Hook Model (trigger, action, variable reward, investment) with IT skill trees, daily streaks, XP, and modes inspired by Duolingo, GeoGuessr, Elevate, Khan Academy, Coolmath, CMD Challenge, and SadServers.',
+    gameplayHighlights: [
+      'Recall Rush — active recall and spaced-style review',
+      'Ticket Detective — deduce root cause from ticket clues',
+      'Flow Drill — difficulty adapts to your session streak',
+      'Logic Sprint, Command Line, and Break-Fix Lab for MSP drills',
+      'Links to TryHackMe, Codewars, SadServers, and Hack The Box when you want more',
+    ],
+    bestFor: 'Daily 5-minute IT habit loops without leaving Avance Professional Development.',
+    platforms: ['Built into Avance PD'],
+    costNote: 'Free — runs in your browser; progress saved locally.',
   },
 ];
