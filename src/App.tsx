@@ -1,4 +1,12 @@
 import { useEffect, useState } from 'react';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  NavLink,
+  useNavigate
+} from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import ShiftScheduler from './pages/ShiftScheduler';
 import Tasks from './pages/Tasks';
@@ -52,33 +60,33 @@ import {
 import type { KnowledgeEntry, LearningItem, Playbook, Task, TimeEntry, WorkLog } from './types';
 import './App.css';
 
-const pages = [
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'search', label: 'Search' },
-  { id: 'quickTools', label: 'Quick Tools' },
-  { id: 'fieldOps', label: 'Field Ops' },
-  { id: 'shifts', label: 'Shifts' },
-  { id: 'tasks', label: 'Tasks' },
-  { id: 'worklogs', label: 'Work Logs' },
-  { id: 'knowledge', label: 'Knowledge' },
-  { id: 'playbooks', label: 'Playbooks' },
-  { id: 'time', label: 'Time' },
-  { id: 'pd', label: 'PD' },
-  { id: 'kbLearning', label: 'KB Learning Machine' },
-  { id: 'weeklyReview', label: 'Weekly Review' },
-  { id: 'avanceWorkday', label: 'Avance Workday' },
-  { id: 'shiftCommandCenter', label: 'Command Center' },
-  { id: 'healthOutdoors', label: 'Health & Outdoors' },
-  { id: 'skillTracks', label: 'Skill Tracks' },
-  { id: 'mspSkills', label: 'MSP Skills' },
-  { id: 'mspScenarios', label: 'MSP Scenarios' },
-  { id: 'mspQuiz', label: 'Strict Quiz' },
-  { id: 'ticketNotes', label: 'Ticket Notes' },
-  { id: 'communicationPractice', label: 'Communication Practice' },
-  { id: 'mspRoadmap', label: 'MSP Roadmap' },
-  { id: 'evidencePack', label: 'Evidence Pack' },
-  { id: 'microLearning', label: 'Micro-Learning' },
-  { id: 'avancePDGames', label: 'AvancePD Games' }
+const pages: Array<{ id: PageId; label: string; path: string }> = [
+  { id: 'dashboard', label: 'Dashboard', path: '/dashboard' },
+  { id: 'search', label: 'Search', path: '/search' },
+  { id: 'quickTools', label: 'Quick Tools', path: '/quick-tools' },
+  { id: 'fieldOps', label: 'Field Ops', path: '/field-ops' },
+  { id: 'shifts', label: 'Shifts', path: '/shifts' },
+  { id: 'tasks', label: 'Tasks', path: '/tasks' },
+  { id: 'worklogs', label: 'Work Logs', path: '/worklogs' },
+  { id: 'knowledge', label: 'Knowledge', path: '/knowledge' },
+  { id: 'playbooks', label: 'Playbooks', path: '/playbooks' },
+  { id: 'time', label: 'Time', path: '/time' },
+  { id: 'pd', label: 'PD', path: '/pd' },
+  { id: 'kbLearning', label: 'KB Learning Machine', path: '/kb-learning' },
+  { id: 'weeklyReview', label: 'Weekly Review', path: '/weekly-review' },
+  { id: 'avanceWorkday', label: 'Avance Workday', path: '/avance-workday' },
+  { id: 'shiftCommandCenter', label: 'Command Center', path: '/shift-command-center' },
+  { id: 'healthOutdoors', label: 'Health & Outdoors', path: '/health-outdoors' },
+  { id: 'skillTracks', label: 'Skill Tracks', path: '/skill-tracks' },
+  { id: 'mspSkills', label: 'MSP Skills', path: '/msp-skills' },
+  { id: 'mspScenarios', label: 'MSP Scenarios', path: '/msp-scenarios' },
+  { id: 'mspQuiz', label: 'Strict Quiz', path: '/msp-quiz' },
+  { id: 'ticketNotes', label: 'Ticket Notes', path: '/ticket-notes' },
+  { id: 'communicationPractice', label: 'Communication Practice', path: '/communication-practice' },
+  { id: 'mspRoadmap', label: 'MSP Roadmap', path: '/msp-roadmap' },
+  { id: 'evidencePack', label: 'Evidence Pack', path: '/evidence-pack' },
+  { id: 'microLearning', label: 'Micro-Learning', path: '/micro-learning' },
+  { id: 'avancePDGames', label: 'AvancePD Games', path: '/avance-pd-games' }
 ];
 
 type PageId =
@@ -109,6 +117,11 @@ type PageId =
   | 'microLearning'
   | 'avancePDGames';
 
+const pageIdToPath: Record<PageId, string> = pages.reduce((acc, page) => {
+  acc[page.id] = page.path;
+  return acc;
+}, {} as Record<PageId, string>);
+
 function loadPersisted<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') {
     return fallback;
@@ -121,8 +134,8 @@ function loadPersisted<T>(key: string, fallback: T): T {
   }
 }
 
-function App() {
-  const [currentPage, setCurrentPage] = useState<PageId>('dashboard');
+function AppContent() {
+  const navigate = useNavigate();
   const [workLogs, setWorkLogs] = useState<WorkLog[]>(() => loadPersisted('avance-workLogs', sampleWorkLogs));
   const [tasks, setTasks] = useState<Task[]>(() => loadPersisted('avance-tasks', sampleTasks));
   const [knowledgeEntries, setKnowledgeEntries] = useState<KnowledgeEntry[]>(() => loadPersisted('avance-knowledgeEntries', sampleKnowledgeEntries));
@@ -197,6 +210,11 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const navigateToPage = (page: PageId) => {
+    const target = pageIdToPath[page] ?? '/dashboard';
+    navigate(target);
+  };
+
   const addWorkLog = (log: WorkLog) => setWorkLogs((current) => [log, ...current]);
   const updateWorkLog = (updatedLog: WorkLog) => setWorkLogs((current) => current.map((log) => (log.id === updatedLog.id ? updatedLog : log)));
   const deleteWorkLog = (logId: string) => {
@@ -264,180 +282,242 @@ function App() {
         </button>
         <nav>
           {pages.map((page) => (
-            <button
+            <NavLink
               key={page.id}
-              className={currentPage === page.id ? 'active' : ''}
-              onClick={() => setCurrentPage(page.id as PageId)}
+              to={page.path}
+              className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')}
             >
               {page.label}
-            </button>
+            </NavLink>
           ))}
         </nav>
       </aside>
       <main className="main-content">
-        <ShortcutOverlay open={showShortcuts} onClose={() => setShowShortcuts(false)} onNavigate={(page) => setCurrentPage(page as PageId)} />
-        {currentPage === 'dashboard' && (
-          <Dashboard
-            shifts={sampleShifts}
-            clients={sampleClients}
-            tasks={tasks}
-            workLogs={workLogs}
-            timeEntries={timeEntries}
-            learningItems={learningItems}
-            progress={progress}
-            addWorkLog={addWorkLog}
-            addTask={addTask}
-            addLearningItem={addLearningItem}
-            showOnboarding={showOnboarding}
-            completeOnboarding={() => setShowOnboarding(false)}
-            healthState={healthState}
-            setHealthState={setHealthState}
-            onNavigateHealth={() => setCurrentPage('healthOutdoors')}
-            onNavigate={(page) => setCurrentPage(page as PageId)}
+        <ShortcutOverlay open={showShortcuts} onClose={() => setShowShortcuts(false)} onNavigate={(page) => navigateToPage(page as PageId)} />
+        <Routes>
+          <Route
+            path="/dashboard"
+            element={
+              <Dashboard
+                shifts={sampleShifts}
+                clients={sampleClients}
+                tasks={tasks}
+                workLogs={workLogs}
+                timeEntries={timeEntries}
+                learningItems={learningItems}
+                progress={progress}
+                addWorkLog={addWorkLog}
+                addTask={addTask}
+                addLearningItem={addLearningItem}
+                showOnboarding={showOnboarding}
+                completeOnboarding={() => setShowOnboarding(false)}
+                healthState={healthState}
+                setHealthState={setHealthState}
+                onNavigateHealth={() => navigateToPage('healthOutdoors')}
+                onNavigate={(page) => navigateToPage(page as PageId)}
+              />
+            }
           />
-        )}
-        {currentPage === 'search' && (
-          <Search
-            tasks={tasks}
-            workLogs={workLogs}
-            knowledgeEntries={knowledgeEntries}
-            playbooks={playbooks}
-            learningItems={learningItems}
-            timeEntries={timeEntries}
-            onNavigate={(page) => setCurrentPage(page as PageId)}
+          <Route
+            path="/search"
+            element={
+              <Search
+                tasks={tasks}
+                workLogs={workLogs}
+                knowledgeEntries={knowledgeEntries}
+                playbooks={playbooks}
+                learningItems={learningItems}
+                timeEntries={timeEntries}
+                onNavigate={(page) => navigateToPage(page as PageId)}
+              />
+            }
           />
-        )}
-        {currentPage === 'quickTools' && <QuickTools />}
-        {currentPage === 'fieldOps' && <FieldOps />}
-        {currentPage === 'shifts' && <ShiftScheduler shifts={sampleShifts} clients={sampleClients} />}
-        {currentPage === 'tasks' && (
-          <Tasks
-            tasks={tasks}
-            clients={sampleClients}
-            addTask={addTask}
-            updateTask={updateTask}
-            deleteTask={deleteTask}
+          <Route path="/quick-tools" element={<QuickTools />} />
+          <Route path="/field-ops" element={<FieldOps />} />
+          <Route path="/shifts" element={<ShiftScheduler shifts={sampleShifts} clients={sampleClients} />} />
+          <Route
+            path="/tasks"
+            element={
+              <Tasks
+                tasks={tasks}
+                clients={sampleClients}
+                addTask={addTask}
+                updateTask={updateTask}
+                deleteTask={deleteTask}
+              />
+            }
           />
-        )}
-        {currentPage === 'worklogs' && (
-          <WorkLogs
-            workLogs={workLogs}
-            clients={sampleClients}
-            addWorkLog={addWorkLog}
-            updateWorkLog={updateWorkLog}
-            deleteWorkLog={deleteWorkLog}
+          <Route
+            path="/worklogs"
+            element={
+              <WorkLogs
+                workLogs={workLogs}
+                clients={sampleClients}
+                addWorkLog={addWorkLog}
+                updateWorkLog={updateWorkLog}
+                deleteWorkLog={deleteWorkLog}
+              />
+            }
           />
-        )}
-        {currentPage === 'knowledge' && (
-          <Knowledge
-            entries={knowledgeEntries}
-            addEntry={addKnowledgeEntry}
-            updateEntry={updateKnowledgeEntry}
-            deleteEntry={deleteKnowledgeEntry}
+          <Route
+            path="/knowledge"
+            element={
+              <Knowledge
+                entries={knowledgeEntries}
+                addEntry={addKnowledgeEntry}
+                updateEntry={updateKnowledgeEntry}
+                deleteEntry={deleteKnowledgeEntry}
+              />
+            }
           />
-        )}
-        {currentPage === 'playbooks' && (
-          <Playbooks
-            playbooks={playbooks}
-            workLogs={workLogs}
-            knowledgeEntries={knowledgeEntries}
-            addPlaybook={addPlaybook}
-            updatePlaybook={updatePlaybook}
-            deletePlaybook={deletePlaybook}
+          <Route
+            path="/playbooks"
+            element={
+              <Playbooks
+                playbooks={playbooks}
+                workLogs={workLogs}
+                knowledgeEntries={knowledgeEntries}
+                addPlaybook={addPlaybook}
+                updatePlaybook={updatePlaybook}
+                deletePlaybook={deletePlaybook}
+              />
+            }
           />
-        )}
-        {currentPage === 'time' && (
-          <Time
-            timeEntries={timeEntries}
-            addTimeEntry={addTimeEntry}
-            updateTimeEntry={updateTimeEntry}
-            deleteTimeEntry={deleteTimeEntry}
+          <Route
+            path="/time"
+            element={
+              <Time
+                timeEntries={timeEntries}
+                addTimeEntry={addTimeEntry}
+                updateTimeEntry={updateTimeEntry}
+                deleteTimeEntry={deleteTimeEntry}
+              />
+            }
           />
-        )}
-        {currentPage === 'pd' && (
-          <PD
-            learningItems={learningItems}
-            addLearningItem={addLearningItem}
-            updateLearningItem={updateLearningItem}
-            deleteLearningItem={deleteLearningItem}
-            addKnowledgeEntry={addKnowledgeEntry}
+          <Route
+            path="/pd"
+            element={
+              <PD
+                learningItems={learningItems}
+                addLearningItem={addLearningItem}
+                updateLearningItem={updateLearningItem}
+                deleteLearningItem={deleteLearningItem}
+                addKnowledgeEntry={addKnowledgeEntry}
+              />
+            }
           />
-        )}
-        {currentPage === 'kbLearning' && (
-          <KBLearning
-            progress={progress}
-            learningItems={learningItems}
-            onNavigate={(page) => setCurrentPage(page as PageId)}
+          <Route
+            path="/kb-learning"
+            element={
+              <KBLearning
+                progress={progress}
+                learningItems={learningItems}
+                onNavigate={(page) => navigateToPage(page as PageId)}
+              />
+            }
           />
-        )}
-        {currentPage === 'weeklyReview' && (
-          <WeeklyReview
-            progress={progress}
-            tasks={tasks}
-            workLogs={workLogs}
-            learningItems={learningItems}
-            healthState={healthState}
+          <Route
+            path="/weekly-review"
+            element={
+              <WeeklyReview
+                progress={progress}
+                tasks={tasks}
+                workLogs={workLogs}
+                learningItems={learningItems}
+                healthState={healthState}
+              />
+            }
           />
-        )}
-        {currentPage === 'avanceWorkday' && (
-          <AvanceWorkday
-            progress={progress}
-            updateWorkday={updateWorkday}
-            onNavigate={(page) => setCurrentPage(page as PageId)}
-            healthState={healthState}
-            setHealthState={setHealthState}
-            onNavigateHealth={() => setCurrentPage('healthOutdoors')}
+          <Route
+            path="/avance-workday"
+            element={
+              <AvanceWorkday
+                progress={progress}
+                updateWorkday={updateWorkday}
+                onNavigate={(page) => navigateToPage(page as PageId)}
+                healthState={healthState}
+                setHealthState={setHealthState}
+                onNavigateHealth={() => navigateToPage('healthOutdoors')}
+              />
+            }
           />
-        )}
-        {currentPage === 'shiftCommandCenter' && (
-          <ShiftCommandCenter
-            tasks={tasks}
-            workLogs={workLogs}
-            learningItems={learningItems}
-            healthState={healthState}
-            setHealthState={setHealthState}
-            onNavigate={(page) => setCurrentPage(page as PageId)}
+          <Route
+            path="/shift-command-center"
+            element={
+              <ShiftCommandCenter
+                tasks={tasks}
+                workLogs={workLogs}
+                learningItems={learningItems}
+                healthState={healthState}
+                setHealthState={setHealthState}
+                onNavigate={(page) => navigateToPage(page as PageId)}
+              />
+            }
           />
-        )}
-        {currentPage === 'healthOutdoors' && (
-          <HealthOutdoors
-            healthState={healthState}
-            setHealthState={setHealthState}
-            addTask={addTask}
-            defaultClientId={sampleClients[0]?.id ?? ''}
+          <Route
+            path="/health-outdoors"
+            element={
+              <HealthOutdoors
+                healthState={healthState}
+                setHealthState={setHealthState}
+                addTask={addTask}
+                defaultClientId={sampleClients[0]?.id ?? ''}
+              />
+            }
           />
-        )}
-        {currentPage === 'skillTracks' && <SkillTracks progress={progress} onNavigate={(page) => setCurrentPage(page as PageId)} />}
-        {currentPage === 'mspSkills' && <MspSkills progress={progress} updateSkillReadiness={updateSkillReadiness} />}
-        {currentPage === 'mspScenarios' && <MspScenarios progress={progress} updateScenarioProgress={updateScenarioStatus} />}
-        {currentPage === 'mspQuiz' && (
-          <MspQuiz
-            progress={progress}
-            onNavigate={(page) => setCurrentPage(page as PageId)}
+          <Route
+            path="/skill-tracks"
+            element={<SkillTracks progress={progress} onNavigate={(page) => navigateToPage(page as PageId)} />}
           />
-        )}
-        {currentPage === 'ticketNotes' && (
-          <TicketNotes
-            ticketNotePracticeCount={progress.ticketNotePracticeCount}
-            incrementTicketNotePractice={incrementTicketNotePractice}
+          <Route
+            path="/msp-skills"
+            element={<MspSkills progress={progress} updateSkillReadiness={updateSkillReadiness} />}
           />
-        )}
-        {currentPage === 'communicationPractice' && <CommunicationPractice />}
-        {currentPage === 'mspRoadmap' && <MspRoadmap />}
-        {currentPage === 'evidencePack' && <EvidencePack progress={progress} />}
-        {currentPage === 'microLearning' && (
-          <MicroLearning
-            progress={progress}
-            markMicroCardViewed={markMicroCardViewed}
-            onNavigate={(page) => setCurrentPage(page as PageId)}
+          <Route
+            path="/msp-scenarios"
+            element={<MspScenarios progress={progress} updateScenarioProgress={updateScenarioStatus} />}
           />
-        )}
-        {currentPage === 'avancePDGames' && (
-          <AvancePDGames onNavigate={(page) => setCurrentPage(page as PageId)} />
-        )}
+          <Route
+            path="/msp-quiz"
+            element={<MspQuiz progress={progress} onNavigate={(page) => navigateToPage(page as PageId)} />}
+          />
+          <Route
+            path="/ticket-notes"
+            element={
+              <TicketNotes
+                ticketNotePracticeCount={progress.ticketNotePracticeCount}
+                incrementTicketNotePractice={incrementTicketNotePractice}
+              />
+            }
+          />
+          <Route path="/communication-practice" element={<CommunicationPractice />} />
+          <Route path="/msp-roadmap" element={<MspRoadmap />} />
+          <Route path="/evidence-pack" element={<EvidencePack progress={progress} />} />
+          <Route
+            path="/micro-learning"
+            element={
+              <MicroLearning
+                progress={progress}
+                markMicroCardViewed={markMicroCardViewed}
+                onNavigate={(page) => navigateToPage(page as PageId)}
+              />
+            }
+          />
+          <Route path="/avance-pd-games" element={<AvancePDGames onNavigate={(page) => navigateToPage(page as PageId)} />} />
+          <Route path="/" element={<Navigate replace to="/dashboard" />} />
+          <Route path="*" element={<Navigate replace to="/dashboard" />} />
+        </Routes>
       </main>
-      <MobileBottomActions onNavigate={(page) => setCurrentPage(page as PageId)} />
+      <MobileBottomActions onNavigate={(page) => navigateToPage(page as PageId)} />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 }
 
