@@ -38,6 +38,7 @@ import FieldOps from './pages/FieldOps';
 import { useTaskStore } from './store/taskStore';
 import { useKnowledgeStore } from './store/knowledgeStore';
 import { useWorkLogStore } from './store/workLogStore';
+import { usePlaybookStore } from './store/playbookStore';
 import type { MspSkillReadiness } from './data/mspSkills';
 import {
   incrementTicketNotePractice as incrementTicketNotePracticeProgress,
@@ -55,7 +56,6 @@ import {
   shifts as sampleShifts,
   workLogs as sampleWorkLogs,
   knowledgeEntries as sampleKnowledgeEntries,
-  playbooks as samplePlaybooks,
   learningItems as sampleLearningItems,
   timeEntries as sampleTimeEntries
 } from './data/sampleData';
@@ -150,7 +150,10 @@ function AppContent() {
   const addKnowledgeEntry = useKnowledgeStore((state) => state.addKnowledgeEntry);
   const updateKnowledgeEntry = useKnowledgeStore((state) => state.updateKnowledgeEntry);
   const deleteKnowledgeEntry = useKnowledgeStore((state) => state.deleteKnowledgeEntry);
-  const [playbooks, setPlaybooks] = useState<Playbook[]>(() => loadPersisted('avance-playbooks', samplePlaybooks));
+  const playbooks = usePlaybookStore((state) => state.playbooks);
+  const addPlaybook = usePlaybookStore((state) => state.addPlaybook);
+  const updatePlaybook = usePlaybookStore((state) => state.updatePlaybook);
+  const deletePlaybook = usePlaybookStore((state) => state.deletePlaybook);
   const [learningItems, setLearningItems] = useState<LearningItem[]>(() => loadPersisted('avance-learningItems', sampleLearningItems));
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>(() => loadPersisted('avance-timeEntries', sampleTimeEntries));
   const [progress, setProgress] = useState(loadProgress);
@@ -161,10 +164,6 @@ function AppContent() {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem('avance-onboarded') !== 'true';
   });
-
-  useEffect(() => {
-    window.localStorage.setItem('avance-playbooks', JSON.stringify(playbooks));
-  }, [playbooks]);
 
   useEffect(() => {
     window.localStorage.setItem('avance-learningItems', JSON.stringify(learningItems));
@@ -214,13 +213,6 @@ function AppContent() {
     navigate(target);
   };
 
-  const addPlaybook = (playbook: Playbook) => setPlaybooks((current) => [playbook, ...current]);
-  const updatePlaybook = (updatedPlaybook: Playbook) => setPlaybooks((current) => current.map((playbook) => (playbook.id === updatedPlaybook.id ? updatedPlaybook : playbook)));
-  const deletePlaybook = (playbookId: string) => {
-    if (window.confirm('Remove this local playbook?')) {
-      setPlaybooks((current) => current.filter((playbook) => playbook.id !== playbookId));
-    }
-  };
   const addLearningItem = (item: LearningItem) => setLearningItems((current) => [item, ...current]);
   const updateLearningItem = (updatedItem: LearningItem) => setLearningItems((current) => current.map((item) => (item.id === updatedItem.id ? updatedItem : item)));
   const deleteLearningItem = (itemId: string) => {
