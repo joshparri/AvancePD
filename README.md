@@ -16,6 +16,7 @@ Features
 - Ticket Notes Trainer: practice writing professional ticket notes with examples and a rubric
 - Evidence Pack: generate manager-safe PD summaries based on completed activities
 - Knowledge base, playbooks, and troubleshooting flows
+- Field Ops cockpit for pending actions, alert sanitizing, security triage, onsite checklists, and operational primers
 - Health & Outdoors reminders and microbreak flows
 Saved Local Progress: preferences and progress saved in browser localStorage for continuity
 

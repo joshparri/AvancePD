@@ -78,6 +78,7 @@ function Dashboard({
           <div className="dashboard-hero-actions">
             <button type="button" className="primary-action" onClick={() => onNavigate('kbLearning')}>Open KB Learning</button>
             <button type="button" className="secondary-action" onClick={() => document.getElementById('quick-capture-title')?.focus()}>Quick capture</button>
+            <button type="button" className="secondary-action" onClick={() => onNavigate('fieldOps')}>Field Ops</button>
             <button type="button" className="secondary-action" onClick={onNavigateHealth}>Health reset</button>
           </div>
         </div>
@@ -163,6 +164,11 @@ function Dashboard({
             <h3>Scenario of the week</h3>
             <p>{scenarioOfWeek.title}</p>
             <button type="button" onClick={() => onNavigate('mspScenarios')}>Practise scenario</button>
+          </article>
+          <article className="mini-card icon-capture">
+            <h3>Field ops cockpit</h3>
+            <p>Track stalled follow-ups, sanitize alerts, run checklists, and copy safe evidence.</p>
+            <button type="button" onClick={() => onNavigate('fieldOps')}>Open Field Ops</button>
           </article>
           <article className="mini-card icon-capture">
             <h3>Micro-learning card</h3>
