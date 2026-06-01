@@ -39,6 +39,7 @@ import { useTaskStore } from './store/taskStore';
 import { useKnowledgeStore } from './store/knowledgeStore';
 import { useWorkLogStore } from './store/workLogStore';
 import { usePlaybookStore } from './store/playbookStore';
+import { useLearningStore } from './store/learningStore';
 import type { MspSkillReadiness } from './data/mspSkills';
 import {
   incrementTicketNotePractice as incrementTicketNotePracticeProgress,
@@ -56,7 +57,6 @@ import {
   shifts as sampleShifts,
   workLogs as sampleWorkLogs,
   knowledgeEntries as sampleKnowledgeEntries,
-  learningItems as sampleLearningItems,
   timeEntries as sampleTimeEntries
 } from './data/sampleData';
 import type { KnowledgeEntry, LearningItem, Playbook, Task, TimeEntry, WorkLog } from './types';
@@ -154,7 +154,10 @@ function AppContent() {
   const addPlaybook = usePlaybookStore((state) => state.addPlaybook);
   const updatePlaybook = usePlaybookStore((state) => state.updatePlaybook);
   const deletePlaybook = usePlaybookStore((state) => state.deletePlaybook);
-  const [learningItems, setLearningItems] = useState<LearningItem[]>(() => loadPersisted('avance-learningItems', sampleLearningItems));
+  const learningItems = useLearningStore((state) => state.learningItems);
+  const addLearningItem = useLearningStore((state) => state.addLearningItem);
+  const updateLearningItem = useLearningStore((state) => state.updateLearningItem);
+  const deleteLearningItem = useLearningStore((state) => state.deleteLearningItem);
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>(() => loadPersisted('avance-timeEntries', sampleTimeEntries));
   const [progress, setProgress] = useState(loadProgress);
   const [healthState, setHealthState] = useState<HealthState>(loadHealthState);
@@ -164,10 +167,6 @@ function AppContent() {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem('avance-onboarded') !== 'true';
   });
-
-  useEffect(() => {
-    window.localStorage.setItem('avance-learningItems', JSON.stringify(learningItems));
-  }, [learningItems]);
 
   useEffect(() => {
     window.localStorage.setItem('avance-timeEntries', JSON.stringify(timeEntries));
@@ -213,13 +212,6 @@ function AppContent() {
     navigate(target);
   };
 
-  const addLearningItem = (item: LearningItem) => setLearningItems((current) => [item, ...current]);
-  const updateLearningItem = (updatedItem: LearningItem) => setLearningItems((current) => current.map((item) => (item.id === updatedItem.id ? updatedItem : item)));
-  const deleteLearningItem = (itemId: string) => {
-    if (window.confirm('Remove this local learning note?')) {
-      setLearningItems((current) => current.filter((item) => item.id !== itemId));
-    }
-  };
   const addTimeEntry = (entry: TimeEntry) => setTimeEntries((current) => [entry, ...current]);
   const updateTimeEntry = (updatedEntry: TimeEntry) => setTimeEntries((current) => current.map((entry) => (entry.id === updatedEntry.id ? updatedEntry : entry)));
   const deleteTimeEntry = (entryId: string) => {
