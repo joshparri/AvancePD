@@ -21,8 +21,10 @@
   margin-bottom: 16px;
 }
 
-.sidebar button {
+.sidebar button,
+.sidebar-link {
   width: 100%;
+  display: block;
   border: none;
   background: transparent;
   color: rgba(255, 255, 255, 0.8);
@@ -30,12 +32,21 @@
   text-align: left;
   border-radius: 10px;
   cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+  margin-bottom: 6px;
 }
 
 .sidebar button:hover,
-.sidebar button.active {
+.sidebar-link:hover,
+.sidebar button.active,
+.sidebar-link.active {
   background: rgba(148, 163, 184, 0.16);
   color: #ffffff;
+}
+
+.sidebar-link:last-child {
+  margin-bottom: 0;
 }
 
 .low-energy-toggle {
