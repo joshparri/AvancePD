@@ -14,11 +14,11 @@ Private operational notes, client details, credentials, archives, raw references
 - `UI_UX_AND_TONE_GUIDE.md` - app tone, UX, accessibility, and visual principles
 - `SAMPLE_SEED_DATA.md` - seed-data policy and safe sample-data rules
 - `HEALTH_AND_OUTDOORS.md` - Health & Outdoors design, privacy, and email architecture notes
+- `FIELD_NOTES_APP_INSPIRATION.md` - privacy-safe source inspiration and Field Ops implementation notes
 - `DEPLOYMENT.md` - private deployment and local preview guidance
 - `SYNC_PLAN.md` - optional low-risk sync plan
 - `QA_CHECKLIST.md` - build, navigation, persistence, and privacy checks
 - `ROADMAP.md` - deferred future work and guardrails
 - `AWESOME_IDEAS_AND_VIBE_CODER_PLAN.md` - feature ideas, upgrades, and implementation guidance
-- `FIELD_NOTES_APP_INSPIRATION.md` - privacy-safe product inspiration distilled from local field notes and backlog exports
 - `VIBE_CODER_PROMPT_PACKS.md` - detailed implementation prompts for Work Companion, Avance PD, and the KB Learning Machine
 - `LEARNING_MACHINE_TODO.md` - implementation backlog for learning seeds, KB field cards, reviews, scenarios, drills, and evidence

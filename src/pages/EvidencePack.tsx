@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { mspSkills } from '../data/mspSkills';
 import { mspScenarios } from '../data/mspScenarios';
+import { getFieldOpsEvidenceSummary, loadFieldOpsState, type FieldOpsState } from '../utils/fieldOps';
 import { getEffectiveSkillReadiness, getRecommendedStudyAreas, getWeakSkills } from '../utils/nextBestAction';
 import type { AvanceProgress } from '../utils/progressStorage';
 
@@ -16,12 +17,15 @@ function EvidencePack({ progress }: EvidencePackProps) {
   const [selectedSections, setSelectedSections] = useState<Record<string, boolean>>({
     skills: true,
     scenarios: true,
+    fieldOps: true,
     weakAreas: true,
     studyAreas: true,
     outputs: true,
     healthRoutine: true
   });
-  const summary = useMemo(() => buildEvidenceSummary(progress), [progress]);
+  const [fieldOpsState] = useState<FieldOpsState>(loadFieldOpsState);
+  const fieldOpsEvidence = useMemo(() => getFieldOpsEvidenceSummary(fieldOpsState), [fieldOpsState]);
+  const summary = useMemo(() => buildEvidenceSummary(progress, fieldOpsEvidence), [fieldOpsEvidence, progress]);
   const markdown = useMemo(() => buildMarkdownSummary(summary, selectedSections), [summary, selectedSections]);
   const plainText = useMemo(() => buildPlainTextSummary(summary, selectedSections), [summary, selectedSections]);
   const jsonSummary = useMemo(() => JSON.stringify({ generatedAt: new Date().toISOString(), summary, selectedSections }, null, 2), [summary, selectedSections]);
@@ -97,6 +101,7 @@ function EvidencePack({ progress }: EvidencePackProps) {
           <Metric label="Confident scenarios" value={summary.scenariosConfident.length} />
           <Metric label="Needs review" value={summary.scenariosNeedsReview.length} />
           <Metric label="Ticket note practices" value={progress.ticketNotePracticeCount} />
+          <Metric label="Field ops checklist items" value={summary.fieldOps.completedChecklistItems.length} />
           <Metric label="Weak areas" value={summary.weakAreas.length} />
         </div>
       </section>
@@ -117,6 +122,7 @@ function EvidencePack({ progress }: EvidencePackProps) {
           {[
             ['skills', 'Skills practised'],
             ['scenarios', 'Scenarios practised'],
+            ['fieldOps', 'Field ops patterns'],
             ['weakAreas', 'Weak areas'],
             ['studyAreas', 'Recommended study areas'],
             ['outputs', 'Practical outputs'],
@@ -169,7 +175,7 @@ function Metric({ label, value }: { label: string; value: number }) {
   );
 }
 
-function buildEvidenceSummary(progress: AvanceProgress) {
+function buildEvidenceSummary(progress: AvanceProgress, fieldOps: ReturnType<typeof getFieldOpsEvidenceSummary>) {
   const skillsPractised = mspSkills.filter((skill) => {
     const readiness = getEffectiveSkillReadiness(progress, skill.id);
     return readiness === 'practised' || readiness === 'work-ready' || readiness === 'evidence-proven';
@@ -185,7 +191,8 @@ function buildEvidenceSummary(progress: AvanceProgress) {
   const practicalOutputs = [
     progress.ticketNotePracticeCount > 0 ? `${progress.ticketNotePracticeCount} privacy-safe ticket note practice entries recorded` : 'Ticket note practice not yet recorded',
     scenariosPractised.length > 0 ? `${scenariosPractised.length} guided MSP scenarios reviewed` : 'Scenario practice not yet recorded',
-    skillsPractised.length > 0 ? `${skillsPractised.length} skills moved to practised or stronger readiness` : 'Skill readiness updates not yet recorded'
+    skillsPractised.length > 0 ? `${skillsPractised.length} skills moved to practised or stronger readiness` : 'Skill readiness updates not yet recorded',
+    ...fieldOps.practicalOutputs
   ];
 
   return {
@@ -195,7 +202,8 @@ function buildEvidenceSummary(progress: AvanceProgress) {
     scenariosNeedsReview,
     weakAreas,
     recommendedStudyAreas,
-    practicalOutputs
+    practicalOutputs,
+    fieldOps
   };
 }
 
@@ -212,6 +220,12 @@ function buildMarkdownSummary(summary: ReturnType<typeof buildEvidenceSummary>, 
     '',
     ...optionalSection(selectedSections.skills, '## Skills Practised', summary.skillsPractised.map((skill) => `${skill.title} (${skill.category})`)),
     ...optionalSection(selectedSections.scenarios, '## Scenarios Practised', summary.scenariosPractised.map((scenario) => `${scenario.title} (${scenario.category})`)),
+    ...optionalSection(selectedSections.fieldOps, '## Field Ops Patterns', [
+      `${summary.fieldOps.completedPendingActions.length} pending action(s) completed`,
+      `${summary.fieldOps.completedChecklistItems.length} field checklist item(s) completed`,
+      `${summary.fieldOps.backlogItems.length} safe backlog idea(s) triaged`,
+      ...summary.fieldOps.completedChecklistItems.map((item) => `${item.evidenceSkill} (${item.group})`)
+    ]),
     ...optionalSection(selectedSections.weakAreas, '## Weak Areas', summary.weakAreas.map((skill) => `${skill.title} (${skill.category})`)),
     ...optionalSection(selectedSections.studyAreas, '## Recommended Next Study Areas', summary.recommendedStudyAreas),
     ...optionalSection(selectedSections.outputs, '## Practical Outputs', summary.practicalOutputs),

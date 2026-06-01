@@ -26,6 +26,7 @@ import SkillTracks from './pages/SkillTracks';
 import WeeklyReview from './pages/WeeklyReview';
 import ShiftCommandCenter from './pages/ShiftCommandCenter';
 import QuickTools from './pages/QuickTools';
+import FieldOps from './pages/FieldOps';
 import type { MspSkillReadiness } from './data/mspSkills';
 import {
   incrementTicketNotePractice as incrementTicketNotePracticeProgress,
@@ -55,6 +56,7 @@ const pages = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'search', label: 'Search' },
   { id: 'quickTools', label: 'Quick Tools' },
+  { id: 'fieldOps', label: 'Field Ops' },
   { id: 'shifts', label: 'Shifts' },
   { id: 'tasks', label: 'Tasks' },
   { id: 'worklogs', label: 'Work Logs' },
@@ -83,6 +85,7 @@ type PageId =
   | 'dashboard'
   | 'search'
   | 'quickTools'
+  | 'fieldOps'
   | 'shifts'
   | 'tasks'
   | 'worklogs'
@@ -305,6 +308,7 @@ function App() {
           />
         )}
         {currentPage === 'quickTools' && <QuickTools />}
+        {currentPage === 'fieldOps' && <FieldOps />}
         {currentPage === 'shifts' && <ShiftScheduler shifts={sampleShifts} clients={sampleClients} />}
         {currentPage === 'tasks' && (
           <Tasks

@@ -1168,6 +1168,42 @@ section {
   margin-top: 14px;
 }
 
+.field-ops-form-grid,
+.field-ops-two-column,
+.field-ops-checklist-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin-top: 14px;
+}
+
+.field-ops-two-column {
+  align-items: start;
+}
+
+.field-ops-textarea {
+  min-height: 280px;
+}
+
+.field-ops-list {
+  display: grid;
+  gap: 12px;
+}
+
+.field-ops-list-item {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.field-ops-list-item strong {
+  display: block;
+  margin-top: 8px;
+}
+
 .health-action-row {
   align-items: center;
   display: flex;

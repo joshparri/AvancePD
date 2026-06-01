@@ -34,6 +34,7 @@ function ShortcutOverlay({ open, onClose, onNavigate }: ShortcutOverlayProps) {
         <div className="status-button-row">
           <button type="button" onClick={() => { onNavigate('dashboard'); onClose(); }}>Dashboard</button>
           <button type="button" className="small-action" onClick={() => { onNavigate('search'); onClose(); }}>Search</button>
+          <button type="button" className="small-action" onClick={() => { onNavigate('fieldOps'); onClose(); }}>Field Ops</button>
           <button type="button" className="small-action" onClick={() => { onNavigate('healthOutdoors'); onClose(); }}>Health reset</button>
         </div>
       </section>

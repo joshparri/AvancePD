@@ -46,6 +46,11 @@ function ShiftCommandCenter({ tasks, workLogs, learningItems, healthState, setHe
             <p>{dueLearning[0] ? dueLearning[0].topic : 'No learning notes due today.'}</p>
             <button type="button" onClick={() => onNavigate('pd')}>Open PD</button>
           </article>
+          <article className="mini-card">
+            <h3>Field ops</h3>
+            <p>Pending actions, alert sanitizer, onsite checklists, and change guardrails.</p>
+            <button type="button" onClick={() => onNavigate('fieldOps')}>Open Field Ops</button>
+          </article>
         </div>
       </section>
 

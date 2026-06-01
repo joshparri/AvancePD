@@ -13,6 +13,7 @@ Use this checklist before release or deployment changes.
 - Search opens and returns local results.
 - Command Center opens and shows Now, Focus Mode, Health, Later, and Shutdown sections.
 - Quick Tools opens and shows phrase bank, escalation builder, ticket checklist, phone prep, decompression, and safe wording checker.
+- Field Ops opens and shows pending actions, monitoring alert sanitizer, security triage paths, field checklists, operational primers, backlog intake, and safe evidence export.
 - Avance Workday opens.
 - Weekly Review opens and shows scorecard plus copyable manager-safe summary.
 - Health & Outdoors opens.
@@ -51,6 +52,10 @@ Use this checklist before release or deployment changes.
 - Pressing `?` opens the keyboard shortcut overlay, and Escape closes it.
 - Delete actions ask for confirmation before removing local data.
 - Evidence Pack builder can include/exclude sections and copy Markdown, plain text, and JSON.
+- Evidence Pack can include Field Ops patterns without exposing client identifiers.
+- Field Ops pending actions persist after refresh and can be marked complete.
+- Field Ops monitoring alert sanitizer replaces emails, IP addresses, URLs, labelled tenants/devices/users, and phone numbers before copying.
+- Field Ops checklists persist after refresh.
 
 ## Health & Outdoors
 
@@ -70,3 +75,4 @@ Use this checklist before release or deployment changes.
 ## Privacy
 
 - No client names, credentials, IPs, hostnames, screenshots, copied tickets, or private medical notes are required by any flow.
+- Field Ops must not require raw alert text to be saved and must show sanitized text before the user copies or reuses it.

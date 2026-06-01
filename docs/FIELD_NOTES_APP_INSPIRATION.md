@@ -281,6 +281,12 @@ Guardrail:
 - Review existing command center, quick tools, tasks, and evidence pack for overlap with the ideas above.
 - Add missing QA items for privacy-safe follow-up, alert sanitization, and onsite checklist flows.
 
+Implementation status:
+
+- Added `Field Ops` as an in-app cockpit for pending actions, monitoring alert sanitization, security triage paths, field checklists, operational primers, backlog intake, and safe evidence export.
+- Wired Field Ops into the main navigation, Dashboard, Shift Command Center, shortcut overlay, and Evidence Pack.
+- Kept raw field-note source material outside GitHub and ignored local `docs/1/` exports.
+
 ### Next
 
 - Build Monitoring Alert Sanitizer as a local-only utility and UI panel.
