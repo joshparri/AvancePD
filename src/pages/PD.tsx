@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react';
 import type { KnowledgeEntry, LearningItem } from '../types';
+import LearningCoachCard from '../components/LearningCoachCard';
 
 type PDProps = {
   learningItems: LearningItem[];
@@ -125,6 +126,7 @@ function PD({ learningItems, addLearningItem, updateLearningItem, deleteLearning
         <p>Turn shift work into MSP skill growth and review.</p>
         <button type="button" onClick={startShiftReview}>Start shift review</button>
       </section>
+      <LearningCoachCard />
       <section className="card">
         <h2>Due for review</h2>
         {dueForReview.length ? (
