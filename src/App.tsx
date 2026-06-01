@@ -40,6 +40,7 @@ import { useKnowledgeStore } from './store/knowledgeStore';
 import { useWorkLogStore } from './store/workLogStore';
 import { usePlaybookStore } from './store/playbookStore';
 import { useLearningStore } from './store/learningStore';
+import { useTimeStore } from './store/timeStore';
 import type { MspSkillReadiness } from './data/mspSkills';
 import {
   incrementTicketNotePractice as incrementTicketNotePracticeProgress,
@@ -56,8 +57,7 @@ import {
   clients as sampleClients,
   shifts as sampleShifts,
   workLogs as sampleWorkLogs,
-  knowledgeEntries as sampleKnowledgeEntries,
-  timeEntries as sampleTimeEntries
+  knowledgeEntries as sampleKnowledgeEntries
 } from './data/sampleData';
 import type { KnowledgeEntry, LearningItem, Playbook, Task, TimeEntry, WorkLog } from './types';
 import './App.css';
@@ -158,7 +158,10 @@ function AppContent() {
   const addLearningItem = useLearningStore((state) => state.addLearningItem);
   const updateLearningItem = useLearningStore((state) => state.updateLearningItem);
   const deleteLearningItem = useLearningStore((state) => state.deleteLearningItem);
-  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>(() => loadPersisted('avance-timeEntries', sampleTimeEntries));
+  const timeEntries = useTimeStore((state) => state.timeEntries);
+  const addTimeEntry = useTimeStore((state) => state.addTimeEntry);
+  const updateTimeEntry = useTimeStore((state) => state.updateTimeEntry);
+  const deleteTimeEntry = useTimeStore((state) => state.deleteTimeEntry);
   const [progress, setProgress] = useState(loadProgress);
   const [healthState, setHealthState] = useState<HealthState>(loadHealthState);
   const [showShortcuts, setShowShortcuts] = useState(false);
@@ -167,10 +170,6 @@ function AppContent() {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem('avance-onboarded') !== 'true';
   });
-
-  useEffect(() => {
-    window.localStorage.setItem('avance-timeEntries', JSON.stringify(timeEntries));
-  }, [timeEntries]);
 
   useEffect(() => {
     saveProgress(progress);
@@ -212,13 +211,6 @@ function AppContent() {
     navigate(target);
   };
 
-  const addTimeEntry = (entry: TimeEntry) => setTimeEntries((current) => [entry, ...current]);
-  const updateTimeEntry = (updatedEntry: TimeEntry) => setTimeEntries((current) => current.map((entry) => (entry.id === updatedEntry.id ? updatedEntry : entry)));
-  const deleteTimeEntry = (entryId: string) => {
-    if (window.confirm('Remove this local time entry?')) {
-      setTimeEntries((current) => current.filter((entry) => entry.id !== entryId));
-    }
-  };
   const updateScenarioStatus = (scenarioId: string, status: ScenarioStatus, reflection?: string) => {
     setProgress((current) => setScenarioProgress(current, scenarioId, status, reflection));
   };
