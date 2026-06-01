@@ -37,6 +37,7 @@ import QuickTools from './pages/QuickTools';
 import FieldOps from './pages/FieldOps';
 import { useTaskStore } from './store/taskStore';
 import { useKnowledgeStore } from './store/knowledgeStore';
+import { useWorkLogStore } from './store/workLogStore';
 import type { MspSkillReadiness } from './data/mspSkills';
 import {
   incrementTicketNotePractice as incrementTicketNotePracticeProgress,
@@ -137,7 +138,10 @@ function loadPersisted<T>(key: string, fallback: T): T {
 
 function AppContent() {
   const navigate = useNavigate();
-  const [workLogs, setWorkLogs] = useState<WorkLog[]>(() => loadPersisted('avance-workLogs', sampleWorkLogs));
+  const workLogs = useWorkLogStore((state) => state.workLogs);
+  const addWorkLog = useWorkLogStore((state) => state.addWorkLog);
+  const updateWorkLog = useWorkLogStore((state) => state.updateWorkLog);
+  const deleteWorkLog = useWorkLogStore((state) => state.deleteWorkLog);
   const tasks = useTaskStore((state) => state.tasks);
   const addTask = useTaskStore((state) => state.addTask);
   const updateTask = useTaskStore((state) => state.updateTask);
@@ -157,10 +161,6 @@ function AppContent() {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem('avance-onboarded') !== 'true';
   });
-
-  useEffect(() => {
-    window.localStorage.setItem('avance-workLogs', JSON.stringify(workLogs));
-  }, [workLogs]);
 
   useEffect(() => {
     window.localStorage.setItem('avance-playbooks', JSON.stringify(playbooks));
@@ -214,13 +214,6 @@ function AppContent() {
     navigate(target);
   };
 
-  const addWorkLog = (log: WorkLog) => setWorkLogs((current) => [log, ...current]);
-  const updateWorkLog = (updatedLog: WorkLog) => setWorkLogs((current) => current.map((log) => (log.id === updatedLog.id ? updatedLog : log)));
-  const deleteWorkLog = (logId: string) => {
-    if (window.confirm('Remove this local work log?')) {
-      setWorkLogs((current) => current.filter((log) => log.id !== logId));
-    }
-  };
   const addPlaybook = (playbook: Playbook) => setPlaybooks((current) => [playbook, ...current]);
   const updatePlaybook = (updatedPlaybook: Playbook) => setPlaybooks((current) => current.map((playbook) => (playbook.id === updatedPlaybook.id ? updatedPlaybook : playbook)));
   const deletePlaybook = (playbookId: string) => {
