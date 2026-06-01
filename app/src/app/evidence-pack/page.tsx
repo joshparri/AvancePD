@@ -29,6 +29,7 @@ import {
   type LearningEvidenceItem,
   type LearningEvidenceSource,
 } from '@/lib/learningEvidence';
+import { getFieldOpsEvidenceSummary, loadFieldOpsState } from '@/lib/fieldOps';
 import { HeroPanel, PageShell, SectionHeader } from '@/components/academy';
 import { LearningIllustration } from '@/components/learning/LearningIllustration';
 import { LearningDiagram } from '@/components/learning/LearningDiagram';
@@ -70,6 +71,8 @@ export default function EvidencePackPage() {
   const [learningStats] = useState(() => getLearningStats());
   const [kbCards] = useState(() => mergeKbCardsWithProgress());
   const [kbEvidenceSummary] = useState(() => getKbEvidenceSummary(kbCards));
+  const [fieldOpsState] = useState(() => loadFieldOpsState());
+  const fieldOpsEvidence = useMemo(() => getFieldOpsEvidenceSummary(fieldOpsState), [fieldOpsState]);
 
   const skillsWithProgress = useMemo(
     () => mergeSkillsWithProgress(mspSkills, skillReadiness),
@@ -179,6 +182,7 @@ export default function EvidencePackPage() {
 - Focus: Building practical MSP readiness across triage, endpoint support, Microsoft 365, networking, security, documentation, and escalation judgement.
 - Current evidence base: ${practisedSkills.length} skills at practised or stronger readiness, ${reviewedScenarios.length} scenarios marked reviewed/practised/confident, ${completedActivities.length} learning activities completed, and ticket note practice in place.
 - KB learning evidence: ${kbEvidenceSummary.kbsStudied} KB cards studied, ${kbEvidenceSummary.reviewsCompleted} reviews completed, ${kbEvidenceSummary.scenariosCompleted} KB scenario drills saved, and ${kbEvidenceSummary.ticketNotesPractised} KB ticket notes practised.
+- Field ops evidence: ${fieldOpsEvidence.completedPendingActions.length} pending actions completed, ${fieldOpsEvidence.completedChecklistItems.length} field checklist items completed, and ${fieldOpsEvidence.backlogItems.length} safe backlog ideas triaged.
 - Learning progress: ${learningStats.totalMinutes} minutes logged across ${Object.keys(activityTypeCounts).length} learning activity types.
 - Current weak area pattern: ${weakAreas[0] ?? 'No weak area data available yet.'}
 
@@ -212,6 +216,17 @@ ${formatList(scenarioProgressList.length > 0 ? scenarioProgressList : ['No scena
 - Confidence changes: ${kbEvidenceSummary.confidenceChanges}
 - Current KB gaps: ${formatList(kbEvidenceSummary.currentGaps)}
 - Next KB goals: ${formatList(kbEvidenceSummary.nextGoals)}
+
+## Field Ops Patterns
+- Pending actions completed: ${fieldOpsEvidence.completedPendingActions.length}
+- Field checklist items completed: ${fieldOpsEvidence.completedChecklistItems.length}
+- Safe backlog ideas triaged: ${fieldOpsEvidence.backlogItems.length}
+
+### Field Skills Practised
+${formatList(fieldOpsEvidence.completedChecklistItems.map((item) => `${item.evidenceSkill} (${item.group})`))}
+
+### Field Practical Outputs
+${formatList(fieldOpsEvidence.practicalOutputs)}
 
 ## Quiz Performance
 - Quiz attempts completed: ${quizAttempts.length}
@@ -298,6 +313,12 @@ ${formatList(practicalOutputs)}
               <CardContent className="p-4">
                 <p className="text-xs text-muted-foreground">Best quiz score</p>
                 <p className="text-2xl font-bold">{bestQuizScore ? `${bestQuizScore.percentage}%` : 'N/A'}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <p className="text-xs text-muted-foreground">Field ops</p>
+                <p className="text-2xl font-bold">{fieldOpsEvidence.completedChecklistItems.length}</p>
               </CardContent>
             </Card>
           </div>
@@ -510,6 +531,38 @@ ${formatList(practicalOutputs)}
               <CardContent>
                 <div className="flex flex-wrap gap-2">
                   {practicalOutputs.map((output) => (
+                    <Badge key={output} variant="outline">
+                      {output}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <ClipboardCheck className="h-5 w-5" />
+                  Field Ops patterns
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="rounded-md border p-3">
+                    <p className="text-xs text-muted-foreground">Actions done</p>
+                    <p className="text-xl font-bold">{fieldOpsEvidence.completedPendingActions.length}</p>
+                  </div>
+                  <div className="rounded-md border p-3">
+                    <p className="text-xs text-muted-foreground">Checklist items</p>
+                    <p className="text-xl font-bold">{fieldOpsEvidence.completedChecklistItems.length}</p>
+                  </div>
+                  <div className="rounded-md border p-3">
+                    <p className="text-xs text-muted-foreground">Backlog ideas</p>
+                    <p className="text-xl font-bold">{fieldOpsEvidence.backlogItems.length}</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {fieldOpsEvidence.practicalOutputs.map((output) => (
                     <Badge key={output} variant="outline">
                       {output}
                     </Badge>

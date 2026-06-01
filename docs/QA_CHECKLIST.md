@@ -14,6 +14,7 @@ Use this checklist before release or deployment changes.
 - Command Center opens and shows Now, Focus Mode, Health, Later, and Shutdown sections.
 - Quick Tools opens and shows phrase bank, escalation builder, ticket checklist, phone prep, decompression, and safe wording checker.
 - Field Ops opens and shows pending actions, monitoring alert sanitizer, security triage paths, field checklists, operational primers, backlog intake, and safe evidence export.
+- `/field-ops` opens in the Next.js app and appears in the main navigation.
 - Avance Workday opens.
 - Weekly Review opens and shows scorecard plus copyable manager-safe summary.
 - Health & Outdoors opens.
@@ -53,6 +54,7 @@ Use this checklist before release or deployment changes.
 - Delete actions ask for confirmation before removing local data.
 - Evidence Pack builder can include/exclude sections and copy Markdown, plain text, and JSON.
 - Evidence Pack can include Field Ops patterns without exposing client identifiers.
+- Next.js Evidence Pack can include Field Ops patterns without exposing client identifiers.
 - Field Ops pending actions persist after refresh and can be marked complete.
 - Field Ops monitoring alert sanitizer replaces emails, IP addresses, URLs, labelled tenants/devices/users, and phone numbers before copying.
 - Field Ops checklists persist after refresh.

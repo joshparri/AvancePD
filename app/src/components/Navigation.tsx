@@ -19,6 +19,7 @@ import {
   HeartPulse,
   BookOpen,
   Gamepad2,
+  ShieldCheck,
 } from 'lucide-react';
 
 const navigation = [
@@ -30,6 +31,7 @@ const navigation = [
   { name: 'MSP Quiz', href: '/msp-quiz', icon: Brain },
   { name: 'Learning Cockpit', href: '/learning-cockpit', icon: Lightbulb },
   { name: 'AvanceGame', href: '/avance-game', icon: Gamepad2 },
+  { name: 'Field Ops', href: '/field-ops', icon: ShieldCheck },
   { name: 'Tool Primers', href: '/tool-primers', icon: Wrench },
   { name: 'Ticket Notes', href: '/ticket-notes', icon: ClipboardCheck },
   { name: 'Evidence Pack', href: '/evidence-pack', icon: Archive },

@@ -284,7 +284,8 @@ Guardrail:
 Implementation status:
 
 - Added `Field Ops` as an in-app cockpit for pending actions, monitoring alert sanitization, security triage paths, field checklists, operational primers, backlog intake, and safe evidence export.
-- Wired Field Ops into the main navigation, Dashboard, Shift Command Center, shortcut overlay, and Evidence Pack.
+- Wired Field Ops into the root Work Companion navigation, Dashboard, Shift Command Center, shortcut overlay, and Evidence Pack.
+- Mirrored Field Ops into the `app/` Next.js app at `/field-ops`, with navigation, Dashboard access, and Evidence Pack integration.
 - Kept raw field-note source material outside GitHub and ignored local `docs/1/` exports.
 
 ### Next

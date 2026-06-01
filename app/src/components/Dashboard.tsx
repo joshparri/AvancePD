@@ -9,7 +9,7 @@ import { Shift, WorkLog, Task } from '@/types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, Plus, CheckSquare, TrendingUp, Lightbulb, BookOpen } from 'lucide-react';
+import { Calendar, Clock, Plus, CheckSquare, TrendingUp, Lightbulb, BookOpen, ShieldCheck } from 'lucide-react';
 import { mspLearningActivities, type MspLearningActivity } from '@/data/mspLearningActivities';
 import { getLearningStats, getDueReviewSuggestions } from '@/lib/mspLearningProgress';
 import { PendingActionTracker } from '@/components/PendingActionTracker';
@@ -169,6 +169,12 @@ export function Dashboard() {
             <Link href="/work-logs">
               <Plus className="w-4 h-4 mr-2" />
               New log
+            </Link>
+          </Button>
+          <Button size="sm" variant="outline" asChild>
+            <Link href="/field-ops">
+              <ShieldCheck className="w-4 h-4 mr-2" />
+              Field Ops
             </Link>
           </Button>
           <QuickTaskDialog onCreated={() => setRefreshKey((k) => k + 1)} />

@@ -23,6 +23,7 @@ Saved Local Progress: preferences and progress saved in browser localStorage for
 Current Implementation Status
 -----------------------------
 - The PD features (MSP Skills Matrix, Scenario Trainer, Ticket Notes Trainer, Evidence Pack) are implemented in the `app/` folder.
+- Field Ops is implemented in both the root Work Companion app and the `app/` Next.js app so the live Vite deployment and the Next.js PD surface stay aligned.
 - The KB Learning Machine (seeded field cards and practice flows) is present but currently uses localStorage only; manual card management and import from private KB sources are planned work.
 - Other planned modules (Work Logs, Tasks, Knowledge Base, Playbooks, Clients, Learning Tracker) are documented in `TODO.md` and may return 404 until implemented.
 
