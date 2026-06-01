@@ -36,6 +36,7 @@ import ShiftCommandCenter from './pages/ShiftCommandCenter';
 import QuickTools from './pages/QuickTools';
 import FieldOps from './pages/FieldOps';
 import { useTaskStore } from './store/taskStore';
+import { useKnowledgeStore } from './store/knowledgeStore';
 import type { MspSkillReadiness } from './data/mspSkills';
 import {
   incrementTicketNotePractice as incrementTicketNotePracticeProgress,
@@ -141,7 +142,10 @@ function AppContent() {
   const addTask = useTaskStore((state) => state.addTask);
   const updateTask = useTaskStore((state) => state.updateTask);
   const deleteTask = useTaskStore((state) => state.deleteTask);
-  const [knowledgeEntries, setKnowledgeEntries] = useState<KnowledgeEntry[]>(() => loadPersisted('avance-knowledgeEntries', sampleKnowledgeEntries));
+  const knowledgeEntries = useKnowledgeStore((state) => state.knowledgeEntries);
+  const addKnowledgeEntry = useKnowledgeStore((state) => state.addKnowledgeEntry);
+  const updateKnowledgeEntry = useKnowledgeStore((state) => state.updateKnowledgeEntry);
+  const deleteKnowledgeEntry = useKnowledgeStore((state) => state.deleteKnowledgeEntry);
   const [playbooks, setPlaybooks] = useState<Playbook[]>(() => loadPersisted('avance-playbooks', samplePlaybooks));
   const [learningItems, setLearningItems] = useState<LearningItem[]>(() => loadPersisted('avance-learningItems', sampleLearningItems));
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>(() => loadPersisted('avance-timeEntries', sampleTimeEntries));
@@ -157,10 +161,6 @@ function AppContent() {
   useEffect(() => {
     window.localStorage.setItem('avance-workLogs', JSON.stringify(workLogs));
   }, [workLogs]);
-
-  useEffect(() => {
-    window.localStorage.setItem('avance-knowledgeEntries', JSON.stringify(knowledgeEntries));
-  }, [knowledgeEntries]);
 
   useEffect(() => {
     window.localStorage.setItem('avance-playbooks', JSON.stringify(playbooks));
@@ -219,13 +219,6 @@ function AppContent() {
   const deleteWorkLog = (logId: string) => {
     if (window.confirm('Remove this local work log?')) {
       setWorkLogs((current) => current.filter((log) => log.id !== logId));
-    }
-  };
-  const addKnowledgeEntry = (entry: KnowledgeEntry) => setKnowledgeEntries((current) => [entry, ...current]);
-  const updateKnowledgeEntry = (updatedEntry: KnowledgeEntry) => setKnowledgeEntries((current) => current.map((entry) => (entry.id === updatedEntry.id ? updatedEntry : entry)));
-  const deleteKnowledgeEntry = (entryId: string) => {
-    if (window.confirm('Remove this local knowledge entry?')) {
-      setKnowledgeEntries((current) => current.filter((entry) => entry.id !== entryId));
     }
   };
   const addPlaybook = (playbook: Playbook) => setPlaybooks((current) => [playbook, ...current]);
