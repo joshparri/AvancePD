@@ -153,8 +153,23 @@ export default function EvidencePackPage() {
       setCopyMessage('Summary copied!');
       setTimeout(() => setCopyMessage(''), 2000);
     } catch {
-      setCopyMessage('Failed to copy');
-      setTimeout(() => setCopyMessage(''), 2000);
+      // Fallback for older browsers: create a temporary textarea and use execCommand
+      try {
+        const el = document.createElement('textarea');
+        el.value = markdownSummary;
+        // Avoid scrolling to bottom
+        el.style.position = 'fixed';
+        el.style.left = '-9999px';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        setCopyMessage('Summary copied (fallback)');
+        setTimeout(() => setCopyMessage(''), 2000);
+      } catch {
+        setCopyMessage('Failed to copy');
+        setTimeout(() => setCopyMessage(''), 2000);
+      }
     }
   };
 
