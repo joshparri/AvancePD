@@ -38,6 +38,14 @@ export type WorkLog = {
   createdAt: string;
   draft: boolean;
   attachments?: SafeAttachment[];
+  // Learning seed fields (optional)
+  workType?: string; // e.g., "ticket", "client-call", "documentation", "troubleshooting"
+  skillArea?: string; // e.g., "Microsoft 365", "Endpoint Management", "Network"
+  confidence?: 'low' | 'medium' | 'high'; // Confidence before addressing the issue
+  needsReview?: boolean; // Mark for After Action Review
+  relatedKbId?: string; // Link to KB card
+  reviewDueAt?: string; // When to review this learning
+  learningNote?: string; // Free-text reflection on what was learned
 };
 
 export type TaskStatus = 'open' | 'in progress' | 'blocked' | 'done';
