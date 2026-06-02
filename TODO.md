@@ -7,10 +7,10 @@
 ## Priority 1: Critical App Shell & Foundation
 
 ### 1.1 App Branding & Metadata
-- [ ] **Work Companion**: Fix browser title to "Avance Work Companion" consistently
-- [ ] **Work Companion**: Update all metadata and dashboard subtitle
-- [ ] **Avance PD**: Ensure browser title is "Avance PD"
-- [ ] **Avance PD**: Verify app branding separation from Work Companion
+- [x] **Work Companion**: Fix browser title to "Avance Work Companion" consistently
+- [x] **Work Companion**: Update all metadata and dashboard subtitle
+- [x] **Avance PD**: Ensure browser title is "Avance PD"
+- [x] **Avance PD**: Verify app branding separation from Work Companion
 
 ### 1.2 Resolve TODO.md Merge Conflict
 - [x] Clean and consolidate TODO files
@@ -20,16 +20,16 @@
 ## Priority 2: Work Companion Core Enhancements
 
 ### 2.1 Learning Integration
-- [ ] Add learning-seed fields to Work Logs (skill area, confidence, review flag, etc)
-- [ ] Implement "After Action Review" prompts for selected work logs
-- [ ] Mark work logs as learning-worthy
+- [x] Add learning-seed fields to Work Logs (skill area, confidence, review flag, etc)
+- [x] Implement "After Action Review" prompts for selected work logs
+- [x] Mark work logs as learning-worthy
 - [ ] Extract learning queue items from work logs
 - [ ] Link work logs to KB cards and scenarios
 
 ### 2.2 Quick Capture Upgrades
-- [ ] Upgrade Quick Capture to structured ticket-note builder
-- [ ] Add note-quality checklist (summary, what happened, action, status, follow-up, tags)
-- [ ] Implement "Convert to ticket note" action with copyable preview
+- [x] Upgrade Quick Capture to structured ticket-note builder
+- [x] Add note-quality checklist (summary, what happened, action, status, follow-up, tags)
+- [x] Implement "Convert to ticket note" action with copyable preview
 - [ ] Add ticket-note templates for common scenarios
 
 ### 2.3 Follow-up Triage
@@ -40,9 +40,9 @@
 - [ ] Implement follow-up discipline training
 
 ### 2.4 Playbook Generation
-- [ ] Auto-convert repeated issue tags into editable playbook drafts
-- [ ] Suggest from safe local data only (no client-specific data)
-- [ ] Add UI for approving/editing suggested playbooks
+- [x] Auto-convert repeated issue tags into editable playbook drafts
+- [x] Suggest from safe local data only (no client-specific data)
+- [x] Add UI for approving/editing suggested playbooks
 
 ### 2.5 Change Guardrails
 - [ ] Add approval/confirmation for risky work (migrations, deletions, policies, firewall, DNS, backups, MFA, Conditional Access, scripts, production)
