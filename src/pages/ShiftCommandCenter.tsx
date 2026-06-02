@@ -2,6 +2,7 @@ import FocusModePanel from '../components/FocusModePanel';
 import HealthyMspShiftPanel from '../components/HealthyMspShiftPanel';
 import { getNextHealthReminder, getShiftState, getTodayLog, type HealthState } from '../utils/healthOutdoors';
 import type { LearningItem, Task, WorkLog } from '../types';
+import { isTaskNudgeDue, isTaskOverdue, sortFollowUps } from '../utils/followUpTriage';
 
 type ShiftCommandCenterProps = {
   tasks: Task[];
@@ -16,7 +17,7 @@ function ShiftCommandCenter({ tasks, workLogs, learningItems, healthState, setHe
   const now = new Date();
   const today = getTodayLog(healthState, now);
   const nextHealth = getNextHealthReminder(now, healthState.settings, today);
-  const openTasks = tasks.filter((task) => task.status !== 'done').slice(0, 5);
+  const openTasks = sortFollowUps(tasks.filter((task) => task.status !== 'done')).slice(0, 5);
   const dueLearning = learningItems.filter((item) => item.nextReviewDate <= now.toISOString().slice(0, 10)).slice(0, 5);
   const recentLogs = workLogs.slice(0, 3);
 
@@ -38,7 +39,11 @@ function ShiftCommandCenter({ tasks, workLogs, learningItems, healthState, setHe
           </article>
           <article className="mini-card">
             <h3>First follow-up</h3>
-            <p>{openTasks[0] ? `${openTasks[0].title} - due ${openTasks[0].dueDate}` : 'No open follow-ups.'}</p>
+            <p>
+              {openTasks[0]
+                ? `${openTasks[0].title} - ${openTasks[0].followUpStage ?? 'needs action'} - due ${openTasks[0].dueDate}${isTaskOverdue(openTasks[0]) ? ' - overdue' : isTaskNudgeDue(openTasks[0]) ? ' - nudge due' : ''}`
+                : 'No open follow-ups.'}
+            </p>
             <button type="button" onClick={() => onNavigate('tasks')}>Open Tasks</button>
           </article>
           <article className="mini-card">

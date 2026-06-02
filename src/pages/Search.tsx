@@ -31,7 +31,7 @@ function Search({ tasks, workLogs, knowledgeEntries, playbooks, learningItems, t
         id: task.id,
         title: task.title,
         type: 'Task',
-        summary: `${task.status} follow-up due ${task.dueDate}. ${task.note}`,
+        summary: `${task.status} ${task.followUpStage ?? 'needs action'} follow-up due ${task.dueDate}. ${task.nextNudgeDate ? `Nudge ${task.nextNudgeDate}. ` : ''}${task.note}`,
         page: 'tasks'
       })),
       ...workLogs.map((log) => ({
