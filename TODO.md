@@ -33,9 +33,9 @@
 - [ ] Add ticket-note templates for common scenarios
 
 ### 2.3 Follow-up Triage
-- [ ] Add status field (waiting, needs-action, blocked)
-- [ ] Add due date and next-nudge scheduling
-- [ ] Create editable follow-up wording templates
+- [x] Add status field (waiting, needs-action, blocked)
+- [x] Add due date and next-nudge scheduling
+- [x] Create editable follow-up wording templates
 - [ ] Add dashboard summary of stale follow-ups
 - [ ] Implement follow-up discipline training
 
