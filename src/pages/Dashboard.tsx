@@ -8,6 +8,7 @@ import { getTodayLog } from '../utils/healthOutdoors';
 import { mspScenarios } from '../data/mspScenarios';
 import { microLearningCards } from '../data/microLearning';
 import { getKbLearningMetrics } from '../features/kb-learning/kbLearningStorage';
+import { isTaskNudgeDue, isTaskOverdue, sortFollowUps } from '../utils/followUpTriage';
 import type { AvanceProgress } from '../utils/progressStorage';
 
 const PAGE_TITLE = 'Dashboard';
@@ -51,7 +52,7 @@ function Dashboard({
 }: DashboardProps) {
   const nextShift = shifts[0];
   const nextClient = clients.find((client) => client.id === nextShift?.clientId);
-  const openTasks = tasks.filter((task) => task.status === 'open');
+  const openTasks = sortFollowUps(tasks.filter((task) => task.status !== 'done'));
   const recentLogs = workLogs.slice(0, 3);
   const invoiceHours = timeEntries.reduce((sum, entry) => sum + (entry.billable ? entry.hours : 0), 0);
   const repeatedTags = getRepeatedTags(workLogs);
@@ -195,6 +196,12 @@ function Dashboard({
 
       <section className="card">
         <h2>Open follow-ups</h2>
+        {openTasks.length ? (
+          <div className="metric-row">
+            <span className="status-chip warn">{openTasks.filter((task) => isTaskOverdue(task)).length} overdue</span>
+            <span className="status-chip info">{openTasks.filter((task) => isTaskNudgeDue(task)).length} nudge due</span>
+          </div>
+        ) : null}
         {openTasks.length ? (
           <ul>
             {openTasks.map((task) => (

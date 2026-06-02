@@ -49,6 +49,13 @@ export type WorkLog = {
 };
 
 export type TaskStatus = 'open' | 'in progress' | 'blocked' | 'done';
+export type FollowUpStage =
+  | 'needs action'
+  | 'waiting on client'
+  | 'waiting on vendor'
+  | 'waiting on teammate'
+  | 'blocked'
+  | 'monitoring';
 
 export type Task = {
   id: string;
@@ -59,6 +66,10 @@ export type Task = {
   clientId: string;
   workLogId?: string;
   note: string;
+  followUpStage?: FollowUpStage;
+  nextNudgeDate?: string;
+  followUpTemplate?: string;
+  lastNudgedAt?: string;
   createdAt: string;
 };
 

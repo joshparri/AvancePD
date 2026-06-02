@@ -1,5 +1,13 @@
 import { FormEvent, useMemo, useState } from 'react';
-import type { Client, Task, TaskStatus } from '../types';
+import type { Client, FollowUpStage, Task, TaskStatus } from '../types';
+import {
+  buildFollowUpTemplate,
+  followUpStageDescriptions,
+  followUpStages,
+  isTaskNudgeDue,
+  isTaskOverdue,
+  sortFollowUps
+} from '../utils/followUpTriage';
 
 type TasksProps = {
   tasks: Task[];
@@ -25,11 +33,16 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
   const [priority, setPriority] = useState<Task['priority']>('medium');
   const [clientId, setClientId] = useState(clients[0]?.id ?? '');
   const [dueDate, setDueDate] = useState(new Date().toISOString().slice(0, 10));
+  const [followUpStage, setFollowUpStage] = useState<FollowUpStage>('needs action');
+  const [nextNudgeDate, setNextNudgeDate] = useState('');
+  const [followUpTemplate, setFollowUpTemplate] = useState('');
   const [note, setNote] = useState('');
   const [search, setSearch] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const openTasks = tasks.filter((task) => task.status === 'open');
+  const openTasks = sortFollowUps(tasks.filter((task) => task.status !== 'done'));
+  const overdueCount = openTasks.filter((task) => isTaskOverdue(task)).length;
+  const nudgeDueCount = openTasks.filter((task) => isTaskNudgeDue(task)).length;
 
   const filteredTasks = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -39,7 +52,7 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
 
     return tasks.filter((task) => {
       const client = clients.find((item) => item.id === task.clientId);
-      const combined = [task.title, task.note, task.status, task.priority, client?.name]
+      const combined = [task.title, task.note, task.status, task.priority, task.followUpStage, task.nextNudgeDate, client?.name]
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
@@ -54,6 +67,9 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
     setPriority('medium');
     setClientId(clients[0]?.id ?? '');
     setDueDate(new Date().toISOString().slice(0, 10));
+    setFollowUpStage('needs action');
+    setNextNudgeDate('');
+    setFollowUpTemplate('');
     setNote('');
     setErrors({});
   };
@@ -79,6 +95,9 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
       return;
     }
 
+    const existingTask = tasks.find((task) => task.id === editingTaskId);
+    const generatedTemplate =
+      followUpTemplate.trim() || buildFollowUpTemplate({ title: title.trim(), note: note.trim(), followUpStage, nextNudgeDate });
     const task: Task = {
       id: editingTaskId || createId('task'),
       title: title.trim(),
@@ -86,9 +105,12 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
       dueDate,
       priority,
       clientId,
-      workLogId: undefined,
+      workLogId: existingTask?.workLogId,
       note: note.trim(),
-      createdAt: new Date().toISOString()
+      followUpStage,
+      nextNudgeDate: nextNudgeDate || undefined,
+      followUpTemplate: generatedTemplate,
+      createdAt: existingTask?.createdAt ?? new Date().toISOString()
     };
 
     if (editingTaskId) {
@@ -107,7 +129,14 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
     setPriority(task.priority);
     setClientId(task.clientId);
     setDueDate(task.dueDate);
+    setFollowUpStage(task.followUpStage ?? 'needs action');
+    setNextNudgeDate(task.nextNudgeDate ?? '');
+    setFollowUpTemplate(task.followUpTemplate ?? buildFollowUpTemplate(task));
     setNote(task.note);
+  };
+
+  const regenerateTemplate = () => {
+    setFollowUpTemplate(buildFollowUpTemplate({ title: title || 'Follow-up', note, followUpStage, nextNudgeDate }));
   };
 
   return (
@@ -115,7 +144,13 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
       <section className="card">
         <h1>Tasks</h1>
         <p>Track follow-ups across shifts so nothing is missed.</p>
+        <div className="metric-row">
+          <span className="status-chip warn">{overdueCount} overdue</span>
+          <span className="status-chip info">{nudgeDueCount} nudge due</span>
+          <span className="status-chip success">{openTasks.length} active</span>
+        </div>
       </section>
+
       <section className="card">
         <h2>{editingTaskId ? 'Edit task' : 'Add task'}</h2>
         <form onSubmit={handleSubmit} className="quick-capture-form" noValidate>
@@ -139,6 +174,7 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
               </span>
             ) : null}
           </label>
+
           <label>
             Client
             <select value={clientId} onChange={(event) => setClientId(event.target.value)}>
@@ -149,6 +185,7 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
               ))}
             </select>
           </label>
+
           <label>
             Status
             <select value={status} onChange={(event) => setStatus(event.target.value as TaskStatus)}>
@@ -158,6 +195,7 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
               <option value="done">done</option>
             </select>
           </label>
+
           <label>
             Priority
             <select value={priority} onChange={(event) => setPriority(event.target.value as Task['priority'])}>
@@ -166,6 +204,7 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
               <option value="high">high</option>
             </select>
           </label>
+
           <label>
             Due date
             <input
@@ -186,6 +225,24 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
               </span>
             ) : null}
           </label>
+
+          <label>
+            Follow-up stage
+            <select value={followUpStage} onChange={(event) => setFollowUpStage(event.target.value as FollowUpStage)}>
+              {followUpStages.map((stage) => (
+                <option key={stage} value={stage}>
+                  {stage}
+                </option>
+              ))}
+            </select>
+            <span style={{ color: '#64748b', fontSize: '0.9em' }}>{followUpStageDescriptions[followUpStage]}</span>
+          </label>
+
+          <label>
+            Next nudge/check date
+            <input type="date" value={nextNudgeDate} onChange={(event) => setNextNudgeDate(event.target.value)} />
+          </label>
+
           <label>
             Note
             <textarea
@@ -206,7 +263,21 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
               </span>
             ) : null}
           </label>
+
+          <label>
+            Follow-up wording template
+            <textarea
+              value={followUpTemplate}
+              onChange={(event) => setFollowUpTemplate(event.target.value)}
+              placeholder="Generate or write a privacy-safe follow-up message."
+              rows={5}
+            />
+          </label>
+
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button type="button" className="small-action" onClick={regenerateTemplate}>
+              Generate wording
+            </button>
             <button type="submit">{editingTaskId ? 'Save task' : 'Add task'}</button>
             {editingTaskId && (
               <button type="button" onClick={resetForm} style={{ background: '#64748b' }} aria-label="Cancel task edit">
@@ -225,25 +296,40 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search by title, note, client, status, priority"
+              placeholder="Search by title, note, client, status, priority, follow-up stage"
               aria-label="Search tasks"
             />
           </label>
         </div>
         {filteredTasks.length ? (
           <ul>
-            {filteredTasks.map((task) => {
+            {sortFollowUps(filteredTasks).map((task) => {
               const client = clients.find((item) => item.id === task.clientId);
+              const overdue = isTaskOverdue(task);
+              const nudgeDue = isTaskNudgeDue(task);
+              const template = task.followUpTemplate ?? buildFollowUpTemplate(task);
               return (
                 <li key={task.id} style={{ marginBottom: '16px' }}>
                   <strong>{task.title}</strong>
                   <p>
-                    {task.status} — {client?.name || 'No client'} — due {task.dueDate} — priority {task.priority}
+                    {task.status} - {client?.name || 'No client'} - due {task.dueDate} - priority {task.priority}
                   </p>
+                  <div className="metric-row">
+                    <span className={overdue ? 'status-chip warn' : 'status-chip info'}>{overdue ? 'overdue' : 'due planned'}</span>
+                    <span className={nudgeDue ? 'status-chip warn' : 'status-chip info'}>{task.nextNudgeDate ? `nudge ${task.nextNudgeDate}` : 'no nudge set'}</span>
+                    <span className="status-chip success">{task.followUpStage ?? 'needs action'}</span>
+                  </div>
                   <p>{task.note}</p>
+                  <details>
+                    <summary>Follow-up wording</summary>
+                    <pre className="template-box">{template}</pre>
+                  </details>
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                     <button type="button" onClick={() => startEditing(task)}>
                       Edit
+                    </button>
+                    <button type="button" className="small-action" onClick={() => navigator.clipboard?.writeText(template)}>
+                      Copy wording
                     </button>
                     <button type="button" onClick={() => deleteTask(task.id)} style={{ background: '#dc2626' }}>
                       Delete
@@ -260,16 +346,20 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
           </div>
         )}
       </section>
+
       <section className="card">
         <h2>Open follow-ups</h2>
         {openTasks.length ? (
           <ul>
             {openTasks.map((task) => (
-              <li key={task.id}>{task.title} — due {task.dueDate}</li>
+              <li key={task.id}>
+                {task.title} - {task.followUpStage ?? 'needs action'} - due {task.dueDate}
+                {task.nextNudgeDate ? ` - nudge ${task.nextNudgeDate}` : ''}
+              </li>
             ))}
           </ul>
         ) : (
-          <p>Great work — no open follow-ups remaining.</p>
+          <p>Great work - no open follow-ups remaining.</p>
         )}
       </section>
     </div>

@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { kbHints } from '../data/kbHints';
 import type { Client, LearningItem, Task, WorkLog } from '../types';
+import { buildFollowUpTemplate } from '../utils/followUpTriage';
 
 function createId(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -78,15 +79,26 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
     }
 
     if (captureType === 'task') {
+      const taskTitle = title || 'Quick follow-up';
+      const taskNote = details || 'Quick task created during shift.';
+      const nextNudgeDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
       addTask({
         id: createId('task'),
-        title: title || 'Quick follow-up',
+        title: taskTitle,
         status: 'open',
         dueDate: new Date().toISOString().slice(0, 10),
         priority: 'medium',
         clientId,
         workLogId: undefined,
-        note: details || 'Quick task created during shift.',
+        note: taskNote,
+        followUpStage: 'needs action',
+        nextNudgeDate,
+        followUpTemplate: buildFollowUpTemplate({
+          title: taskTitle,
+          note: taskNote,
+          followUpStage: 'needs action',
+          nextNudgeDate
+        }),
         createdAt: new Date().toISOString()
       });
     }

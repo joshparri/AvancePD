@@ -104,6 +104,8 @@ export const tasks: Task[] = [
     clientId: 'demo-client',
     workLogId: 'log-1',
     note: 'Use the ticket note trainer structure: issue, impact, checks, action, result, next step.',
+    followUpStage: 'needs action',
+    nextNudgeDate: '2026-05-08',
     createdAt: '2026-05-05T15:00:00Z'
   }
 ];
