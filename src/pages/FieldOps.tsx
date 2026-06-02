@@ -33,6 +33,14 @@ function FieldOps() {
   const [safeStory, setSafeStory] = useState('');
   const [privacyReview, setPrivacyReview] = useState('');
   const [buildSize, setBuildSize] = useState<FieldOpsBuildSize>('small');
+  const [changeTitle, setChangeTitle] = useState('');
+  const [changeApproval, setChangeApproval] = useState('');
+  const [changeAffectedSystems, setChangeAffectedSystems] = useState('');
+  const [changeBeforeState, setChangeBeforeState] = useState('');
+  const [changeRollbackPlan, setChangeRollbackPlan] = useState('');
+  const [changeVerificationPlan, setChangeVerificationPlan] = useState('');
+  const [changeCommunicationPlan, setChangeCommunicationPlan] = useState('');
+  const [changeSeniorCheck, setChangeSeniorCheck] = useState(false);
 
   useEffect(() => {
     saveFieldOpsState(state);
@@ -53,6 +61,28 @@ function FieldOps() {
   const selectedTriage = alertTriagePaths.find((path) => path.id === selectedTriagePathId) ?? alertTriagePaths[0];
   const evidenceSummary = useMemo(() => getFieldOpsEvidenceSummary(state), [state]);
   const evidenceMarkdown = useMemo(() => buildFieldOpsEvidenceMarkdown(state), [state]);
+  const changeRiskMatches = useMemo(() => detectChangeRisk(`${changeTitle} ${changeAffectedSystems} ${changeBeforeState}`), [changeTitle, changeAffectedSystems, changeBeforeState]);
+  const changeGuardrailNote = useMemo(() => buildChangeGuardrailNote({
+    title: changeTitle,
+    approval: changeApproval,
+    affectedSystems: changeAffectedSystems,
+    beforeState: changeBeforeState,
+    rollbackPlan: changeRollbackPlan,
+    verificationPlan: changeVerificationPlan,
+    communicationPlan: changeCommunicationPlan,
+    seniorCheck: changeSeniorCheck,
+    riskMatches: changeRiskMatches
+  }), [
+    changeAffectedSystems,
+    changeApproval,
+    changeBeforeState,
+    changeCommunicationPlan,
+    changeRiskMatches,
+    changeRollbackPlan,
+    changeSeniorCheck,
+    changeTitle,
+    changeVerificationPlan
+  ]);
 
   const copyText = async (label: string, text: string) => {
     try {
@@ -356,6 +386,86 @@ function FieldOps() {
       </section>
 
       <section className="card">
+        <div className="skill-card-header">
+          <div>
+            <h2>Change guardrail builder</h2>
+            <p>Use this before policy, identity, DNS, firewall, backup, restore, script, registry, or production changes.</p>
+          </div>
+          <span className={changeRiskMatches.length ? 'status-chip warn' : 'status-chip info'}>
+            {changeRiskMatches.length ? 'risk keywords found' : 'ready'}
+          </span>
+        </div>
+        <div className="privacy-note">
+          This is a thinking checklist, not approval. Keep details generic and confirm senior direction before live risky changes.
+        </div>
+        <div className="field-ops-two-column">
+          <div className="quick-capture-form">
+            <label>
+              Change summary
+              <input value={changeTitle} onChange={(event) => setChangeTitle(event.target.value)} placeholder="Example: update generic DNS setting after approval" />
+            </label>
+            <label>
+              Approval / owner
+              <input value={changeApproval} onChange={(event) => setChangeApproval(event.target.value)} placeholder="Who approved this, or what approval is still needed?" />
+            </label>
+            <label>
+              Affected systems and scope
+              <textarea value={changeAffectedSystems} onChange={(event) => setChangeAffectedSystems(event.target.value)} placeholder="Generic scope only. Avoid hostnames, IPs, tenant names, or client names." />
+            </label>
+            <label>
+              Before-state evidence
+              <textarea value={changeBeforeState} onChange={(event) => setChangeBeforeState(event.target.value)} placeholder="What is true before the change? What has been checked?" />
+            </label>
+            <label>
+              Rollback plan
+              <textarea value={changeRollbackPlan} onChange={(event) => setChangeRollbackPlan(event.target.value)} placeholder="How would you undo this safely if it fails?" />
+            </label>
+            <label>
+              Verification plan
+              <textarea value={changeVerificationPlan} onChange={(event) => setChangeVerificationPlan(event.target.value)} placeholder="What exact checks prove the change worked and did not break nearby services?" />
+            </label>
+            <label>
+              Communication plan
+              <textarea value={changeCommunicationPlan} onChange={(event) => setChangeCommunicationPlan(event.target.value)} placeholder="Who needs a safe update, and when?" />
+            </label>
+            <label className="checklist-item">
+              <input type="checkbox" checked={changeSeniorCheck} onChange={(event) => setChangeSeniorCheck(event.target.checked)} />
+              <span>Senior approval or peer check is confirmed for this change.</span>
+            </label>
+          </div>
+          <div>
+            <h3>Guardrail note</h3>
+            {changeRiskMatches.length > 0 && (
+              <div className="warning-panel">
+                <strong>Risk keywords detected</strong>
+                <p>{changeRiskMatches.join(', ')}</p>
+              </div>
+            )}
+            <pre className="template-box">{changeGuardrailNote}</pre>
+            <div className="status-button-row">
+              <button type="button" onClick={() => copyText('Change guardrail note', changeGuardrailNote)}>Copy guardrail note</button>
+              <button
+                type="button"
+                className="small-action"
+                onClick={() => {
+                  setChangeTitle('');
+                  setChangeApproval('');
+                  setChangeAffectedSystems('');
+                  setChangeBeforeState('');
+                  setChangeRollbackPlan('');
+                  setChangeVerificationPlan('');
+                  setChangeCommunicationPlan('');
+                  setChangeSeniorCheck(false);
+                }}
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="card">
         <h2>Field checklists</h2>
         <p>Use these as safe, generic workflow scaffolds. Checked items persist locally and can feed the Evidence Pack.</p>
         <div className="field-ops-checklist-grid">
@@ -480,6 +590,77 @@ function Metric({ label, value }: { label: string; value: number }) {
       <p>{label}</p>
     </article>
   );
+}
+
+const riskyChangeKeywords = [
+  'migration',
+  'delete',
+  'deletion',
+  'policy',
+  'firewall',
+  'dns',
+  'backup',
+  'restore',
+  'mfa',
+  'conditional access',
+  'intune',
+  'registry',
+  'script',
+  'production',
+  'tenant',
+  'licensing'
+];
+
+function detectChangeRisk(text: string) {
+  const normalized = text.toLowerCase();
+  return riskyChangeKeywords.filter((keyword) => normalized.includes(keyword));
+}
+
+function buildChangeGuardrailNote(input: {
+  title: string;
+  approval: string;
+  affectedSystems: string;
+  beforeState: string;
+  rollbackPlan: string;
+  verificationPlan: string;
+  communicationPlan: string;
+  seniorCheck: boolean;
+  riskMatches: string[];
+}) {
+  const approvalMissing = !input.approval.trim() || !input.seniorCheck;
+  const rollbackMissing = !input.rollbackPlan.trim();
+  const beforeStateMissing = !input.beforeState.trim();
+  const verdict = approvalMissing || rollbackMissing || beforeStateMissing
+    ? 'STOP: do not proceed until approval, before-state evidence, and rollback are clear.'
+    : 'READY FOR REVIEW: all core guardrail fields are captured; confirm with senior direction before live action.';
+
+  return [
+    '# Change Guardrail Note',
+    '',
+    `Change: ${input.title || '[generic change summary]'}`,
+    `Approval / owner: ${input.approval || '[approval not captured]'}`,
+    `Senior check confirmed: ${input.seniorCheck ? 'yes' : 'no'}`,
+    `Risk keywords: ${input.riskMatches.length ? input.riskMatches.join(', ') : 'none detected from generic text'}`,
+    '',
+    '## Scope',
+    input.affectedSystems || '[affected systems, users, billing, and business impact not captured]',
+    '',
+    '## Before-state evidence',
+    input.beforeState || '[before-state evidence not captured]',
+    '',
+    '## Rollback plan',
+    input.rollbackPlan || '[rollback plan not captured]',
+    '',
+    '## Verification plan',
+    input.verificationPlan || '[verification plan not captured]',
+    '',
+    '## Communication plan',
+    input.communicationPlan || '[communication plan not captured]',
+    '',
+    `Decision: ${verdict}`,
+    '',
+    'Privacy: remove client names, private ticket text, emails, IPs, hostnames, screenshots, passwords, and internal URLs before sharing.'
+  ].join('\n');
 }
 
 export default FieldOps;
