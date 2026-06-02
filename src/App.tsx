@@ -310,6 +310,7 @@ function AppContent() {
                 addWorkLog={addWorkLog}
                 updateWorkLog={updateWorkLog}
                 deleteWorkLog={deleteWorkLog}
+                addLearningItem={addLearningItem}
               />
             }
           />

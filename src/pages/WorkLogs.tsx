@@ -1,6 +1,7 @@
 import { FormEvent, useMemo, useState } from 'react';
-import type { Client, SafeAttachment, WorkLog } from '../types';
+import type { Client, SafeAttachment, WorkLog, LearningItem } from '../types';
 import { attachmentPolicyText, downloadAttachment, readSafeAttachment } from '../utils/attachments';
+import AfterActionReview, { type AfterActionReviewData } from '../components/AfterActionReview';
 
 type WorkLogsProps = {
   workLogs: WorkLog[];
@@ -8,13 +9,15 @@ type WorkLogsProps = {
   addWorkLog: (log: WorkLog) => void;
   updateWorkLog: (log: WorkLog) => void;
   deleteWorkLog: (logId: string) => void;
+  addLearningItem?: (item: LearningItem) => void;
 };
 
 const createId = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog }: WorkLogsProps) {
+function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog, addLearningItem }: WorkLogsProps) {
   const clientOptions = useMemo(() => clients, [clients]);
   const [editingLogId, setEditingLogId] = useState<string | null>(null);
+  const [reviewingLogId, setReviewingLogId] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [actions, setActions] = useState('');
@@ -125,6 +128,25 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
     } catch (error) {
       setAttachmentStatus(error instanceof Error ? error.message : 'Could not attach file.');
     }
+  };
+
+  const handleAfterActionReviewSave = (review: AfterActionReviewData) => {
+    // Find the work log and update it to clear the needsReview flag
+    const log = workLogs.find((l) => l.id === review.workLogId);
+    if (log) {
+      updateWorkLog({
+        ...log,
+        needsReview: false,
+        learningNote: review.whatWelearned,
+      });
+    }
+
+    // Create learning item if requested
+    if (review.createLearningItem && addLearningItem) {
+      addLearningItem(review.createLearningItem);
+    }
+
+    setReviewingLogId(null);
   };
 
   return (
@@ -301,6 +323,11 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
                     <button type="button" onClick={() => startEditing(log)}>
                       Edit
                     </button>
+                    {(log.needsReview || log.workType || log.skillArea) && (
+                      <button type="button" className="small-action" onClick={() => setReviewingLogId(log.id)} style={{ background: '#f59e0b' }}>
+                        📝 After Action Review
+                      </button>
+                    )}
                     <button type="button" className="small-action" onClick={() => navigator.clipboard?.writeText(`${log.title}\n\nSummary: ${log.summary}\nNext step: ${log.nextStep}`)}>
                       Copy safe summary
                     </button>
@@ -319,6 +346,14 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog 
           </div>
         )}
       </section>
+
+      {reviewingLogId && (
+        <AfterActionReview
+          workLog={workLogs.find((l) => l.id === reviewingLogId)!}
+          onSave={handleAfterActionReviewSave}
+          onClose={() => setReviewingLogId(null)}
+        />
+      )}
     </div>
   );
 }
