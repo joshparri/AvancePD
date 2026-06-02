@@ -26,6 +26,8 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
   const [relatedKbTopic, setRelatedKbTopic] = useState('');
   const [ticketPreview, setTicketPreview] = useState('');
   const [nextReviewDate, setNextReviewDate] = useState('');
+  const [showQualityChecklist, setShowQualityChecklist] = useState(false);
+  const [pendingWorkLog, setPendingWorkLog] = useState<WorkLog | null>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   const clientOptions = useMemo(() => clients, [clients]);
@@ -56,7 +58,7 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
     const tagList = tags.split(',').map((tag) => tag.trim()).filter(Boolean);
 
     if (captureType === 'work log') {
-      addWorkLog({
+      const workLog: WorkLog = {
         id: createId('worklog'),
         shiftId: undefined,
         clientId,
@@ -69,7 +71,10 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
         relatedKbTopic: relatedKbTopic || undefined,
         createdAt: new Date().toISOString(),
         draft: false
-      });
+      };
+      setPendingWorkLog(workLog);
+      setShowQualityChecklist(true);
+      return;
     }
 
     if (captureType === 'task') {
@@ -108,6 +113,22 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
     setDetails(nextDetails);
     setTags(nextTags);
     window.setTimeout(() => titleInputRef.current?.focus(), 0);
+  };
+
+  const handleQualityChecklistSubmit = (workLog: WorkLog) => {
+    addWorkLog(workLog);
+    setShowQualityChecklist(false);
+    setPendingWorkLog(null);
+    resetForm();
+  };
+
+  const handleSkipChecklist = () => {
+    if (pendingWorkLog) {
+      addWorkLog(pendingWorkLog);
+    }
+    setShowQualityChecklist(false);
+    setPendingWorkLog(null);
+    resetForm();
   };
 
   return (
@@ -209,8 +230,134 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
         )}
         <button type="submit">Capture {captureType}</button>
       </form>
+
+      {showQualityChecklist && pendingWorkLog && (
+        <QualityChecklistModal
+          workLog={pendingWorkLog}
+          onSubmit={handleQualityChecklistSubmit}
+          onSkip={handleSkipChecklist}
+          onCancel={() => {
+            setShowQualityChecklist(false);
+            setPendingWorkLog(null);
+          }}
+        />
+      )}
     </section>
   );
 }
 
 export default QuickCapture;
+
+type QualityChecklistModalProps = {
+  workLog: WorkLog;
+  onSubmit: (workLog: WorkLog) => void;
+  onSkip: () => void;
+  onCancel: () => void;
+};
+
+function QualityChecklistModal({ workLog, onSubmit, onSkip, onCancel }: QualityChecklistModalProps) {
+  const [title, setTitle] = useState(workLog.title);
+  const [summary, setSummary] = useState(workLog.summary);
+  const [actions, setActions] = useState(workLog.actions);
+  const [result, setResult] = useState(workLog.result);
+  const [nextStep, setNextStep] = useState(workLog.nextStep);
+  const [tags, setTags] = useState(workLog.tags.join(', '));
+
+  const checklist = [
+    { id: 'title', label: 'Summary', value: title, filled: title.length > 0 },
+    { id: 'summary', label: 'What happened', value: summary, filled: summary.length > 0 },
+    { id: 'actions', label: 'Action taken', value: actions, filled: actions.length > 0 },
+    { id: 'result', label: 'Status/Result', value: result, filled: result.length > 0 },
+    { id: 'nextStep', label: 'Follow-up', value: nextStep, filled: nextStep.length > 0 },
+    { id: 'tags', label: 'Tags', value: tags, filled: tags.length > 0 },
+  ];
+
+  const filledCount = checklist.filter((item) => item.filled).length;
+  const quality = filledCount === 6 ? 'excellent' : filledCount >= 5 ? 'good' : filledCount >= 4 ? 'fair' : 'low';
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const updatedWorkLog: WorkLog = {
+      ...workLog,
+      title,
+      summary,
+      actions,
+      result,
+      nextStep,
+      tags: tags
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+    };
+    onSubmit(updatedWorkLog);
+  };
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0,0,0,0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+    }}>
+      <div style={{
+        background: 'white',
+        borderRadius: '8px',
+        padding: '20px',
+        maxWidth: '500px',
+        width: '90%',
+        maxHeight: '80vh',
+        overflowY: 'auto',
+        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+      }}>
+        <h3>Quick Capture Quality Checklist</h3>
+        <p style={{ fontSize: '12px', color: '#666' }}>
+          Review and enhance your quick capture before saving. Quality: <strong>{quality}</strong> ({filledCount}/6 fields filled)
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          {checklist.map((item) => (
+            <label key={item.id} style={{ display: 'block', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                <input type="checkbox" checked={item.filled} readOnly />
+                <span style={{ fontWeight: 'bold' }}>{item.label}</span>
+                {!item.filled && <span style={{ color: '#dc2626', fontSize: '11px' }}>required</span>}
+              </div>
+              <textarea
+                value={item.id === 'title' ? title : item.id === 'summary' ? summary : item.id === 'actions' ? actions : item.id === 'result' ? result : item.id === 'nextStep' ? nextStep : tags}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (item.id === 'title') setTitle(value);
+                  else if (item.id === 'summary') setSummary(value);
+                  else if (item.id === 'actions') setActions(value);
+                  else if (item.id === 'result') setResult(value);
+                  else if (item.id === 'nextStep') setNextStep(value);
+                  else if (item.id === 'tags') setTags(value);
+                }}
+                rows={2}
+                style={{ width: '100%', padding: '6px', fontFamily: 'inherit' }}
+              />
+            </label>
+          ))}
+
+          <div style={{ display: 'flex', gap: '8px', marginTop: '16px', justifyContent: 'flex-end' }}>
+            <button type="button" onClick={onCancel} style={{ background: '#e5e7eb' }}>
+              Cancel
+            </button>
+            <button type="button" onClick={onSkip} style={{ background: '#fbbf24' }}>
+              Save as-is (skip checklist)
+            </button>
+            <button type="submit" style={{ background: filledCount === 6 ? '#10b981' : '#3b82f6' }}>
+              Save quality note
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
