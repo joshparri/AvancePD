@@ -3,6 +3,16 @@ import { useMemo, useState } from 'react';
 const getDefaultReviewDate = () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
 function LearningCoachCard() {
+  const topicOptions = [
+    'M365 admin',
+    'Ticket note structure',
+    'Shared mailbox troubleshooting',
+    'Client onboarding',
+    'Vendor coordination',
+    'Policy and compliance',
+    'Incident triage'
+  ];
+  const [topic, setTopic] = useState(topicOptions[0]);
   const [known, setKnown] = useState('');
   const [confusing, setConfusing] = useState('');
   const [goal, setGoal] = useState('');
@@ -47,20 +57,33 @@ function LearningCoachCard() {
         <div style={{ display: 'grid', gap: '12px' }}>
           <h3>Preflight</h3>
           <label>
-            What do I already know?
+            What am I practicing?
+            <select value={topic} onChange={(event) => setTopic(event.target.value)}>
+              {topicOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p style={{ margin: 0, color: '#475569', lineHeight: 1.6 }}>
+            Choose the subject you are working on so the rest of your preflight answers stay focused.
+          </p>
+          <label>
+            What do I already know about {topic}?
             <textarea
               value={known}
               onChange={(event) => setKnown(event.target.value)}
-              placeholder="Summarize your current understanding"
+              placeholder={`Summarize your current understanding of ${topic}`}
               rows={3}
             />
           </label>
           <label>
-            What feels confusing?
+            What feels confusing about {topic}?
             <textarea
               value={confusing}
               onChange={(event) => setConfusing(event.target.value)}
-              placeholder="Capture the parts that feel unclear"
+              placeholder={`Capture the parts of ${topic} that feel unclear`}
               rows={3}
             />
           </label>
@@ -69,7 +92,7 @@ function LearningCoachCard() {
             <input
               value={goal}
               onChange={(event) => setGoal(event.target.value)}
-              placeholder="State your learning goal clearly"
+              placeholder={`State your learning goal for ${topic}`}
             />
           </label>
           <label>
