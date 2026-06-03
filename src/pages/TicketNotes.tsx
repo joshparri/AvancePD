@@ -64,6 +64,13 @@ function TicketNotes({ ticketNotePracticeCount, incrementTicketNotePractice }: T
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
   const localFeedback = scoreTicketNote(userNote);
 
+  const templateExamples = examples.filter((example) => example.label !== 'Poor' && example.label !== 'Okay' && example.label !== 'Better');
+  const loadTemplate = (text: string) => {
+    setUserNote(text);
+    setFeedback(null);
+    setFeedbackError('');
+  };
+
   const handleGetFeedback = async () => {
     if (!userNote.trim()) return;
     setIsLoadingFeedback(true);
@@ -111,6 +118,24 @@ function TicketNotes({ ticketNotePracticeCount, incrementTicketNotePractice }: T
           {examples.map((example) => (
             <article key={example.label} className="mini-card">
               <span className={`status-chip ${example.tone}`}>{example.label}</span>
+              <p>{example.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="card">
+        <h2>Common templates</h2>
+        <p>Start from a common scenario structure and adapt it for safe ticket note practice.</p>
+        <div className="card-grid">
+          {templateExamples.map((example) => (
+            <article key={example.label} className="mini-card">
+              <div className="metric-row" style={{ justifyContent: 'space-between' }}>
+                <span className={`status-chip ${example.tone}`}>{example.label}</span>
+                <button type="button" className="small-action" onClick={() => loadTemplate(example.text)}>
+                  Load
+                </button>
+              </div>
               <p>{example.text}</p>
             </article>
           ))}

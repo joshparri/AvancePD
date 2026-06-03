@@ -23,21 +23,21 @@
 - [x] Add learning-seed fields to Work Logs (skill area, confidence, review flag, etc)
 - [x] Implement "After Action Review" prompts for selected work logs
 - [x] Mark work logs as learning-worthy
-- [ ] Extract learning queue items from work logs
-- [ ] Link work logs to KB cards and scenarios
+- [x] Extract learning queue items from work logs
+- [x] Link work logs to KB cards and scenarios
 
 ### 2.2 Quick Capture Upgrades
 - [x] Upgrade Quick Capture to structured ticket-note builder
 - [x] Add note-quality checklist (summary, what happened, action, status, follow-up, tags)
 - [x] Implement "Convert to ticket note" action with copyable preview
-- [ ] Add ticket-note templates for common scenarios
+- [x] Add ticket-note templates for common scenarios
 
 ### 2.3 Follow-up Triage
 - [x] Add status field (waiting, needs-action, blocked)
 - [x] Add due date and next-nudge scheduling
 - [x] Create editable follow-up wording templates
 - [x] Add dashboard summary of stale follow-ups
-- [ ] Implement follow-up discipline training
+- [x] Implement follow-up discipline training
 
 ### 2.4 Playbook Generation
 - [x] Auto-convert repeated issue tags into editable playbook drafts
@@ -63,16 +63,16 @@
 ## Priority 3: Avance PD Learning Machine
 
 ### 3.1 KB Card Management
-- [ ] Implement create/edit/delete UI for KB field cards (currently seeded only)
-- [ ] Add manual card management interface
+- [x] Implement create/edit/delete UI for KB field cards (currently seeded only)
+- [x] Add manual card management interface
 - [ ] Support private KB PDF import (future, design safe import first)
 - [ ] Show card metadata (title, category, prerequisites, when to use, escalation, confidence, review due date)
 
 ### 3.2 Skill Mastery Map
-- [ ] Build skill tree/mastery map view
+- [x] Build skill tree/mastery map view
 - [ ] Link skills to KB cards, scenarios, flashcards, ticket-note drills, and evidence
 - [ ] Show confidence levels and evidence count per skill
-- [ ] Recommend next skill to practice
+- [x] Recommend next skill to practice
 
 ### 3.3 Scenario-to-Ticket-Note Flow
 - [ ] Implement scenario-to-ticket-note practice flow

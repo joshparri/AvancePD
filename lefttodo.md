@@ -229,3 +229,46 @@ These require **server-side API keys** (Groq SDK is already available):
 4. Communication/follow-up discipline training
 
 ---
+Checking the backlog file for remaining unfinished items.
+
+Read [](file:///c%3A/Users/joshua.parris/OneDrive%20-%20Dubbo%20Christian%20School/Documents/02_Personal/AvancePD/TODO.md#120-120), lines 120 to 211
+
+## Backlog remaining in TODO.md
+
+### Priority 2: Work Companion Core Enhancements
+- Extract learning queue items from work logs
+- Link work logs to KB cards and scenarios
+- Add ticket-note templates for common scenarios
+- Add dashboard summary of stale follow-ups (now done)
+- Implement follow-up discipline training
+
+### Priority 3: Avance PD Learning Machine
+- Implement create/edit/delete UI for KB field cards
+- Add manual KB card management
+- Support private KB PDF import (future)
+- Build skill tree / mastery map view
+- Link skills to KB cards, scenarios, flashcards, and evidence
+- Recommend next skill to practice
+- Implement scenario-to-ticket-note practice flow
+- Score note drills and store results
+- Upgrade PD focus intelligence from static to deterministic
+- Add evidence pack skill-tree section and manager-ready weekly PD review
+- Add communication practice categories, tone checklist, and follow-up guidance
+- Add onboarding-safe demo data badges and privacy linting / warning
+
+### Priority 4: AI Prompt Packs
+- Daily briefing, health check, repeated issue coach
+- Work log summarizer, micro-learning booster, backup reminder
+- PD focus overview and weekly retrospective prompts
+
+### Priority 5: Future Enhancements
+- Email-to-note import, calendar reminders, attachment support, mobile capture, PWA improvements
+- Supabase sync, Gmail/Calendar integrations, PSA/RMM integrations, email scheduler, local usage analytics, productivity insights
+
+### Known issues still listed
+- MSP Scenario Trainer dropdown styling
+- Ticket Notes Trainer navigation link update
+- KB Learning Machine missing create/edit/delete UI
+- KB import from private sources not supported
+
+> In short: the core shell is built, and the main remaining work is improving learning/KB integration, follow-up discipline training, PD practice flows, KB management, and AI prompt enhancements.

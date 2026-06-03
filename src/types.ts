@@ -37,6 +37,7 @@ export type WorkLog = {
   nextStep: string;
   tags: string[];
   relatedKbTopic?: string;
+  relatedScenarioId?: string;
   createdAt: string;
   draft: boolean;
   attachments?: SafeAttachment[];

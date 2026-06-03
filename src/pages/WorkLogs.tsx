@@ -4,6 +4,7 @@ import { attachmentPolicyText, downloadAttachment, readSafeAttachment } from '..
 import { buildTicketNoteFromWorkLog, scoreTicketNote } from '../utils/ticketNoteQuality';
 import { detectRiskyWork, buildRiskGuardrailMessage } from '../utils/changeGuardrails';
 import AfterActionReview, { type AfterActionReviewData } from '../components/AfterActionReview';
+import { mspScenarios } from '../data/mspScenarios';
 
 function ticketNoteRatingChip(rating: TicketNoteDrillScore) {
   if (rating === 'strong') return 'success';
@@ -38,6 +39,7 @@ function WorkLogs({ workLogs, clients, knowledgeEntries, addWorkLog, updateWorkL
   const [clientId, setClientId] = useState(clients[0]?.id ?? '');
   const [tags, setTags] = useState('');
   const [relatedKbTopic, setRelatedKbTopic] = useState('');
+  const [relatedScenarioId, setRelatedScenarioId] = useState('');
   const [draft, setDraft] = useState(false);
   const [attachments, setAttachments] = useState<SafeAttachment[]>([]);
   const [attachmentStatus, setAttachmentStatus] = useState('');
@@ -63,6 +65,7 @@ function WorkLogs({ workLogs, clients, knowledgeEntries, addWorkLog, updateWorkL
     setClientId(clients[0]?.id ?? '');
     setTags('');
     setRelatedKbTopic('');
+    setRelatedScenarioId('');
     setDraft(false);
     setAttachments([]);
     setAttachmentStatus('');
@@ -103,6 +106,7 @@ function WorkLogs({ workLogs, clients, knowledgeEntries, addWorkLog, updateWorkL
       nextStep: nextStep || 'Check this item in the next shift.',
       tags: tagList,
       relatedKbTopic: relatedKbTopic || undefined,
+      relatedScenarioId: relatedScenarioId || undefined,
       draft,
       confirmedRiskReview: riskAnalysis.isRisky ? riskConfirmed : undefined,
       createdAt: new Date().toISOString(),
@@ -139,6 +143,7 @@ function WorkLogs({ workLogs, clients, knowledgeEntries, addWorkLog, updateWorkL
     setClientId(log.clientId);
     setTags(log.tags.join(', '));
     setRelatedKbTopic(log.relatedKbTopic ?? '');
+    setRelatedScenarioId(log.relatedScenarioId ?? '');
     setDraft(log.draft);
     setAttachments(log.attachments ?? []);
     setWorkType(log.workType ?? '');
@@ -281,6 +286,17 @@ function WorkLogs({ workLogs, clients, knowledgeEntries, addWorkLog, updateWorkL
               ))}
             </datalist>
           </label>
+          <label>
+            Related scenario
+            <select value={relatedScenarioId} onChange={(event) => setRelatedScenarioId(event.target.value)}>
+              <option value="">— none —</option>
+              {mspScenarios.map((scenario) => (
+                <option key={scenario.id} value={scenario.id}>
+                  {scenario.title}
+                </option>
+              ))}
+            </select>
+          </label>
           <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '16px', marginTop: '16px' }}>
             <h3 style={{ marginBottom: '12px' }}>Learning Seed (Optional)</h3>
             <p style={{ color: '#64748b', marginBottom: '12px', fontSize: '0.9em' }}>Mark this work as a learning opportunity for After Action Review and skill tracking.</p>
@@ -397,6 +413,9 @@ function WorkLogs({ workLogs, clients, knowledgeEntries, addWorkLog, updateWorkL
                     <p><em>Linked KB: {linkedKnowledgeEntry.title}</em></p>
                   ) : log.relatedKbTopic ? (
                     <p><em>KB topic: {log.relatedKbTopic}</em></p>
+                  ) : null}
+                  {log.relatedScenarioId ? (
+                    <p><em>Related scenario: {mspScenarios.find((scenario) => scenario.id === log.relatedScenarioId)?.title ?? log.relatedScenarioId}</em></p>
                   ) : null}
                   {(log.workType || log.skillArea || log.needsReview) && (
                     <div style={{ background: '#f1f5f9', padding: '8px 12px', borderRadius: '4px', marginBottom: '8px', fontSize: '0.9em' }}>

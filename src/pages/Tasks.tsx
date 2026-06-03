@@ -165,6 +165,25 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
       </section>
 
       <section className="card">
+        <h2>Follow-up training</h2>
+        <p>When work is stalled, reduce risk by assigning the next owner clearly, confirming the due check, and using a direct message template.</p>
+        <div className="card-grid">
+          <article className="mini-card">
+            <h3>Clear next action</h3>
+            <p>Who will do what next and by when? Avoid vague follow-up phrases.</p>
+          </article>
+          <article className="mini-card">
+            <h3>Ownership</h3>
+            <p>Call out the person or team that must act. This removes ambiguity and avoids dropped work.</p>
+          </article>
+          <article className="mini-card">
+            <h3>Specific check-in</h3>
+            <p>Set a date or trigger, not just “follow up later.” A nudge reminder should tie to a clear condition.</p>
+          </article>
+        </div>
+      </section>
+
+      <section className="card">
         <h2>{editingTaskId ? 'Edit task' : 'Add task'}</h2>
         <form onSubmit={handleSubmit} className="quick-capture-form" noValidate>
           <label>

@@ -79,6 +79,7 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
   const [form, setForm] = useState<FieldCardForm>(blankForm);
   const [filter, setFilter] = useState('all');
   const [selectedCardId, setSelectedCardId] = useState('');
+  const [editingCardId, setEditingCardId] = useState('');
   const [activeActivity, setActiveActivity] = useState<KbLearningActivity>('quiz');
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
   const [textAnswer, setTextAnswer] = useState('');
@@ -98,6 +99,21 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
   const recommendedCard = useMemo(() => getRecommendedCard(fieldCards, dueCards), [dueCards, fieldCards]);
   const selectedCard = fieldCards.find((card) => card.id === selectedCardId) ?? recommendedCard ?? fieldCards[0];
   const selectedProgress = selectedCard ? activityProgress[selectedCard.id] : undefined;
+  const skillMap = useMemo(() => {
+    return fieldCards.reduce((map, card) => {
+      const key = card.relatedSkill || 'Unassigned skill';
+      if (!map[key]) {
+        map[key] = { count: 0, low: 0, medium: 0, high: 0, due: 0, stages: {} };
+      }
+      map[key].count += 1;
+      map[key][card.confidence] += 1;
+      if (card.nextReviewAt.slice(0, 10) <= todayIso()) {
+        map[key].due += 1;
+      }
+      map[key].stages[card.reviewStage] = (map[key].stages[card.reviewStage] || 0) + 1;
+      return map;
+    }, {} as Record<string, { count: number; low: number; medium: number; high: number; due: number; stages: Record<number, number> }>);
+  }, [fieldCards]);
   const sortedLearningQueue = useMemo(
     () => [...learningItems].sort((a, b) => new Date(a.nextReviewDate).getTime() - new Date(b.nextReviewDate).getTime()),
     [learningItems]
@@ -126,13 +142,67 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
     setActivityStatus('');
   }, [activeActivity, selectedCard, selectedProgress]);
 
+  const isEditMode = Boolean(editingCardId);
+
+  const startEditCard = (card: KbFieldCard) => {
+    setEditingCardId(card.id);
+    setSelectedCardId(card.id);
+    setForm({
+      title: card.title,
+      category: card.category,
+      whenToUse: card.whenToUse,
+      prerequisites: card.prerequisites,
+      firstChecks: card.firstChecks.join('\n'),
+      coreSteps: card.coreSteps.join('\n'),
+      commonMistake: card.commonMistake,
+      escalateIf: card.escalateIf,
+      relatedSkill: card.relatedSkill,
+      confidence: card.confidence
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingCardId('');
+    setForm(blankForm);
+  };
+
+  const deleteFieldCard = (cardId: string) => {
+    if (!window.confirm('Remove this KB field card?')) return;
+    setFieldCards((current) => current.filter((item) => item.id !== cardId));
+    if (selectedCardId === cardId) setSelectedCardId('');
+    if (editingCardId === cardId) cancelEdit();
+  };
+
   const updateForm = <K extends keyof FieldCardForm>(field: K, value: FieldCardForm[K]) => {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
-  const addFieldCard = (event: FormEvent<HTMLFormElement>) => {
+  const saveFieldCard = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const now = new Date().toISOString();
+    if (isEditMode) {
+      setFieldCards((current) => current.map((item) => {
+        if (item.id !== editingCardId) return item;
+        return {
+          ...item,
+          title: form.title.trim() || 'Untitled KB field card',
+          category: form.category,
+          whenToUse: form.whenToUse.trim() || 'Add when this KB should be used.',
+          prerequisites: form.prerequisites.trim() || 'Add prerequisites before using this card.',
+          firstChecks: splitLines(form.firstChecks),
+          coreSteps: splitLines(form.coreSteps),
+          commonMistake: form.commonMistake.trim() || 'Add the mistake to avoid.',
+          escalateIf: form.escalateIf.trim() || 'Add when to escalate.',
+          relatedSkill: form.relatedSkill.trim() || 'Unknown',
+          confidence: form.confidence,
+          updatedAt: now
+        };
+      }));
+      setEditingCardId('');
+      setForm(blankForm);
+      return;
+    }
+
     const newCard: KbFieldCard = {
       id: `kb-user-${Date.now()}`,
       title: form.title.trim() || 'Untitled KB field card',
@@ -334,6 +404,26 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
       </section>
 
       <section className="card">
+        <h2>Skill Mastery Map</h2>
+        <p>Track confidence, review stage, and the number of field cards per skill for your KB learning topics.</p>
+        {Object.entries(skillMap).length ? (
+          <div className="card-grid">
+            {Object.entries(skillMap).map(([skill, data]) => (
+              <article key={skill} className="mini-card">
+                <h3>{skill}</h3>
+                <p>{data.count} KB card{data.count === 1 ? '' : 's'}</p>
+                <p>Due review: {data.due}</p>
+                <p>Confidence: low {data.low}, medium {data.medium}, high {data.high}</p>
+                <p>Stages: {Object.entries(data.stages).map(([stage, count]) => `${stage}:${count}`).join(', ')}</p>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p>No cards available yet. Add a KB field card to build your skill map.</p>
+        )}
+      </section>
+
+      <section className="card">
         <h2>KB Map</h2>
         <div className="filter-bar">
           <label>
@@ -371,17 +461,25 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
                 <p><strong>Escalate if:</strong> {card.escalateIf}</p>
                 <p><strong>Next review:</strong> {card.nextReviewAt.slice(0, 10)}</p>
               </details>
-              <button type="button" className="small-action" onClick={() => setSelectedCardId(card.id)}>
-                Study this
-              </button>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
+                <button type="button" className="small-action" onClick={() => setSelectedCardId(card.id)}>
+                  Study this
+                </button>
+                <button type="button" className="small-action" onClick={() => startEditCard(card)}>
+                  Edit
+                </button>
+                <button type="button" className="small-action" style={{ background: '#dc2626' }} onClick={() => deleteFieldCard(card.id)}>
+                  Delete
+                </button>
+              </div>
             </article>
           ))}
         </div>
       </section>
 
       <section className="card">
-        <h2>Add KB field card</h2>
-        <form className="quick-capture-form" onSubmit={addFieldCard}>
+        <h2>{isEditMode ? 'Edit KB field card' : 'Add KB field card'}</h2>
+        <form className="quick-capture-form" onSubmit={saveFieldCard}>
           <label>
             Title
             <input value={form.title} onChange={(event) => updateForm('title', event.target.value)} placeholder="Example: Enrolling a New Computer into Intune" />
@@ -432,8 +530,25 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
             Escalate if
             <textarea value={form.escalateIf} onChange={(event) => updateForm('escalateIf', event.target.value)} />
           </label>
-          <button type="submit">Add KB field card</button>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button type="submit">{isEditMode ? 'Save KB field card' : 'Add KB field card'}</button>
+            {isEditMode && (
+              <button type="button" className="small-action" onClick={cancelEdit}>
+                Cancel edit
+              </button>
+            )}
+          </div>
         </form>
+      </section>
+
+      <section className="card">
+        <h2>Private KB import</h2>
+        <p>Private PDF import is not yet supported in this safe local demo. Keep your KB notes manual for now and use field cards to capture shareable process knowledge.</p>
+        <label>
+          Upload private KB PDF
+          <input type="file" accept="application/pdf" disabled />
+        </label>
+        <p className="page-help">This placeholder is a reminder to design secure import for private knowledge in future iterations.</p>
       </section>
 
       <section className="card">
