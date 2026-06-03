@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Client, LearningItem, Task, TimeEntry, WorkLog, Shift } from '../types';
+import type { Client, KnowledgeEntry, LearningItem, Task, TimeEntry, WorkLog, Shift } from '../types';
 import HealthyMspShiftPanel from '../components/HealthyMspShiftPanel';
 import QuickCapture from '../components/QuickCapture';
 import DataBackupPanel from '../components/DataBackupPanel';
@@ -20,6 +20,7 @@ type DashboardProps = {
   workLogs: WorkLog[];
   timeEntries: TimeEntry[];
   learningItems: LearningItem[];
+  knowledgeEntries: KnowledgeEntry[];
   progress: AvanceProgress;
   addWorkLog: (log: WorkLog) => void;
   addTask: (task: Task) => void;
@@ -39,6 +40,7 @@ function Dashboard({
   workLogs,
   timeEntries,
   learningItems,
+  knowledgeEntries,
   progress,
   addWorkLog,
   addTask,
@@ -202,6 +204,7 @@ function Dashboard({
 
       <QuickCapture
         clients={clients}
+        knowledgeEntries={knowledgeEntries}
         addWorkLog={addWorkLog}
         addTask={addTask}
         addLearningItem={addLearningItem}

@@ -299,6 +299,7 @@ function AppContent() {
                 workLogs={workLogs}
                 timeEntries={timeEntries}
                 learningItems={learningItems}
+                knowledgeEntries={knowledgeEntries}
                 progress={progress}
                 addWorkLog={addWorkLog}
                 addTask={addTask}

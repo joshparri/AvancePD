@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { kbHints } from '../data/kbHints';
-import type { Client, LearningItem, Task, WorkLog } from '../types';
+import type { Client, KnowledgeEntry, LearningItem, Task, WorkLog } from '../types';
 import { buildFollowUpTemplate } from '../utils/followUpTriage';
 import { scoreTicketNote } from '../utils/ticketNoteQuality';
 import { detectRiskyWork, buildRiskGuardrailMessage } from '../utils/changeGuardrails';
@@ -11,6 +11,7 @@ function createId(prefix: string) {
 
 type QuickCaptureProps = {
   clients: Client[];
+  knowledgeEntries: KnowledgeEntry[];
   addWorkLog: (log: WorkLog) => void;
   addTask: (task: Task) => void;
   addLearningItem: (item: LearningItem) => void;
@@ -20,19 +21,25 @@ const captureOptions = ['work log', 'task', 'learning'] as const;
 
 type CaptureType = (typeof captureOptions)[number];
 
-function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCaptureProps) {
+function QuickCapture({ clients, knowledgeEntries, addWorkLog, addTask, addLearningItem }: QuickCaptureProps) {
   const [captureType, setCaptureType] = useState<CaptureType>('work log');
   const [title, setTitle] = useState('');
   const [details, setDetails] = useState('');
   const [clientId, setClientId] = useState(clients[0]?.id ?? '');
   const [tags, setTags] = useState('');
+  const [relatedKbId, setRelatedKbId] = useState('');
   const [relatedKbTopic, setRelatedKbTopic] = useState('');
+  const [workType, setWorkType] = useState('');
+  const [skillArea, setSkillArea] = useState('');
+  const [confidence, setConfidence] = useState<'low' | 'medium' | 'high'>('medium');
+  const [needsReview, setNeedsReview] = useState(false);
   const [ticketPreview, setTicketPreview] = useState('');
   const [nextReviewDate, setNextReviewDate] = useState('');
   const [showQualityChecklist, setShowQualityChecklist] = useState(false);
   const [pendingWorkLog, setPendingWorkLog] = useState<WorkLog | null>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
+  const knowledgeOptions = useMemo(() => knowledgeEntries, [knowledgeEntries]);
   const clientOptions = useMemo(() => clients, [clients]);
   const ticketPreviewFeedback = useMemo(() => scoreTicketNote(ticketPreview), [ticketPreview]);
 
@@ -52,7 +59,12 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
     setTitle('');
     setDetails('');
     setTags('');
+    setRelatedKbId('');
     setRelatedKbTopic('');
+    setWorkType('');
+    setSkillArea('');
+    setConfidence('medium');
+    setNeedsReview(false);
     setTicketPreview('');
     setNextReviewDate('');
   };
@@ -72,6 +84,11 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
         result: 'To be reviewed.',
         nextStep: 'Check this item in the next shift.',
         tags: tagList,
+        workType: workType || undefined,
+        skillArea: skillArea || undefined,
+        confidence: confidence || undefined,
+        needsReview,
+        relatedKbId: relatedKbId || undefined,
         relatedKbTopic: relatedKbTopic || undefined,
         createdAt: new Date().toISOString(),
         draft: false,
@@ -199,20 +216,83 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
           <textarea value={details} onChange={(event) => setDetails(event.target.value)} placeholder="What happened?" />
         </label>
         {captureType === 'work log' && (
-          <label>
-            Related KB topic
-            <input
-              list="kb-topics"
-              value={relatedKbTopic}
-              onChange={(event) => setRelatedKbTopic(event.target.value)}
-              placeholder="Optional KB topic"
-            />
-            <datalist id="kb-topics">
-              {kbHints.map((hint) => (
-                <option key={hint.id} value={hint.title} />
-              ))}
-            </datalist>
-          </label>
+          <>
+            <label>
+              Link to KB entry
+              <select
+                value={relatedKbId}
+                onChange={(event) => {
+                  setRelatedKbId(event.target.value);
+                  const selected = knowledgeOptions.find((item) => item.id === event.target.value);
+                  if (selected) {
+                    setRelatedKbTopic(selected.title);
+                  }
+                }}
+              >
+                <option value="">— none —</option>
+                {knowledgeOptions.map((entry) => (
+                  <option key={entry.id} value={entry.id}>{entry.title}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Related KB topic
+              <input
+                list="kb-topics"
+                value={relatedKbTopic}
+                onChange={(event) => {
+                  setRelatedKbTopic(event.target.value);
+                  setRelatedKbId('');
+                }}
+                placeholder="Optional KB topic"
+              />
+              <datalist id="kb-topics">
+                {kbHints.map((hint) => (
+                  <option key={hint.id} value={hint.title} />
+                ))}
+              </datalist>
+            </label>
+            <label>
+              Work type
+              <select value={workType} onChange={(event) => setWorkType(event.target.value)}>
+                <option value="">— none —</option>
+                <option value="ticket">Ticket</option>
+                <option value="client-call">Client call</option>
+                <option value="documentation">Documentation</option>
+                <option value="troubleshooting">Troubleshooting</option>
+                <option value="deployment">Deployment</option>
+                <option value="escalation">Escalation</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label>
+              Skill area
+              <select value={skillArea} onChange={(event) => setSkillArea(event.target.value)}>
+                <option value="">— none —</option>
+                <option value="Microsoft 365">Microsoft 365</option>
+                <option value="Entra ID">Entra ID</option>
+                <option value="Intune">Intune</option>
+                <option value="Endpoint Management">Endpoint Management</option>
+                <option value="Networking">Networking</option>
+                <option value="Security">Security</option>
+                <option value="Backup/Recovery">Backup/Recovery</option>
+                <option value="Communication">Communication</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+            <label>
+              Confidence before
+              <select value={confidence} onChange={(event) => setConfidence(event.target.value as 'low' | 'medium' | 'high')}>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input type="checkbox" checked={needsReview} onChange={(event) => setNeedsReview(event.target.checked)} />
+              Mark for After Action Review
+            </label>
+          </>
         )}
         {captureType === 'learning' ? (
           <label>
