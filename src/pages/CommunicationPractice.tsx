@@ -1,5 +1,10 @@
-import { useState } from 'react';
-import { communicationScenarios } from '../data/communicationScenarios';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  communicationCategories,
+  communicationScenarios,
+  toneChecklistByCategory,
+  type CommunicationCategory
+} from '../data/communicationScenarios';
 import { getCommunicationFeedback, type CoachFeedback, type CommunicationFeedbackRequest } from '../utils/groqClient';
 import FeedbackCard from '../components/FeedbackCard';
 
@@ -9,14 +14,31 @@ function CommunicationPractice() {
   const [feedbackMap, setFeedbackMap] = useState<Record<string, CoachFeedback>>({});
   const [feedbackError, setFeedbackError] = useState<string>('');
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<CommunicationCategory | 'all'>('all');
   const [roughMessage, setRoughMessage] = useState('');
   const [audience, setAudience] = useState('end user');
+  const [messageCategory, setMessageCategory] = useState<CommunicationCategory>('client update');
   const [toneTarget, setToneTarget] = useState('calm and clear');
   const [urgency, setUrgency] = useState('normal');
 
-  const selectedScenario = communicationScenarios.find((scenario) => scenario.id === selectedId) ?? communicationScenarios[0];
+  const visibleScenarios = useMemo(
+    () => categoryFilter === 'all'
+      ? communicationScenarios
+      : communicationScenarios.filter((scenario) => scenario.category === categoryFilter),
+    [categoryFilter]
+  );
+  const selectedScenario = visibleScenarios.find((scenario) => scenario.id === selectedId) ?? visibleScenarios[0] ?? communicationScenarios[0];
+  const scenarioToneChecklist = toneChecklistByCategory[selectedScenario.category];
+  const rewriteToneChecklist = toneChecklistByCategory[messageCategory];
   const userResponse = userResponses[selectedId] ?? '';
   const scenarioFeedback = feedbackMap[selectedId];
+
+  useEffect(() => {
+    if (visibleScenarios.some((scenario) => scenario.id === selectedId)) return;
+    if (visibleScenarios[0]) {
+      setSelectedId(visibleScenarios[0].id);
+    }
+  }, [selectedId, visibleScenarios]);
 
   const handleGetFeedback = async () => {
     if (!userResponse.trim()) return;
@@ -46,9 +68,9 @@ function CommunicationPractice() {
     ? [
         `Hi, thanks for flagging this. I understand this is ${urgency === 'urgent' ? 'time-sensitive' : 'important'}.`,
         '',
-        `I will work through the next safe checks and keep the update ${toneTarget} for the ${audience}.`,
+        `Category: ${messageCategory}. I will keep the update ${toneTarget} for the ${audience}.`,
         '',
-        `Next step: I will confirm the current state, avoid risky changes, and come back with either a fix or a clear escalation note.`
+        `Next step: ${nextStepForCommunicationCategory(messageCategory)}`
       ].join('\n')
     : '';
 
@@ -65,13 +87,23 @@ function CommunicationPractice() {
       <div className="split-layout">
         <aside className="scenario-list">
           <strong>Scenario bank</strong>
-          {communicationScenarios.map((scenario) => (
+          <label>
+            Category
+            <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value as CommunicationCategory | 'all')}>
+              <option value="all">all</option>
+              {communicationCategories.map((category) => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+          </label>
+          {visibleScenarios.map((scenario) => (
             <button
               key={scenario.id}
               className={selectedId === scenario.id ? 'scenario-button active' : 'scenario-button'}
               onClick={() => setSelectedId(scenario.id)}
             >
               {scenario.title}
+              <span>{scenario.category}</span>
             </button>
           ))}
         </aside>
@@ -79,9 +111,19 @@ function CommunicationPractice() {
         <section className="scenario-detail">
           <div className="scenario-header">
             <h3>{selectedScenario.title}</h3>
+            <div className="status-chip">{selectedScenario.category}</div>
             <div className="status-chip">Related skills: {selectedScenario.relatedMspSkills.join(', ')}</div>
           </div>
           <p className="context">Context: {selectedScenario.context}</p>
+
+          <div className="training-section">
+            <h4>Tone checklist</h4>
+            <ul>
+              {scenarioToneChecklist.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
 
           <div className="training-section">
             <h4>Calm rewrite coach</h4>
@@ -90,6 +132,14 @@ function CommunicationPractice() {
               <label>
                 Rough message
                 <textarea value={roughMessage} onChange={(event) => setRoughMessage(event.target.value)} placeholder="Paste a generic rough draft only." />
+              </label>
+              <label>
+                Message category
+                <select value={messageCategory} onChange={(event) => setMessageCategory(event.target.value as CommunicationCategory)}>
+                  {communicationCategories.map((category) => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
               </label>
               <label>
                 Audience
@@ -114,6 +164,14 @@ function CommunicationPractice() {
                   <option value="urgent">urgent</option>
                 </select>
               </label>
+            </div>
+            <div className="mini-card" style={{ marginTop: '12px' }}>
+              <strong>Rewrite checklist</strong>
+              <ul>
+                {rewriteToneChecklist.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
             </div>
             {rewrittenMessage ? <pre className="template-box">{rewrittenMessage}</pre> : <p className="feedback-empty-hint">Write a generic rough draft to generate a calmer version.</p>}
           </div>
@@ -168,6 +226,25 @@ function CommunicationPractice() {
       </div>
     </div>
   );
+}
+
+function nextStepForCommunicationCategory(category: CommunicationCategory) {
+  switch (category) {
+    case 'client update':
+      return 'I will confirm the current status, record the impact, and provide the next update time.';
+    case 'escalation':
+      return 'I will collect the checks already completed, explain the risk, and hand this to the right owner.';
+    case 'change approval':
+      return 'I will confirm the requested change, timing, approval path, and rollback plan before action.';
+    case 'follow-up':
+      return 'I will confirm what has changed since the last update and set the next owner or time.';
+    case 'closure':
+      return 'I will summarise the fix, confirmation result, and what to do if the issue returns.';
+    case 'investigation':
+      return 'I will gather the missing details, run safe checks, and avoid guessing before evidence is clear.';
+    default:
+      return 'I will confirm the current state and provide a clear next step.';
+  }
 }
 
 export default CommunicationPractice;

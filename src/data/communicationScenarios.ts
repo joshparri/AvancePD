@@ -1,6 +1,15 @@
+export type CommunicationCategory =
+  | 'client update'
+  | 'escalation'
+  | 'change approval'
+  | 'follow-up'
+  | 'closure'
+  | 'investigation';
+
 export type CommunicationScenario = {
   id: string;
   title: string;
+  category: CommunicationCategory;
   context: string;
   poorResponse: string;
   betterResponse: string;
@@ -9,10 +18,59 @@ export type CommunicationScenario = {
   relatedMspSkills: string[];
 };
 
+export const communicationCategories: CommunicationCategory[] = [
+  'client update',
+  'escalation',
+  'change approval',
+  'follow-up',
+  'closure',
+  'investigation'
+];
+
+export const toneChecklistByCategory: Record<CommunicationCategory, string[]> = {
+  'client update': [
+    'State the current status without overpromising.',
+    'Explain user or business impact in plain language.',
+    'Give a specific next update time or next action.',
+    'Keep technical detail proportional to the audience.'
+  ],
+  escalation: [
+    'Explain why escalation reduces risk.',
+    'Show what you have already checked.',
+    'Keep ownership clear while another person helps.',
+    'Include the evidence the next technician needs.'
+  ],
+  'change approval': [
+    'Name the change and why it is needed.',
+    'Mention user impact, timing, and rollback path.',
+    'Ask for approval without pressuring the reader.',
+    'Avoid implying the change is risk-free.'
+  ],
+  'follow-up': [
+    'Acknowledge the previous interaction or delay.',
+    'Say what changed since the last update.',
+    'Set a clear next step, owner, or time.',
+    'Keep the tone patient and accountable.'
+  ],
+  closure: [
+    'Summarise the issue and the confirmed fix.',
+    'State how the result was verified.',
+    'Name what to do if the issue returns.',
+    'Avoid closing with vague wording like fixed.'
+  ],
+  investigation: [
+    'Ask for specific details without blame.',
+    'Avoid false reassurance before checking evidence.',
+    'Explain the safe checks you will perform.',
+    'Protect privacy and avoid copying sensitive data.'
+  ]
+};
+
 export const communicationScenarios: CommunicationScenario[] = [
   {
     id: 'frustrated-user',
     title: 'Frustrated user',
+    category: 'follow-up',
     context: 'A user is upset because their ticket has already been open for two days without a clear update.',
     poorResponse: 'Fine, I will look at it later. Please wait.',
     betterResponse: 'I understand you are frustrated. I am checking the ticket now and will update you shortly.',
@@ -23,6 +81,7 @@ export const communicationScenarios: CommunicationScenario[] = [
   {
     id: 'non-technical-manager',
     title: 'Non-technical manager',
+    category: 'client update',
     context: 'A manager asks why the network issue affected operations and wants a short explanation.',
     poorResponse: 'The switch had a spanning tree loop and BGP failed. We had to reset the core router.',
     betterResponse: 'The building network had a routing issue, which stopped some systems from talking to each other. We are addressing it now and I will keep you updated.',
@@ -33,6 +92,7 @@ export const communicationScenarios: CommunicationScenario[] = [
   {
     id: 'security-warning',
     title: 'Security warning',
+    category: 'investigation',
     context: 'A user reports a suspicious email and asks whether it is safe. You need to reassure them while keeping the response professional.',
     poorResponse: 'Yes it is safe, don’t worry. The email is fine.',
     betterResponse: 'I will review the email. If it is suspicious, I will let you know and help you next.',
@@ -43,6 +103,7 @@ export const communicationScenarios: CommunicationScenario[] = [
   {
     id: 'outage-update',
     title: 'Outage update',
+    category: 'client update',
     context: 'The internet is down at a site and the client needs a concise status update.',
     poorResponse: 'We are looking at it.',
     betterResponse: 'The site network is currently down. We are investigating the cause and will update you again shortly.',
@@ -53,6 +114,7 @@ export const communicationScenarios: CommunicationScenario[] = [
   {
     id: 'need-to-escalate',
     title: 'Saying I need to escalate this',
+    category: 'escalation',
     context: 'You identify a risky issue that requires senior support. You need to explain why escalation is the right next step.',
     poorResponse: 'I am escalating because I can’t fix it.',
     betterResponse: 'This issue is outside my support level, so I am escalating it to the specialist team.',
@@ -63,6 +125,7 @@ export const communicationScenarios: CommunicationScenario[] = [
   {
     id: 'ask-more-information',
     title: 'Asking for more information',
+    category: 'investigation',
     context: 'A ticket report is too vague to act on. You need to ask the right clarifying questions without sounding accusatory.',
     poorResponse: 'You are not clear. Tell me more.',
     betterResponse: 'I need a bit more detail to help you. Which app, device, and error are you seeing?',
@@ -73,6 +136,7 @@ export const communicationScenarios: CommunicationScenario[] = [
   {
     id: 'explain-delay',
     title: 'Explaining a delay',
+    category: 'follow-up',
     context: 'A ticket is taking longer than expected. You need to explain why and set a new expectation.',
     poorResponse: 'Sorry, it is taking longer than expected.',
     betterResponse: 'This ticket is taking longer than expected because I have to check another system. I will update you by the end of the day.',
@@ -83,6 +147,7 @@ export const communicationScenarios: CommunicationScenario[] = [
   {
     id: 'close-ticket-professionally',
     title: 'Closing a ticket professionally',
+    category: 'closure',
     context: 'A ticket appears resolved. You need to close it with a good summary and next step if needed.',
     poorResponse: 'Fixed. Closing ticket.',
     betterResponse: 'The issue has been resolved. I am closing the ticket now.',
@@ -93,6 +158,7 @@ export const communicationScenarios: CommunicationScenario[] = [
   {
     id: 'push-back-out-of-scope',
     title: 'Push back gently on an unsafe or out-of-scope request',
+    category: 'change approval',
     context: 'A request asks you to bypass security controls for convenience. You need to push back professionally.',
     poorResponse: 'I can’t do that. It’s not my problem.',
     betterResponse: 'That request is outside our standard practice, so I cannot make that change right now.',
