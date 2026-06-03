@@ -1,20 +1,13 @@
 import { useState } from 'react';
 import { responseRubrics } from '../data/responseRubrics';
 import { getTicketNoteFeedback, type CoachFeedback, type TicketNoteFeedbackRequest } from '../utils/groqClient';
+import { scoreTicketNote, ticketNoteTemplate } from '../utils/ticketNoteQuality';
 import FeedbackCard from '../components/FeedbackCard';
 
 type TicketNotesProps = {
   ticketNotePracticeCount: number;
   incrementTicketNotePractice: () => void;
 };
-
-const ticketNoteTemplate = `Issue:
-User impact:
-Checks performed:
-Action taken:
-Result:
-Next step:
-Escalation reason if applicable:`;
 
 const examples = [
   {
@@ -69,6 +62,7 @@ function TicketNotes({ ticketNotePracticeCount, incrementTicketNotePractice }: T
   const [feedback, setFeedback] = useState<CoachFeedback | null>(null);
   const [feedbackError, setFeedbackError] = useState('');
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
+  const localFeedback = scoreTicketNote(userNote);
 
   const handleGetFeedback = async () => {
     if (!userNote.trim()) return;
@@ -157,9 +151,20 @@ function TicketNotes({ ticketNotePracticeCount, incrementTicketNotePractice }: T
         {!userNote.trim() ? (
           <p className="feedback-empty-hint">Write your ticket note first, then I can coach it.</p>
         ) : (
-          <button type="button" onClick={handleGetFeedback} disabled={isLoadingFeedback}>
-            {isLoadingFeedback ? 'Getting feedback…' : feedback ? 'Get fresh feedback' : 'Get AI Feedback'}
-          </button>
+          <>
+            <div className="mini-card" style={{ marginTop: '12px' }}>
+              <div className="metric-row">
+                <span className={`status-chip ${ticketNoteRatingChip(localFeedback.rating)}`}>{localFeedback.rating}</span>
+                <span className="status-chip info">{localFeedback.score}/{localFeedback.total} local checks</span>
+              </div>
+              {localFeedback.passed.length > 0 && <p><strong>Clear:</strong> {localFeedback.passed.join(', ')}</p>}
+              {localFeedback.missing.length > 0 && <p><strong>Needs work:</strong> {localFeedback.missing.join(', ')}</p>}
+              {localFeedback.suggestions.length > 0 && <p><strong>Next edit:</strong> {localFeedback.suggestions[0]}</p>}
+            </div>
+            <button type="button" onClick={handleGetFeedback} disabled={isLoadingFeedback}>
+              {isLoadingFeedback ? 'Getting feedback…' : feedback ? 'Get fresh feedback' : 'Get AI Feedback'}
+            </button>
+          </>
         )}
         {feedbackError && (
           <div className="error-panel">
@@ -173,6 +178,12 @@ function TicketNotes({ ticketNotePracticeCount, incrementTicketNotePractice }: T
       </section>
     </div>
   );
+}
+
+function ticketNoteRatingChip(rating: string) {
+  if (rating === 'strong') return 'success';
+  if (rating === 'usable') return 'info';
+  return 'warn';
 }
 
 function copyForPart(part: string) {

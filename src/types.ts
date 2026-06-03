@@ -24,6 +24,8 @@ export type Shift = {
   paid: boolean;
 };
 
+export type TicketNoteDrillScore = 'needs work' | 'usable' | 'strong';
+
 export type WorkLog = {
   id: string;
   shiftId?: string;
@@ -46,6 +48,9 @@ export type WorkLog = {
   relatedKbId?: string; // Link to KB card
   reviewDueAt?: string; // When to review this learning
   learningNote?: string; // Free-text reflection on what was learned
+  ticketNoteDrillScore?: TicketNoteDrillScore;
+  ticketNoteDrillNote?: string;
+  ticketNoteDrillPractisedAt?: string;
 };
 
 export type TaskStatus = 'open' | 'in progress' | 'blocked' | 'done';

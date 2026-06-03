@@ -1,7 +1,14 @@
 import { FormEvent, useMemo, useState } from 'react';
-import type { Client, SafeAttachment, WorkLog, LearningItem } from '../types';
+import type { Client, SafeAttachment, TicketNoteDrillScore, WorkLog, LearningItem } from '../types';
 import { attachmentPolicyText, downloadAttachment, readSafeAttachment } from '../utils/attachments';
+import { buildTicketNoteFromWorkLog, scoreTicketNote } from '../utils/ticketNoteQuality';
 import AfterActionReview, { type AfterActionReviewData } from '../components/AfterActionReview';
+
+function ticketNoteRatingChip(rating: TicketNoteDrillScore) {
+  if (rating === 'strong') return 'success';
+  if (rating === 'usable') return 'info';
+  return 'warn';
+}
 
 type WorkLogsProps = {
   workLogs: WorkLog[];
@@ -18,6 +25,8 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog,
   const clientOptions = useMemo(() => clients, [clients]);
   const [editingLogId, setEditingLogId] = useState<string | null>(null);
   const [reviewingLogId, setReviewingLogId] = useState<string | null>(null);
+  const [drillingLogId, setDrillingLogId] = useState<string | null>(null);
+  const [drillNote, setDrillNote] = useState('');
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [actions, setActions] = useState('');
@@ -37,6 +46,8 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog,
   const [relatedKbId, setRelatedKbId] = useState('');
   const [reviewDueAt, setReviewDueAt] = useState('');
   const [learningNote, setLearningNote] = useState('');
+  const drillingLog = useMemo(() => workLogs.find((log) => log.id === drillingLogId) ?? null, [drillingLogId, workLogs]);
+  const drillFeedback = useMemo(() => scoreTicketNote(drillNote), [drillNote]);
 
   const resetForm = () => {
     setEditingLogId(null);
@@ -63,6 +74,7 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog,
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const tagList = tags.split(',').map((tag) => tag.trim()).filter(Boolean);
+    const existingLog = editingLogId ? workLogs.find((item) => item.id === editingLogId) : undefined;
 
     const log: WorkLog = {
       id: editingLogId || createId('worklog'),
@@ -86,6 +98,9 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog,
       relatedKbId: relatedKbId || undefined,
       reviewDueAt: reviewDueAt || undefined,
       learningNote: learningNote || undefined,
+      ticketNoteDrillScore: existingLog?.ticketNoteDrillScore,
+      ticketNoteDrillNote: existingLog?.ticketNoteDrillNote,
+      ticketNoteDrillPractisedAt: existingLog?.ticketNoteDrillPractisedAt,
     };
 
     if (editingLogId) {
@@ -147,6 +162,24 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog,
     }
 
     setReviewingLogId(null);
+  };
+
+  const startTicketNoteDrill = (log: WorkLog) => {
+    setDrillingLogId(log.id);
+    setDrillNote(log.ticketNoteDrillNote || buildTicketNoteFromWorkLog(log));
+  };
+
+  const saveTicketNoteDrill = () => {
+    if (!drillingLog || !drillNote.trim()) return;
+
+    updateWorkLog({
+      ...drillingLog,
+      ticketNoteDrillScore: drillFeedback.rating,
+      ticketNoteDrillNote: drillNote.trim(),
+      ticketNoteDrillPractisedAt: new Date().toISOString()
+    });
+    setDrillingLogId(null);
+    setDrillNote('');
   };
 
   return (
@@ -306,6 +339,16 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog,
                       {log.learningNote && <div style={{ marginTop: '4px', fontStyle: 'italic' }}>{log.learningNote}</div>}
                     </div>
                   )}
+                  {log.ticketNoteDrillScore && (
+                    <div style={{ background: '#ecfdf5', padding: '8px 12px', borderRadius: '4px', marginBottom: '8px', fontSize: '0.9em' }}>
+                      <span className={`status-chip ${ticketNoteRatingChip(log.ticketNoteDrillScore)}`}>
+                        Ticket note drill: {log.ticketNoteDrillScore}
+                      </span>
+                      {log.ticketNoteDrillPractisedAt && (
+                        <p style={{ marginBottom: 0 }}>Practised {new Date(log.ticketNoteDrillPractisedAt).toLocaleDateString()}</p>
+                      )}
+                    </div>
+                  )}
                   {log.attachments?.length ? (
                     <div>
                       <p>{log.attachments.length} safe attachment(s)</p>
@@ -331,6 +374,9 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog,
                     <button type="button" className="small-action" onClick={() => navigator.clipboard?.writeText(`${log.title}\n\nSummary: ${log.summary}\nNext step: ${log.nextStep}`)}>
                       Copy safe summary
                     </button>
+                    <button type="button" className="small-action" onClick={() => startTicketNoteDrill(log)}>
+                      Ticket note drill
+                    </button>
                     <button type="button" onClick={() => deleteWorkLog(log.id)} style={{ background: '#dc2626' }}>
                       Delete
                     </button>
@@ -353,6 +399,52 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog,
           onSave={handleAfterActionReviewSave}
           onClose={() => setReviewingLogId(null)}
         />
+      )}
+
+      {drillingLog && (
+        <section className="card">
+          <h2>Ticket note drill: {drillingLog.title}</h2>
+          <p>Turn this real work log into a clear ticket note. Keep it generic and safe before saving.</p>
+          <textarea
+            value={drillNote}
+            onChange={(event) => setDrillNote(event.target.value)}
+            rows={9}
+            aria-label="Ticket note drill"
+          />
+          <div className="metric-row">
+            <span className={`status-chip ${ticketNoteRatingChip(drillFeedback.rating)}`}>{drillFeedback.rating}</span>
+            <span className="status-chip info">{drillFeedback.score}/{drillFeedback.total} checks</span>
+          </div>
+          <div className="card-grid">
+            <article className="mini-card">
+              <h3>Clear</h3>
+              <p>{drillFeedback.passed.length ? drillFeedback.passed.join(', ') : 'No checks passed yet.'}</p>
+            </article>
+            <article className="mini-card">
+              <h3>Needs work</h3>
+              <p>{drillFeedback.missing.length ? drillFeedback.missing.join(', ') : 'Ready to save.'}</p>
+            </article>
+            <article className="mini-card">
+              <h3>Next edit</h3>
+              <p>{drillFeedback.suggestions[0] ?? 'This note is strong enough for a clean handover.'}</p>
+            </article>
+          </div>
+          <p className="privacy-reminder">Do not include client names, passwords, hostnames, IPs, file paths, private ticket text, or screenshots.</p>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <button type="button" onClick={saveTicketNoteDrill} disabled={!drillNote.trim()}>
+              Save drill result
+            </button>
+            <button type="button" className="small-action" onClick={() => navigator.clipboard?.writeText(drillNote)}>
+              Copy note
+            </button>
+            <button type="button" className="small-action" onClick={() => {
+              setDrillingLogId(null);
+              setDrillNote('');
+            }}>
+              Close
+            </button>
+          </div>
+        </section>
       )}
     </div>
   );

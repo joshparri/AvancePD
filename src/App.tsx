@@ -187,6 +187,44 @@ function AppContent() {
     window.localStorage.setItem('avance-low-energy-mode', String(lowEnergyMode));
   }, [lowEnergyMode]);
 
+  // Extract learning queue items from work logs into the learning store.
+  useEffect(() => {
+    try {
+      // Create learning items for work logs flagged for review or with explicit learning notes
+      workLogs.forEach((wl: WorkLog) => {
+        if (!wl) return;
+        const shouldCreate = wl.needsReview || Boolean(wl.learningNote) || Boolean(wl.reviewDueAt);
+        if (!shouldCreate) return;
+
+        // Avoid duplicates by checking existing learning items with same notes and topic
+        const existing = learningItems.find((li) => {
+          const sameTopic = li.topic === (wl.skillArea || wl.title);
+          const sameNotes = li.notes && wl.learningNote && li.notes === wl.learningNote;
+          return li.seenInRealWork && sameTopic && (sameNotes || li.notes === wl.summary);
+        });
+        if (existing) return;
+
+        const newItem: LearningItem = {
+          id: `learning-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          topic: wl.skillArea || wl.title,
+          noteType: 'shift review',
+          confidence: (wl.confidence as 'low' | 'medium' | 'high') || 'medium',
+          notes: wl.learningNote || wl.summary || '',
+          seenInRealWork: true,
+          askTeam: false,
+          nextReviewDate: wl.reviewDueAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        };
+
+        addLearningItem(newItem);
+      });
+    } catch (e) {
+      // non-fatal - keep UI stable
+      // eslint-disable-next-line no-console
+      console.warn('learning extraction failed', e);
+    }
+    // run when workLogs or learningItems change
+  }, [workLogs, learningItems, addLearningItem]);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === '?' && !event.ctrlKey && !event.metaKey && !event.altKey) {
