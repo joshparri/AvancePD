@@ -6,6 +6,7 @@ import {
   followUpStages,
   isTaskNudgeDue,
   isTaskOverdue,
+  isTaskStale,
   sortFollowUps
 } from '../utils/followUpTriage';
 
@@ -43,6 +44,7 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
   const openTasks = sortFollowUps(tasks.filter((task) => task.status !== 'done'));
   const overdueCount = openTasks.filter((task) => isTaskOverdue(task)).length;
   const nudgeDueCount = openTasks.filter((task) => isTaskNudgeDue(task)).length;
+  const staleCount = openTasks.filter((task) => isTaskStale(task)).length;
 
   const filteredTasks = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -135,6 +137,16 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
     setNote(task.note);
   };
 
+  const markTaskNudged = (task: Task) => {
+    const today = new Date().toISOString().slice(0, 10);
+    const nextNudge = task.nextNudgeDate || new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    updateTask({
+      ...task,
+      lastNudgedAt: today,
+      nextNudgeDate: nextNudge
+    });
+  };
+
   const regenerateTemplate = () => {
     setFollowUpTemplate(buildFollowUpTemplate({ title: title || 'Follow-up', note, followUpStage, nextNudgeDate }));
   };
@@ -147,6 +159,7 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
         <div className="metric-row">
           <span className="status-chip warn">{overdueCount} overdue</span>
           <span className="status-chip info">{nudgeDueCount} nudge due</span>
+          <span className="status-chip warn">{staleCount} stale</span>
           <span className="status-chip success">{openTasks.length} active</span>
         </div>
       </section>
@@ -317,9 +330,14 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
                   <div className="metric-row">
                     <span className={overdue ? 'status-chip warn' : 'status-chip info'}>{overdue ? 'overdue' : 'due planned'}</span>
                     <span className={nudgeDue ? 'status-chip warn' : 'status-chip info'}>{task.nextNudgeDate ? `nudge ${task.nextNudgeDate}` : 'no nudge set'}</span>
-                    <span className="status-chip success">{task.followUpStage ?? 'needs action'}</span>
+                    <span className={isTaskStale(task) ? 'status-chip warn' : 'status-chip success'}>{isTaskStale(task) ? 'stale' : task.followUpStage ?? 'needs action'}</span>
                   </div>
                   <p>{task.note}</p>
+                  {task.lastNudgedAt && (
+                    <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#475569' }}>
+                      Last nudged: {task.lastNudgedAt}
+                    </p>
+                  )}
                   <details>
                     <summary>Follow-up wording</summary>
                     <pre className="template-box">{template}</pre>
@@ -327,6 +345,9 @@ function Tasks({ tasks, clients, addTask, updateTask, deleteTask }: TasksProps) 
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                     <button type="button" onClick={() => startEditing(task)}>
                       Edit
+                    </button>
+                    <button type="button" className="small-action" onClick={() => markTaskNudged(task)}>
+                      Mark nudge sent
                     </button>
                     <button type="button" className="small-action" onClick={() => navigator.clipboard?.writeText(template)}>
                       Copy wording

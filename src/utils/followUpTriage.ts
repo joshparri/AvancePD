@@ -50,6 +50,26 @@ export function isTaskNudgeDue(task: Task, compareTo = todayDateString()) {
   return task.status !== 'done' && isDateOnOrBefore(task.nextNudgeDate, compareTo);
 }
 
+export function daysBetween(dateString: string, compareTo = todayDateString()) {
+  if (!dateString) return Infinity;
+  const from = new Date(dateString).getTime();
+  const to = new Date(compareTo).getTime();
+  return Math.floor((to - from) / (1000 * 60 * 60 * 24));
+}
+
+export function isTaskStale(task: Task, compareTo = todayDateString()) {
+  if (task.status === 'done') return false;
+
+  const overdueDays = task.dueDate ? daysBetween(task.dueDate, compareTo) : -1;
+  const lastNudgeAge = task.lastNudgedAt ? daysBetween(task.lastNudgedAt, compareTo) : Infinity;
+
+  if (task.lastNudgedAt && lastNudgeAge >= 7) return true;
+  if (task.nextNudgeDate && isTaskNudgeDue(task, compareTo)) return true;
+  if (task.dueDate && overdueDays >= 7) return true;
+
+  return false;
+}
+
 export function sortFollowUps(tasks: Task[]) {
   const priorityScore: Record<Task['priority'], number> = { high: 0, medium: 1, low: 2 };
   return [...tasks].sort((a, b) => {
