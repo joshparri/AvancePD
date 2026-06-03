@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { LearningItem, Task, WorkLog } from '../types';
 
 type PromptPacksProps = {
@@ -118,8 +118,14 @@ const promptCards: PromptCard[] = [
 ];
 
 function PromptPacks({ workLogs, tasks, learningItems, onNavigate }: PromptPacksProps) {
-  const [activePromptId, setActivePromptId] = useState<string>('');
-  const [generatedText, setGeneratedText] = useState<string>('');
+  const [activePromptId, setActivePromptId] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    return window.localStorage.getItem('avance-prompt-packs-active') ?? '';
+  });
+  const [generatedText, setGeneratedText] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    return window.localStorage.getItem('avance-prompt-packs-text') ?? '';
+  });
 
   const dueLearningCount = learningItems.filter((item) => new Date(item.nextReviewDate) <= new Date()).length;
   const openTasksCount = tasks.filter((task) => task.status !== 'done').length;
@@ -166,8 +172,17 @@ function PromptPacks({ workLogs, tasks, learningItems, onNavigate }: PromptPacks
 
   const handleGenerate = (id: string) => {
     setActivePromptId(id);
-    setGeneratedText(buildSampleText(id));
+    const text = buildSampleText(id);
+    setGeneratedText(text);
   };
+
+  const selectedPrompt = promptCards.find((card) => card.id === activePromptId);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('avance-prompt-packs-active', activePromptId);
+    window.localStorage.setItem('avance-prompt-packs-text', generatedText);
+  }, [activePromptId, generatedText]);
 
   return (
     <div>
@@ -210,7 +225,7 @@ function PromptPacks({ workLogs, tasks, learningItems, onNavigate }: PromptPacks
 
       {activePromptId && (
         <section className="card">
-          <h2>Generated draft</h2>
+          <h2>Generated draft{selectedPrompt ? ` for ${selectedPrompt.title}` : ''}</h2>
           <p>Use this as a starting point or capture it as a safe note.</p>
           <pre className="template-box">{generatedText}</pre>
           <div className="status-button-row">
