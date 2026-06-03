@@ -36,7 +36,7 @@
 - [x] Add status field (waiting, needs-action, blocked)
 - [x] Add due date and next-nudge scheduling
 - [x] Create editable follow-up wording templates
-- [ ] Add dashboard summary of stale follow-ups
+- [x] Add dashboard summary of stale follow-ups
 - [ ] Implement follow-up discipline training
 
 ### 2.4 Playbook Generation

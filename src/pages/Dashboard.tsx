@@ -8,7 +8,7 @@ import { getTodayLog } from '../utils/healthOutdoors';
 import { mspScenarios } from '../data/mspScenarios';
 import { microLearningCards } from '../data/microLearning';
 import { getKbLearningMetrics } from '../features/kb-learning/kbLearningStorage';
-import { isTaskNudgeDue, isTaskOverdue, sortFollowUps } from '../utils/followUpTriage';
+import { isTaskNudgeDue, isTaskOverdue, isTaskStale, sortFollowUps } from '../utils/followUpTriage';
 import type { AvanceProgress } from '../utils/progressStorage';
 
 const PAGE_TITLE = 'Dashboard';
@@ -216,6 +216,7 @@ function Dashboard({
           <div className="metric-row">
             <span className="status-chip warn">{openTasks.filter((task) => isTaskOverdue(task)).length} overdue</span>
             <span className="status-chip info">{openTasks.filter((task) => isTaskNudgeDue(task)).length} nudge due</span>
+            <span className="status-chip warn">{openTasks.filter((task) => isTaskStale(task)).length} stale</span>
           </div>
         ) : null}
         {openTasks.length ? (
