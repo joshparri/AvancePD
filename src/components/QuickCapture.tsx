@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { kbHints } from '../data/kbHints';
 import type { Client, LearningItem, Task, WorkLog } from '../types';
 import { buildFollowUpTemplate } from '../utils/followUpTriage';
+import { scoreTicketNote } from '../utils/ticketNoteQuality';
 
 function createId(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -32,6 +33,7 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   const clientOptions = useMemo(() => clients, [clients]);
+  const ticketPreviewFeedback = useMemo(() => scoreTicketNote(ticketPreview), [ticketPreview]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -125,6 +127,10 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
     setDetails(nextDetails);
     setTags(nextTags);
     window.setTimeout(() => titleInputRef.current?.focus(), 0);
+  };
+
+  const generateTicketPreview = () => {
+    setTicketPreview(buildQuickCaptureTicketPreview(title, details, relatedKbTopic));
   };
 
   const handleQualityChecklistSubmit = (workLog: WorkLog) => {
@@ -222,13 +228,23 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
             <button
               type="button"
               className="small-action"
-              onClick={() => setTicketPreview(`Summary: ${title || 'Quick work log'}\n\nWhat happened: ${details || 'Captured during shift.'}\n\nNext step: ${relatedKbTopic ? `${relatedKbTopic} follow-up` : 'Review this item next shift.'}`)}
+              onClick={generateTicketPreview}
             >
               Generate ticket note preview
             </button>
             {ticketPreview && (
               <div className="ticket-preview">
+                <div className="metric-row">
+                  <span className={`status-chip ${ticketNoteRatingChip(ticketPreviewFeedback.rating)}`}>{ticketPreviewFeedback.rating}</span>
+                  <span className="status-chip info">{ticketPreviewFeedback.score}/{ticketPreviewFeedback.total} checks</span>
+                </div>
                 <pre>{ticketPreview}</pre>
+                {ticketPreviewFeedback.missing.length > 0 && (
+                  <p className="health-muted">Needs: {ticketPreviewFeedback.missing.join(', ')}</p>
+                )}
+                {ticketPreviewFeedback.suggestions[0] && (
+                  <p className="health-muted">Next edit: {ticketPreviewFeedback.suggestions[0]}</p>
+                )}
                 <button
                   type="button"
                   className="small-action"
@@ -259,6 +275,24 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
 }
 
 export default QuickCapture;
+
+function buildQuickCaptureTicketPreview(title: string, details: string, relatedKbTopic: string) {
+  return [
+    `Issue: ${title.trim() || 'Quick work log'}`,
+    'User impact: Not captured yet; add the blocked work, urgency, or user risk.',
+    'Checks performed: Not captured yet; list the checks you performed before or after the fix.',
+    `Action taken: ${details.trim() || 'Captured during shift; expand this into the actual action taken.'}`,
+    'Result: To be reviewed.',
+    `Next step: ${relatedKbTopic.trim() ? `Review ${relatedKbTopic.trim()} and confirm the next owner or follow-up time.` : 'Review this item next shift and confirm the next owner or follow-up time.'}`,
+    'Escalation reason if applicable: Not required at this stage; escalate if the issue recurs, risk increases, or permissions are needed.'
+  ].join('\n');
+}
+
+function ticketNoteRatingChip(rating: string) {
+  if (rating === 'strong') return 'success';
+  if (rating === 'usable') return 'info';
+  return 'warn';
+}
 
 type QualityChecklistModalProps = {
   workLog: WorkLog;
