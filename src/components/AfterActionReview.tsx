@@ -56,6 +56,7 @@ function AfterActionReview({ workLog, knowledgeEntries, onSave, onClose }: After
         notes: whatWelearned,
         seenInRealWork: true,
         askTeam: false,
+        sourceWorkLogId: workLog.id,
         nextReviewDate: workLog.reviewDueAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       };
     }

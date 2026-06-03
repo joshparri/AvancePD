@@ -196,13 +196,14 @@ function AppContent() {
         const shouldCreate = wl.needsReview || Boolean(wl.learningNote) || Boolean(wl.reviewDueAt);
         if (!shouldCreate) return;
 
-        // Avoid duplicates by checking existing learning items with same notes and topic
-        const existing = learningItems.find((li) => {
-          const sameTopic = li.topic === (wl.skillArea || wl.title);
-          const sameNotes = li.notes && wl.learningNote && li.notes === wl.learningNote;
-          return li.seenInRealWork && sameTopic && (sameNotes || li.notes === wl.summary);
-        });
-        if (existing) return;
+        const existing = learningItems.find((li) => li.sourceWorkLogId === wl.id);
+        if (existing) {
+          const desiredReviewDate = wl.reviewDueAt || existing.nextReviewDate;
+          if (existing.nextReviewDate !== desiredReviewDate) {
+            updateLearningItem({ ...existing, nextReviewDate: desiredReviewDate });
+          }
+          return;
+        }
 
         const newItem: LearningItem = {
           id: `learning-${Date.now()}-${Math.random().toString(16).slice(2)}`,
@@ -212,6 +213,7 @@ function AppContent() {
           notes: wl.learningNote || wl.summary || '',
           seenInRealWork: true,
           askTeam: false,
+          sourceWorkLogId: wl.id,
           nextReviewDate: wl.reviewDueAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         };
 

@@ -61,6 +61,8 @@ function Dashboard({
   const isAvanceDay = [1, 3].includes(new Date().getDay());
   const scenarioOfWeek = mspScenarios[getWeekNumber() % mspScenarios.length];
   const microCardOfDay = microLearningCards[new Date().getDay() % microLearningCards.length];
+  const learningQueueCount = learningItems.length;
+  const dueLearningCount = learningItems.filter((item) => new Date(item.nextReviewDate) <= new Date()).length;
   const kbMetrics = getKbLearningMetrics(undefined, progress, learningItems);
 
   return (
@@ -105,6 +107,17 @@ function Dashboard({
               <p>{invoiceHours.toFixed(1)} billable hours logged</p>
             ) : (
               <p>No time entries yet. Track your hours in the Time section.</p>
+            )}
+          </div>
+          <div className="mini-card dashboard-summary-tile">
+            <h2>Learning queue</h2>
+            {learningQueueCount > 0 ? (
+              <>
+                <p>{learningQueueCount} queued item{learningQueueCount === 1 ? '' : 's'}</p>
+                <p>{dueLearningCount} review{dueLearningCount === 1 ? '' : 's'} due</p>
+              </>
+            ) : (
+              <p>No queued learning items yet. Capture or review work logs to create learning notes.</p>
             )}
           </div>
         </div>

@@ -135,6 +135,7 @@ export type LearningItem = {
   notes: string;
   seenInRealWork: boolean;
   askTeam: boolean;
+  sourceWorkLogId?: string;
   nextReviewDate: string;
   lastReviewedDate?: string;
   evidenceWorthy?: boolean;

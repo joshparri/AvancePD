@@ -98,6 +98,10 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
   const recommendedCard = useMemo(() => getRecommendedCard(fieldCards, dueCards), [dueCards, fieldCards]);
   const selectedCard = fieldCards.find((card) => card.id === selectedCardId) ?? recommendedCard ?? fieldCards[0];
   const selectedProgress = selectedCard ? activityProgress[selectedCard.id] : undefined;
+  const sortedLearningQueue = useMemo(
+    () => [...learningItems].sort((a, b) => new Date(a.nextReviewDate).getTime() - new Date(b.nextReviewDate).getTime()),
+    [learningItems]
+  );
   const quizQuestions = useMemo(() => selectedCard ? buildKbQuiz(selectedCard) : [], [selectedCard]);
   const externalResources = useMemo(
     () => selectedCard ? getResourcesForKbCard(selectedCard) : [],
@@ -229,6 +233,7 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
           <div className="learning-hero-summary">
             <span className="status-chip info">{recommendedCard?.relatedSkill ?? 'KB Learning'}</span>
             <span className="status-chip success">{metrics.kbCards} cards</span>
+            <span className="status-chip warn">{learningItems.length} learning queue item{learningItems.length === 1 ? '' : 's'}</span>
           </div>
         </div>
         <div className="learning-path-row status-button-row">
@@ -308,6 +313,25 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
           title="Helpful external learning for this topic"
         />
       )}
+
+      <section className="card">
+        <h2>Learning queue</h2>
+        {sortedLearningQueue.length ? (
+          <ul>
+            {sortedLearningQueue.map((item) => (
+              <li key={item.id} style={{ marginBottom: '12px' }}>
+                <strong>{item.topic}</strong> <span className="status-chip info">{item.noteType}</span>
+                <p style={{ margin: '4px 0' }}>{item.notes.slice(0, 140)}{item.notes.length > 140 ? '…' : ''}</p>
+                <p style={{ margin: 0 }} className="page-help">
+                  Review due {new Date(item.nextReviewDate).toLocaleDateString()} {item.sourceWorkLogId ? '• from work log' : ''}
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No learning items queued yet. Mark a work log for review or create a learning note to start the queue.</p>
+        )}
+      </section>
 
       <section className="card">
         <h2>KB Map</h2>
