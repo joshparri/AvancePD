@@ -83,6 +83,7 @@ function Dashboard({
           <div className="dashboard-hero-actions">
             <button type="button" className="primary-action" onClick={() => onNavigate('kbLearning')}>Open KB Learning</button>
             <button type="button" className="secondary-action" onClick={() => document.getElementById('quick-capture-title')?.focus()}>Quick capture</button>
+            <button type="button" className="secondary-action" onClick={() => onNavigate('promptPacks')}>Prompt Packs</button>
             <button type="button" className="secondary-action" onClick={() => onNavigate('fieldOps')}>Field Ops</button>
             <button type="button" className="secondary-action" onClick={onNavigateHealth}>Health reset</button>
           </div>

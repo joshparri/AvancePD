@@ -27,6 +27,7 @@ import EvidencePack from './pages/EvidencePack';
 import MicroLearning from './pages/MicroLearning';
 import AvancePDGames from './pages/AvancePDGames';
 import HealthOutdoors from './pages/HealthOutdoors';
+import PromptPacks from './pages/PromptPacks';
 import Search from './pages/Search';
 import ShortcutOverlay from './components/ShortcutOverlay';
 import MobileBottomActions from './components/MobileBottomActions';
@@ -88,6 +89,7 @@ const pages: Array<{ id: PageId; label: string; path: string }> = [
   { id: 'mspRoadmap', label: 'MSP Roadmap', path: '/msp-roadmap' },
   { id: 'evidencePack', label: 'Evidence Pack', path: '/evidence-pack' },
   { id: 'microLearning', label: 'Micro-Learning', path: '/micro-learning' },
+  { id: 'promptPacks', label: 'Prompt Packs', path: '/prompt-packs' },
   { id: 'avancePDGames', label: 'AvancePD Games', path: '/avance-pd-games' }
 ];
 
@@ -117,6 +119,7 @@ type PageId =
   | 'mspRoadmap'
   | 'evidencePack'
   | 'microLearning'
+  | 'promptPacks'
   | 'avancePDGames';
 
 const pageIdToPath: Record<PageId, string> = pages.reduce((acc, page) => {
@@ -498,6 +501,17 @@ function AppContent() {
               <MicroLearning
                 progress={progress}
                 markMicroCardViewed={markMicroCardViewed}
+                onNavigate={(page) => navigateToPage(page as PageId)}
+              />
+            }
+          />
+          <Route
+            path="/prompt-packs"
+            element={
+              <PromptPacks
+                workLogs={workLogs}
+                tasks={tasks}
+                learningItems={learningItems}
                 onNavigate={(page) => navigateToPage(page as PageId)}
               />
             }
