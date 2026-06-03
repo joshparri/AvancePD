@@ -10,6 +10,7 @@ type WeeklyReviewProps = {
   workLogs: WorkLog[];
   learningItems: LearningItem[];
   healthState: HealthState;
+  onNavigate: (page: string) => void;
 };
 
 function isThisWeek(dateString: string) {
@@ -21,7 +22,7 @@ function isThisWeek(dateString: string) {
   return date >= weekStart && date <= now;
 }
 
-function WeeklyReview({ progress, tasks, workLogs, learningItems, healthState }: WeeklyReviewProps) {
+function WeeklyReview({ progress, tasks, workLogs, learningItems, healthState, onNavigate }: WeeklyReviewProps) {
   const [copyStatus, setCopyStatus] = useState('');
   const summary = useMemo(() => {
     const weeklyLogs = workLogs.filter((log) => isThisWeek(log.createdAt));
@@ -36,7 +37,14 @@ function WeeklyReview({ progress, tasks, workLogs, learningItems, healthState }:
       (counts, item) => ({ ...counts, [item.confidence]: counts[item.confidence] + 1 }),
       { low: 0, medium: 0, high: 0 }
     );
-    return { weeklyLogs, weeklyLearning, openTasks, practisedScenarios, healthTotals, confidenceCounts };
+    const evidenceCandidates = [
+      weeklyLogs.length > 0 ? `${weeklyLogs.length} work log(s) captured this week` : 'No weekly work logs captured yet',
+      weeklyLearning.length > 0 ? `${weeklyLearning.length} learning note(s) reviewed this week` : 'No learning notes reviewed this week',
+      practisedScenarios.length > 0 ? `${practisedScenarios.length} MSP scenario(s) practised or reviewed overall` : 'No MSP scenarios practised yet',
+      openTasks.length > 0 ? `${openTasks.length} follow-up(s) still visible for next shift` : 'No open follow-ups remaining',
+      confidenceCounts.high > 0 ? `${confidenceCounts.high} high-confidence learning note(s) ready for evidence review` : 'No high-confidence learning notes yet'
+    ];
+    return { weeklyLogs, weeklyLearning, openTasks, practisedScenarios, healthTotals, confidenceCounts, evidenceCandidates };
   }, [healthState, learningItems, progress, tasks, workLogs]);
 
   const managerSummary = [
@@ -47,6 +55,9 @@ function WeeklyReview({ progress, tasks, workLogs, learningItems, healthState }:
     `- Open follow-ups visible: ${summary.openTasks.length}`,
     `- MSP scenarios practised overall: ${summary.practisedScenarios.length}`,
     `- Health routine actions this week: ${summary.healthTotals.water + summary.healthTotals.movementBreaks + summary.healthTotals.eyeBreaks + summary.healthTotals.shutdowns}`,
+    '',
+    'Evidence candidates:',
+    ...summary.evidenceCandidates.map((item) => `- ${item}`),
     '',
     'Josh continued using structured routines for sustainable MSP work, including follow-up tracking, learning review, safe evidence capture, and wellbeing prompts.'
   ].join('\n');
@@ -96,9 +107,20 @@ function WeeklyReview({ progress, tasks, workLogs, learningItems, healthState }:
       </section>
 
       <section className="card">
+        <h2>Evidence Pack candidates</h2>
+        <ul>
+          {summary.evidenceCandidates.map((item) => <li key={item}>{item}</li>)}
+        </ul>
+        <button type="button" className="small-action" onClick={() => onNavigate('evidencePack')}>Open Evidence Pack</button>
+      </section>
+
+      <section className="card">
         <div className="skill-card-header">
           <h2>Manager-safe summary</h2>
-          <button type="button" onClick={copySummary}>Copy weekly summary</button>
+          <div className="status-button-row">
+            <button type="button" onClick={copySummary}>Copy weekly summary</button>
+            <button type="button" className="small-action" onClick={() => onNavigate('evidencePack')}>Evidence Pack</button>
+          </div>
         </div>
         {copyStatus && <p>{copyStatus}</p>}
         <pre className="template-box">{managerSummary}</pre>

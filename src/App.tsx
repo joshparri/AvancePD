@@ -420,6 +420,7 @@ function AppContent() {
                 workLogs={workLogs}
                 learningItems={learningItems}
                 healthState={healthState}
+                onNavigate={(page) => navigateToPage(page as PageId)}
               />
             }
           />
