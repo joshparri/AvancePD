@@ -48,6 +48,7 @@ export type WorkLog = {
   relatedKbId?: string; // Link to KB card
   reviewDueAt?: string; // When to review this learning
   learningNote?: string; // Free-text reflection on what was learned
+  confirmedRiskReview?: boolean; // Confirmed approval or safe capture for risky work
   ticketNoteDrillScore?: TicketNoteDrillScore;
   ticketNoteDrillNote?: string;
   ticketNoteDrillPractisedAt?: string;

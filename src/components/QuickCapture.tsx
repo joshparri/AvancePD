@@ -3,6 +3,7 @@ import { kbHints } from '../data/kbHints';
 import type { Client, LearningItem, Task, WorkLog } from '../types';
 import { buildFollowUpTemplate } from '../utils/followUpTriage';
 import { scoreTicketNote } from '../utils/ticketNoteQuality';
+import { detectRiskyWork, buildRiskGuardrailMessage } from '../utils/changeGuardrails';
 
 function createId(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -73,7 +74,8 @@ function QuickCapture({ clients, addWorkLog, addTask, addLearningItem }: QuickCa
         tags: tagList,
         relatedKbTopic: relatedKbTopic || undefined,
         createdAt: new Date().toISOString(),
-        draft: false
+        draft: false,
+        confirmedRiskReview: false
       };
       setPendingWorkLog(workLog);
       setShowQualityChecklist(true);
@@ -308,6 +310,10 @@ function QualityChecklistModal({ workLog, onSubmit, onSkip, onCancel }: QualityC
   const [result, setResult] = useState(workLog.result);
   const [nextStep, setNextStep] = useState(workLog.nextStep);
   const [tags, setTags] = useState(workLog.tags.join(', '));
+  const [riskConfirmed, setRiskConfirmed] = useState(workLog.confirmedRiskReview ?? false);
+
+  const riskAnalysis = detectRiskyWork(`${workLog.title} ${workLog.summary} ${workLog.actions} ${workLog.result} ${workLog.nextStep} ${workLog.tags.join(' ')}`);
+  const guardrailMessage = buildRiskGuardrailMessage(riskAnalysis.reasons);
 
   const checklist = [
     { id: 'title', label: 'Summary', value: title, filled: title.length > 0 },
@@ -334,6 +340,7 @@ function QualityChecklistModal({ workLog, onSubmit, onSkip, onCancel }: QualityC
         .split(',')
         .map((tag) => tag.trim())
         .filter(Boolean),
+      confirmedRiskReview: riskAnalysis.isRisky ? riskConfirmed : undefined,
     };
     onSubmit(updatedWorkLog);
   };
@@ -391,6 +398,21 @@ function QualityChecklistModal({ workLog, onSubmit, onSkip, onCancel }: QualityC
             </label>
           ))}
 
+          {riskAnalysis.isRisky && (
+            <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', padding: '16px', marginBottom: '16px' }}>
+              <p style={{ margin: 0, fontWeight: 'bold' }}>Risk guardrail detected</p>
+              <p style={{ marginTop: '8px', color: '#92400e' }}>{guardrailMessage}</p>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '12px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={riskConfirmed}
+                  onChange={(event) => setRiskConfirmed(event.target.checked)}
+                />
+                <span>I confirm this work is approved or safe to capture locally.</span>
+              </label>
+            </div>
+          )}
+
           <div style={{ display: 'flex', gap: '8px', marginTop: '16px', justifyContent: 'flex-end' }}>
             <button type="button" onClick={onCancel} style={{ background: '#e5e7eb' }}>
               Cancel
@@ -398,7 +420,11 @@ function QualityChecklistModal({ workLog, onSubmit, onSkip, onCancel }: QualityC
             <button type="button" onClick={onSkip} style={{ background: '#fbbf24' }}>
               Save as-is (skip checklist)
             </button>
-            <button type="submit" style={{ background: filledCount === 6 ? '#10b981' : '#3b82f6' }}>
+            <button
+              type="submit"
+              style={{ background: filledCount === 6 ? '#10b981' : '#3b82f6' }}
+              disabled={riskAnalysis.isRisky && !riskConfirmed}
+            >
               Save quality note
             </button>
           </div>

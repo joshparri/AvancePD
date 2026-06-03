@@ -2,6 +2,7 @@ import { FormEvent, useMemo, useState } from 'react';
 import type { Client, KnowledgeEntry, SafeAttachment, TicketNoteDrillScore, WorkLog, LearningItem } from '../types';
 import { attachmentPolicyText, downloadAttachment, readSafeAttachment } from '../utils/attachments';
 import { buildTicketNoteFromWorkLog, scoreTicketNote } from '../utils/ticketNoteQuality';
+import { detectRiskyWork, buildRiskGuardrailMessage } from '../utils/changeGuardrails';
 import AfterActionReview, { type AfterActionReviewData } from '../components/AfterActionReview';
 
 function ticketNoteRatingChip(rating: TicketNoteDrillScore) {
@@ -40,6 +41,7 @@ function WorkLogs({ workLogs, clients, knowledgeEntries, addWorkLog, updateWorkL
   const [draft, setDraft] = useState(false);
   const [attachments, setAttachments] = useState<SafeAttachment[]>([]);
   const [attachmentStatus, setAttachmentStatus] = useState('');
+  const [riskConfirmed, setRiskConfirmed] = useState(false);
   // Learning seed fields
   const [workType, setWorkType] = useState('');
   const [skillArea, setSkillArea] = useState('');
@@ -64,6 +66,7 @@ function WorkLogs({ workLogs, clients, knowledgeEntries, addWorkLog, updateWorkL
     setDraft(false);
     setAttachments([]);
     setAttachmentStatus('');
+    setRiskConfirmed(false);
     setWorkType('');
     setSkillArea('');
     setConfidence('medium');
@@ -73,8 +76,19 @@ function WorkLogs({ workLogs, clients, knowledgeEntries, addWorkLog, updateWorkL
     setLearningNote('');
   };
 
+  const riskAnalysis = useMemo(
+    () => detectRiskyWork(`${title} ${summary} ${actions} ${result} ${nextStep}`),
+    [title, summary, actions, result, nextStep]
+  );
+  const guardrailMessage = buildRiskGuardrailMessage(riskAnalysis.reasons);
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (riskAnalysis.isRisky && !riskConfirmed) {
+      window.alert('This work log looks like it contains change work. Please confirm risk review before saving.');
+      return;
+    }
+
     const tagList = tags.split(',').map((tag) => tag.trim()).filter(Boolean);
     const existingLog = editingLogId ? workLogs.find((item) => item.id === editingLogId) : undefined;
 
@@ -90,6 +104,7 @@ function WorkLogs({ workLogs, clients, knowledgeEntries, addWorkLog, updateWorkL
       tags: tagList,
       relatedKbTopic: relatedKbTopic || undefined,
       draft,
+      confirmedRiskReview: riskAnalysis.isRisky ? riskConfirmed : undefined,
       createdAt: new Date().toISOString(),
       attachments,
       // Learning seed fields
@@ -343,8 +358,18 @@ function WorkLogs({ workLogs, clients, knowledgeEntries, addWorkLog, updateWorkL
             <input type="checkbox" checked={draft} onChange={(event) => setDraft(event.target.checked)} />
             Draft (not complete)
           </label>
+          {riskAnalysis.isRisky && (
+            <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', padding: '14px', marginBottom: '16px' }}>
+              <p style={{ margin: 0, fontWeight: 'bold' }}>Risk guardrail check</p>
+              <p style={{ margin: '8px 0', color: '#92400e' }}>{guardrailMessage}</p>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px', cursor: 'pointer' }}>
+                <input type="checkbox" checked={riskConfirmed} onChange={(event) => setRiskConfirmed(event.target.checked)} />
+                <span>I confirm this work is approved or safe to capture locally.</span>
+              </label>
+            </div>
+          )}
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <button type="submit">{editingLogId ? 'Save log' : 'Add log'}</button>
+            <button type="submit" disabled={riskAnalysis.isRisky && !riskConfirmed}>{editingLogId ? 'Save log' : 'Add log'}</button>
             {editingLogId && (
               <button type="button" onClick={resetForm} style={{ background: '#64748b' }}>
                 Cancel
