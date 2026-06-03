@@ -345,10 +345,12 @@ function AppContent() {
               <WorkLogs
                 workLogs={workLogs}
                 clients={sampleClients}
+                knowledgeEntries={knowledgeEntries}
                 addWorkLog={addWorkLog}
                 updateWorkLog={updateWorkLog}
                 deleteWorkLog={deleteWorkLog}
                 addLearningItem={addLearningItem}
+                addKnowledgeEntry={addKnowledgeEntry}
               />
             }
           />

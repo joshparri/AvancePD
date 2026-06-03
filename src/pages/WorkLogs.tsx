@@ -1,5 +1,5 @@
 import { FormEvent, useMemo, useState } from 'react';
-import type { Client, SafeAttachment, TicketNoteDrillScore, WorkLog, LearningItem } from '../types';
+import type { Client, KnowledgeEntry, SafeAttachment, TicketNoteDrillScore, WorkLog, LearningItem } from '../types';
 import { attachmentPolicyText, downloadAttachment, readSafeAttachment } from '../utils/attachments';
 import { buildTicketNoteFromWorkLog, scoreTicketNote } from '../utils/ticketNoteQuality';
 import AfterActionReview, { type AfterActionReviewData } from '../components/AfterActionReview';
@@ -13,15 +13,17 @@ function ticketNoteRatingChip(rating: TicketNoteDrillScore) {
 type WorkLogsProps = {
   workLogs: WorkLog[];
   clients: Client[];
+  knowledgeEntries: KnowledgeEntry[];
   addWorkLog: (log: WorkLog) => void;
   updateWorkLog: (log: WorkLog) => void;
   deleteWorkLog: (logId: string) => void;
   addLearningItem?: (item: LearningItem) => void;
+  addKnowledgeEntry: (entry: KnowledgeEntry) => void;
 };
 
 const createId = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog, addLearningItem }: WorkLogsProps) {
+function WorkLogs({ workLogs, clients, knowledgeEntries, addWorkLog, updateWorkLog, deleteWorkLog, addLearningItem, addKnowledgeEntry }: WorkLogsProps) {
   const clientOptions = useMemo(() => clients, [clients]);
   const [editingLogId, setEditingLogId] = useState<string | null>(null);
   const [reviewingLogId, setReviewingLogId] = useState<string | null>(null);
@@ -129,6 +131,7 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog,
     setConfidence(log.confidence ?? 'medium');
     setNeedsReview(log.needsReview ?? false);
     setRelatedKbId(log.relatedKbId ?? '');
+    setRelatedKbTopic(log.relatedKbTopic ?? '');
     setReviewDueAt(log.reviewDueAt ?? '');
     setLearningNote(log.learningNote ?? '');
   };
@@ -146,6 +149,11 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog,
   };
 
   const handleAfterActionReviewSave = (review: AfterActionReviewData) => {
+    // Create knowledge entry if requested before linking
+    if (review.createKnowledgeEntry) {
+      addKnowledgeEntry(review.createKnowledgeEntry);
+    }
+
     // Find the work log and update it to clear the needsReview flag
     const log = workLogs.find((l) => l.id === review.workLogId);
     if (log) {
@@ -153,6 +161,12 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog,
         ...log,
         needsReview: false,
         learningNote: review.whatWelearned,
+        relatedKbId: review.createKnowledgeEntry?.id || review.relatedKnowledgeId || log.relatedKbId,
+        relatedKbTopic:
+          review.createKnowledgeEntry?.title ||
+          (review.relatedKnowledgeId
+            ? knowledgeEntries.find((entry) => entry.id === review.relatedKnowledgeId)?.title
+            : log.relatedKbTopic),
       });
     }
 
@@ -224,8 +238,33 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog,
             <input value={tags} onChange={(event) => setTags(event.target.value)} placeholder="comma-separated" />
           </label>
           <label>
+            Link to existing KB entry
+            <select
+              value={relatedKbId}
+              onChange={(event) => {
+                setRelatedKbId(event.target.value);
+                const selectedEntry = knowledgeEntries.find((entry) => entry.id === event.target.value);
+                if (selectedEntry) {
+                  setRelatedKbTopic(selectedEntry.title);
+                }
+              }}
+            >
+              <option value="">— none —</option>
+              {knowledgeEntries.map((entry) => (
+                <option key={entry.id} value={entry.id}>
+                  {entry.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
             Related KB topic
-            <input value={relatedKbTopic} onChange={(event) => setRelatedKbTopic(event.target.value)} placeholder="Optional KB topic" />
+            <input list="kb-topics" value={relatedKbTopic} onChange={(event) => setRelatedKbTopic(event.target.value)} placeholder="Optional KB topic" />
+            <datalist id="kb-topics">
+              {knowledgeEntries.map((entry) => (
+                <option key={entry.id} value={entry.title} />
+              ))}
+            </datalist>
           </label>
           <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '16px', marginTop: '16px' }}>
             <h3 style={{ marginBottom: '12px' }}>Learning Seed (Optional)</h3>
@@ -321,6 +360,7 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog,
           <ul>
             {workLogs.map((log) => {
               const client = clients.find((item) => item.id === log.clientId);
+              const linkedKnowledgeEntry = knowledgeEntries.find((entry) => entry.id === log.relatedKbId);
               return (
                 <li key={log.id} style={{ marginBottom: '16px' }}>
                   <strong>{log.title}</strong>
@@ -328,7 +368,11 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog,
                     {client?.name} — {new Date(log.createdAt).toLocaleDateString()} {log.draft && '(draft)'}
                   </p>
                   <p>{log.summary}</p>
-                  {log.relatedKbTopic ? <p><em>KB topic: {log.relatedKbTopic}</em></p> : null}
+                  {linkedKnowledgeEntry ? (
+                    <p><em>Linked KB: {linkedKnowledgeEntry.title}</em></p>
+                  ) : log.relatedKbTopic ? (
+                    <p><em>KB topic: {log.relatedKbTopic}</em></p>
+                  ) : null}
                   {(log.workType || log.skillArea || log.needsReview) && (
                     <div style={{ background: '#f1f5f9', padding: '8px 12px', borderRadius: '4px', marginBottom: '8px', fontSize: '0.9em' }}>
                       {log.workType && <div>📚 Work type: {log.workType}</div>}
@@ -396,6 +440,7 @@ function WorkLogs({ workLogs, clients, addWorkLog, updateWorkLog, deleteWorkLog,
       {reviewingLogId && (
         <AfterActionReview
           workLog={workLogs.find((l) => l.id === reviewingLogId)!}
+          knowledgeEntries={knowledgeEntries}
           onSave={handleAfterActionReviewSave}
           onClose={() => setReviewingLogId(null)}
         />

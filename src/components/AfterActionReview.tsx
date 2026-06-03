@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import type { WorkLog, LearningItem } from '../types';
+import type { KnowledgeEntry, WorkLog, LearningItem } from '../types';
 
 type AfterActionReviewProps = {
   workLog: WorkLog;
+  knowledgeEntries: KnowledgeEntry[];
   onSave: (review: AfterActionReviewData) => void;
   onClose: () => void;
 };
@@ -14,15 +15,21 @@ export type AfterActionReviewData = {
   whatWelearned: string;
   whatDoWeDoNext: string;
   createdAt: string;
+  relatedKnowledgeId?: string;
   createLearningItem?: LearningItem;
+  createKnowledgeEntry?: KnowledgeEntry;
 };
 
-function AfterActionReview({ workLog, onSave, onClose }: AfterActionReviewProps) {
+function AfterActionReview({ workLog, knowledgeEntries, onSave, onClose }: AfterActionReviewProps) {
   const [whatHappened, setWhatHappened] = useState('');
   const [whatWasExpected, setWhatWasExpected] = useState('');
   const [whatWelearned, setWhatWelearned] = useState('');
   const [whatDoWeDoNext, setWhatDoWeDoNext] = useState('');
+  const [selectedKnowledgeId, setSelectedKnowledgeId] = useState(workLog.relatedKbId ?? '');
   const [createLearningNote, setCreateLearningNote] = useState(false);
+  const [createKnowledgeEntry, setCreateKnowledgeEntry] = useState(false);
+  const [newKnowledgeTitle, setNewKnowledgeTitle] = useState(`Learned from ${workLog.title}`);
+  const [newKnowledgeCategory, setNewKnowledgeCategory] = useState(workLog.skillArea || 'General');
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -36,6 +43,10 @@ function AfterActionReview({ workLog, onSave, onClose }: AfterActionReviewProps)
       createdAt: new Date().toISOString(),
     };
 
+    if (selectedKnowledgeId) {
+      review.relatedKnowledgeId = selectedKnowledgeId;
+    }
+
     if (createLearningNote) {
       review.createLearningItem = {
         id: `learning-${Date.now()}-${Math.random().toString(16).slice(2)}`,
@@ -46,6 +57,25 @@ function AfterActionReview({ workLog, onSave, onClose }: AfterActionReviewProps)
         seenInRealWork: true,
         askTeam: false,
         nextReviewDate: workLog.reviewDueAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      };
+    }
+
+    if (createKnowledgeEntry) {
+      review.createKnowledgeEntry = {
+        id: `kn-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        title: newKnowledgeTitle || `Learned from ${workLog.title}`,
+        summary: whatWelearned || `After Action Review from ${workLog.title}`,
+        body: `What happened:\n${whatHappened}\n\nWhat was expected:\n${whatWasExpected}\n\nWhat we learned:\n${whatWelearned}\n\nNext time:\n${whatDoWeDoNext}`,
+        category: newKnowledgeCategory || workLog.skillArea || 'General',
+        noteType: 'learned today',
+        tags: ['learned today', 'after action review'],
+        confidence: workLog.confidence || 'medium',
+        lastVerified: new Date().toISOString().slice(0, 10),
+        sourceType: 'personal',
+        trusted: true,
+        createdAt: new Date().toISOString(),
+        clientId: workLog.clientId,
+        attachments: []
       };
     }
 
@@ -140,6 +170,44 @@ function AfterActionReview({ workLog, onSave, onClose }: AfterActionReviewProps)
               {workLog.skillArea && <span style={{ color: '#64748b' }}>({workLog.skillArea})</span>}
             </span>
           </label>
+
+          <label>
+            Link to existing KB entry
+            <select
+              value={selectedKnowledgeId}
+              onChange={(event) => setSelectedKnowledgeId(event.target.value)}
+            >
+              <option value="">— none —</option>
+              {knowledgeEntries.map((entry) => (
+                <option key={entry.id} value={entry.id}>
+                  {entry.title}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={createKnowledgeEntry}
+              onChange={(e) => setCreateKnowledgeEntry(e.target.checked)}
+              style={{ marginTop: '2px' }}
+            />
+            <span>Create knowledge entry from this review</span>
+          </label>
+
+          {createKnowledgeEntry && (
+            <div style={{ display: 'grid', gap: '12px', marginLeft: '24px', marginTop: '12px' }}>
+              <label>
+                KB title
+                <input value={newKnowledgeTitle} onChange={(e) => setNewKnowledgeTitle(e.target.value)} />
+              </label>
+              <label>
+                Category
+                <input value={newKnowledgeCategory} onChange={(e) => setNewKnowledgeCategory(e.target.value)} />
+              </label>
+            </div>
+          )}
 
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
             <button

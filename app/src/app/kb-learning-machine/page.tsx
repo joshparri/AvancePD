@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { parseISO, startOfToday } from 'date-fns';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,6 +25,7 @@ import {
 } from '@/lib/learningEvidence';
 import {
   kbConfidenceLabels,
+  kbConfidenceRank,
   kbFieldCards,
   type KbConfidence,
   type KbFieldCard,
@@ -77,6 +79,17 @@ type KbCardDraft = {
   escalateIf: string;
   relatedSkill: string;
   confidence: KbConfidence;
+};
+
+type KbMasteryNode = {
+  skill: string;
+  cards: KbFieldCard[];
+  readyCards: number;
+  dueCards: number;
+  scenarioEvidence: number;
+  ticketNoteEvidence: number;
+  nextCard: KbFieldCard;
+  masteryPercent: number;
 };
 
 const emptyTicketNote: TicketNoteDraft = {
@@ -159,6 +172,7 @@ export default function KbLearningMachinePage() {
   const dueCards = getKbCardsDueToday(cards);
   const lowConfidenceCards = getLowConfidenceCards(cards);
   const evidenceSummary = getKbEvidenceSummary(cards, progress);
+  const masteryMap = useMemo(() => buildKbMasteryMap(cards, progress), [cards, progress]);
 
   const categories = Array.from(new Set(cards.map((card) => card.category))).sort();
 
@@ -423,6 +437,44 @@ export default function KbLearningMachinePage() {
                 <p className="text-xs text-muted-foreground">Reflection</p>
                 <p className="mt-1 text-sm font-medium">What would you check first next time?</p>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <SectionHeader icon={Layers} title="Skill mastery map" description="Connect KB cards, confidence, scenario evidence, and ticket-note practice by skill." />
+            </CardHeader>
+            <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {masteryMap.map((node) => (
+                <button
+                  key={node.skill}
+                  type="button"
+                  onClick={() => handleSelectCard(node.nextCard)}
+                  className="rounded-lg border border-slate-200 bg-white p-4 text-left transition hover:border-blue-500 dark:border-slate-700 dark:bg-slate-800/80"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-gray-900 dark:text-white">{node.skill}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{node.readyCards}/{node.cards.length} cards at work-ready confidence</p>
+                    </div>
+                    <Badge variant={node.masteryPercent >= 60 ? 'default' : 'outline'}>{node.masteryPercent}%</Badge>
+                  </div>
+                  <div className="mt-3 h-2 rounded-full bg-slate-100 dark:bg-slate-700">
+                    <div
+                      className="h-2 rounded-full bg-blue-600"
+                      style={{ width: `${node.masteryPercent}%` }}
+                    />
+                  </div>
+                  <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+                    Next: {node.nextCard.title}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Badge variant="outline">{node.dueCards} due</Badge>
+                    <Badge variant="secondary">{node.scenarioEvidence} scenarios</Badge>
+                    <Badge variant="secondary">{node.ticketNoteEvidence} notes</Badge>
+                  </div>
+                </button>
+              ))}
             </CardContent>
           </Card>
 
@@ -957,4 +1009,51 @@ function splitDraftLines(value: string, fallback: string) {
     .filter(Boolean);
 
   return lines.length ? lines : [fallback];
+}
+
+function buildKbMasteryMap(cards: KbFieldCard[], progress: KbProgressByCardId): KbMasteryNode[] {
+  const bySkill = cards.reduce<Record<string, KbFieldCard[]>>((groups, card) => {
+    const skill = card.relatedSkill || 'Unmapped skill';
+    groups[skill] = [...(groups[skill] ?? []), card];
+    return groups;
+  }, {});
+
+  return Object.entries(bySkill)
+    .map(([skill, skillCards]) => {
+      const readyCards = skillCards.filter((card) => kbConfidenceRank[card.confidence] >= kbConfidenceRank['with-support']).length;
+      const dueCards = getKbCardsDueToday(skillCards).length;
+      const scenarioEvidence = skillCards.filter((card) => progress[card.id]?.scenarioPractice?.response.trim()).length;
+      const ticketNoteEvidence = skillCards.filter((card) => {
+        const note = progress[card.id]?.ticketNotePractice;
+        if (!note) return false;
+        return [
+          note.summary,
+          note.environment,
+          note.checksPerformed,
+          note.actionTaken,
+          note.result,
+          note.followUp,
+          note.escalation,
+          note.nextStep,
+        ].some((value) => value.trim());
+      }).length;
+      const nextCard = [...skillCards].sort((a, b) => {
+        const dueWeight = Number(parseISO(a.reviewDueDate) > startOfToday()) - Number(parseISO(b.reviewDueDate) > startOfToday());
+        if (dueWeight !== 0) return dueWeight;
+        return kbConfidenceRank[a.confidence] - kbConfidenceRank[b.confidence];
+      })[0];
+      const masteryPercent = Math.round((readyCards / skillCards.length) * 100);
+
+      return {
+        skill,
+        cards: skillCards,
+        readyCards,
+        dueCards,
+        scenarioEvidence,
+        ticketNoteEvidence,
+        nextCard,
+        masteryPercent,
+      };
+    })
+    .sort((a, b) => a.masteryPercent - b.masteryPercent || b.dueCards - a.dueCards || a.skill.localeCompare(b.skill));
 }
