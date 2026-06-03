@@ -1,22 +1,29 @@
 import { useEffect, useMemo, useState } from 'react';
 import { mspSkills } from '../data/mspSkills';
 import { mspScenarios } from '../data/mspScenarios';
+import { microLearningCards } from '../data/microLearning';
+import { skillTracks } from '../data/skillTracks';
+import { getAllKbCards, getKbLearningMetrics, loadKbActivityProgress } from '../features/kb-learning/kbLearningStorage';
 import { getFieldOpsEvidenceSummary, loadFieldOpsState, type FieldOpsState } from '../utils/fieldOps';
 import { getEffectiveSkillReadiness, getRecommendedStudyAreas, getWeakSkills } from '../utils/nextBestAction';
+import type { LearningItem } from '../types';
 import type { AvanceProgress } from '../utils/progressStorage';
 
 type EvidencePackProps = {
   progress: AvanceProgress;
+  learningItems: LearningItem[];
 };
 
-function EvidencePack({ progress }: EvidencePackProps) {
+function EvidencePack({ progress, learningItems }: EvidencePackProps) {
   const [copyStatus, setCopyStatus] = useState('');
   const [healthStatus, setHealthStatus] = useState('Checking AI coach...');
   const [healthModel, setHealthModel] = useState('');
   const [emailStatus, setEmailStatus] = useState('Checking health reminders...');
   const [selectedSections, setSelectedSections] = useState<Record<string, boolean>>({
     skills: true,
+    skillTracks: true,
     scenarios: true,
+    kbLearning: true,
     fieldOps: true,
     weakAreas: true,
     studyAreas: true,
@@ -25,7 +32,7 @@ function EvidencePack({ progress }: EvidencePackProps) {
   });
   const [fieldOpsState] = useState<FieldOpsState>(loadFieldOpsState);
   const fieldOpsEvidence = useMemo(() => getFieldOpsEvidenceSummary(fieldOpsState), [fieldOpsState]);
-  const summary = useMemo(() => buildEvidenceSummary(progress, fieldOpsEvidence), [fieldOpsEvidence, progress]);
+  const summary = useMemo(() => buildEvidenceSummary(progress, fieldOpsEvidence, learningItems), [fieldOpsEvidence, learningItems, progress]);
   const markdown = useMemo(() => buildMarkdownSummary(summary, selectedSections), [summary, selectedSections]);
   const plainText = useMemo(() => buildPlainTextSummary(summary, selectedSections), [summary, selectedSections]);
   const jsonSummary = useMemo(() => JSON.stringify({ generatedAt: new Date().toISOString(), summary, selectedSections }, null, 2), [summary, selectedSections]);
@@ -101,6 +108,8 @@ function EvidencePack({ progress }: EvidencePackProps) {
           <Metric label="Confident scenarios" value={summary.scenariosConfident.length} />
           <Metric label="Needs review" value={summary.scenariosNeedsReview.length} />
           <Metric label="Ticket note practices" value={progress.ticketNotePracticeCount} />
+          <Metric label="KB cards tracked" value={summary.kbLearning.metrics.kbCards} />
+          <Metric label="Skill tracks active" value={summary.skillTrackEvidence.filter((track) => track.readySkills > 0).length} />
           <Metric label="Field ops checklist items" value={summary.fieldOps.completedChecklistItems.length} />
           <Metric label="Weak areas" value={summary.weakAreas.length} />
         </div>
@@ -121,7 +130,9 @@ function EvidencePack({ progress }: EvidencePackProps) {
         <div className="checklist-grid">
           {[
             ['skills', 'Skills practised'],
+            ['skillTracks', 'Skill track progress'],
             ['scenarios', 'Scenarios practised'],
+            ['kbLearning', 'KB learning proof'],
             ['fieldOps', 'Field ops patterns'],
             ['weakAreas', 'Weak areas'],
             ['studyAreas', 'Recommended study areas'],
@@ -140,6 +151,36 @@ function EvidencePack({ progress }: EvidencePackProps) {
         <h2>Recommended next study areas</h2>
         <ul>
           {summary.recommendedStudyAreas.map((area) => <li key={area}>{area}</li>)}
+        </ul>
+      </section>
+
+      <section className="card">
+        <h2>Skill track evidence</h2>
+        <div className="card-grid">
+          {summary.skillTrackEvidence.map((track) => (
+            <article key={track.title} className="mini-card">
+              <div className="skill-card-header">
+                <h3>{track.title}</h3>
+                <span className="status-chip info">{track.progressPercent}%</span>
+              </div>
+              <p>{track.readySkills}/{track.totalSkills} skills practised or stronger.</p>
+              <p>{track.scenariosPractised} scenario(s) practised. {track.microCards} micro-learning card(s) linked.</p>
+              <p><strong>Next proof:</strong> {track.nextProof}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="card">
+        <h2>KB learning proof</h2>
+        <div className="card-grid">
+          <Metric label="Cards in learning machine" value={summary.kbLearning.metrics.kbCards} />
+          <Metric label="Reviews due" value={summary.kbLearning.metrics.reviewsDue} />
+          <Metric label="Activities completed" value={summary.kbLearning.completedActivities} />
+          <Metric label="Evidence-worthy items" value={summary.kbLearning.metrics.evidenceItems} />
+        </div>
+        <ul>
+          {summary.kbLearning.proofPoints.map((point) => <li key={point}>{point}</li>)}
         </ul>
       </section>
 
@@ -175,7 +216,7 @@ function Metric({ label, value }: { label: string; value: number }) {
   );
 }
 
-function buildEvidenceSummary(progress: AvanceProgress, fieldOps: ReturnType<typeof getFieldOpsEvidenceSummary>) {
+function buildEvidenceSummary(progress: AvanceProgress, fieldOps: ReturnType<typeof getFieldOpsEvidenceSummary>, learningItems: LearningItem[]) {
   const skillsPractised = mspSkills.filter((skill) => {
     const readiness = getEffectiveSkillReadiness(progress, skill.id);
     return readiness === 'practised' || readiness === 'work-ready' || readiness === 'evidence-proven';
@@ -188,10 +229,49 @@ function buildEvidenceSummary(progress: AvanceProgress, fieldOps: ReturnType<typ
   const scenariosNeedsReview = mspScenarios.filter((scenario) => progress.scenarioProgress[scenario.id]?.status === 'needs-review');
   const weakAreas = getWeakSkills(progress).slice(0, 8);
   const recommendedStudyAreas = getRecommendedStudyAreas(progress);
+  const kbCards = getAllKbCards();
+  const kbActivityProgress = loadKbActivityProgress();
+  const kbMetrics = getKbLearningMetrics(kbCards, progress, learningItems);
+  const completedKbActivities = Object.values(kbActivityProgress).reduce(
+    (total, item) => total + item.completedActivities.length,
+    0
+  );
+  const kbProofPoints = [
+    `${kbMetrics.kbCards} KB field card(s) available for review and drill practice`,
+    `${completedKbActivities} KB learning activity completion(s) recorded`,
+    `${kbMetrics.reviewsDue} KB review(s) currently due`,
+    `${kbMetrics.evidenceItems} evidence-worthy learning or ticket-note item(s) recorded`
+  ];
+  const skillTrackEvidence = skillTracks.map((track) => {
+    const skills = mspSkills.filter((skill) => track.categories.includes(skill.category));
+    const readySkills = skills.filter((skill) => {
+      const readiness = getEffectiveSkillReadiness(progress, skill.id);
+      return readiness === 'practised' || readiness === 'work-ready' || readiness === 'evidence-proven';
+    });
+    const trackScenarios = mspScenarios.filter((scenario) => track.categories.includes(scenario.category));
+    const trackScenariosPractised = trackScenarios.filter((scenario) => {
+      const status = progress.scenarioProgress[scenario.id]?.status;
+      return status === 'practised' || status === 'confident' || status === 'needs-review';
+    });
+    const microCards = microLearningCards.filter((card) => card.linkedSkillIds.some((skillId) => skills.some((skill) => skill.id === skillId)));
+    const nextSkill = skills.find((skill) => !readySkills.includes(skill));
+    const progressPercent = skills.length ? Math.round((readySkills.length / skills.length) * 100) : 0;
+
+    return {
+      title: track.title,
+      progressPercent,
+      readySkills: readySkills.length,
+      totalSkills: skills.length,
+      scenariosPractised: trackScenariosPractised.length,
+      microCards: microCards.length,
+      nextProof: nextSkill?.evidenceExamples[0] ?? 'Review current evidence and keep the track warm.'
+    };
+  });
   const practicalOutputs = [
     progress.ticketNotePracticeCount > 0 ? `${progress.ticketNotePracticeCount} privacy-safe ticket note practice entries recorded` : 'Ticket note practice not yet recorded',
     scenariosPractised.length > 0 ? `${scenariosPractised.length} guided MSP scenarios reviewed` : 'Scenario practice not yet recorded',
     skillsPractised.length > 0 ? `${skillsPractised.length} skills moved to practised or stronger readiness` : 'Skill readiness updates not yet recorded',
+    ...kbProofPoints,
     ...fieldOps.practicalOutputs
   ];
 
@@ -202,6 +282,12 @@ function buildEvidenceSummary(progress: AvanceProgress, fieldOps: ReturnType<typ
     scenariosNeedsReview,
     weakAreas,
     recommendedStudyAreas,
+    skillTrackEvidence,
+    kbLearning: {
+      metrics: kbMetrics,
+      completedActivities: completedKbActivities,
+      proofPoints: kbProofPoints
+    },
     practicalOutputs,
     fieldOps
   };
@@ -219,7 +305,14 @@ function buildMarkdownSummary(summary: ReturnType<typeof buildEvidenceSummary>, 
     `- Scenarios needing review: ${summary.scenariosNeedsReview.length}`,
     '',
     ...optionalSection(selectedSections.skills, '## Skills Practised', summary.skillsPractised.map((skill) => `${skill.title} (${skill.category})`)),
+    ...optionalSection(selectedSections.skillTracks, '## Skill Track Evidence', summary.skillTrackEvidence.map((track) => `${track.title}: ${track.progressPercent}% (${track.readySkills}/${track.totalSkills} skills ready, ${track.scenariosPractised} scenarios practised). Next proof: ${track.nextProof}`)),
     ...optionalSection(selectedSections.scenarios, '## Scenarios Practised', summary.scenariosPractised.map((scenario) => `${scenario.title} (${scenario.category})`)),
+    ...optionalSection(selectedSections.kbLearning, '## KB Learning Proof', [
+      `KB cards tracked: ${summary.kbLearning.metrics.kbCards}`,
+      `KB reviews due: ${summary.kbLearning.metrics.reviewsDue}`,
+      `KB activities completed: ${summary.kbLearning.completedActivities}`,
+      ...summary.kbLearning.proofPoints
+    ]),
     ...optionalSection(selectedSections.fieldOps, '## Field Ops Patterns', [
       `${summary.fieldOps.completedPendingActions.length} pending action(s) completed`,
       `${summary.fieldOps.completedChecklistItems.length} field checklist item(s) completed`,

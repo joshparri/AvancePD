@@ -487,7 +487,7 @@ function AppContent() {
           />
           <Route path="/communication-practice" element={<CommunicationPractice />} />
           <Route path="/msp-roadmap" element={<MspRoadmap />} />
-          <Route path="/evidence-pack" element={<EvidencePack progress={progress} />} />
+          <Route path="/evidence-pack" element={<EvidencePack progress={progress} learningItems={learningItems} />} />
           <Route
             path="/micro-learning"
             element={
