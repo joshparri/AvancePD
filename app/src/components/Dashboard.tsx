@@ -280,9 +280,9 @@ export function Dashboard() {
                       <span>{nextBestActivity.estimatedMinutes} min</span>
                     </div>
                     <Button size="sm" className="w-full" asChild>
-                      <a href="/learning-cockpit">
+                      <Link href="/learning-cockpit">
                         Start Learning
-                      </a>
+                      </Link>
                     </Button>
                   </div>
                 ) : (
@@ -291,9 +291,9 @@ export function Dashboard() {
                       Great progress! Check the Learning Cockpit for more activities.
                     </p>
                     <Button size="sm" variant="outline" className="w-full" asChild>
-                      <a href="/learning-cockpit">
+                      <Link href="/learning-cockpit">
                         View All Activities
-                      </a>
+                      </Link>
                     </Button>
                   </div>
                 )}
@@ -306,9 +306,9 @@ export function Dashboard() {
                   Your personalized MSP training coach with mixed learning activities.
                 </p>
                 <Button size="sm" className="w-full" asChild>
-                  <a href="/learning-cockpit">
+                  <Link href="/learning-cockpit">
                     Open Learning Cockpit
-                  </a>
+                  </Link>
                 </Button>
               </div>
             </div>
