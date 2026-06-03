@@ -9,6 +9,7 @@ import {
 } from '@/data/kbFieldCards';
 
 const KB_PROGRESS_KEY = 'avance_kb_learning_progress_v1';
+const KB_MANUAL_CARDS_KEY = 'avance_kb_manual_cards_v1';
 
 export interface KbScenarioPractice {
   response: string;
@@ -64,6 +65,34 @@ export const getKbLearningProgress = (): KbProgressByCardId => {
 const saveKbLearningProgress = (progress: KbProgressByCardId) => {
   if (!canUseLocalStorage()) return;
   window.localStorage.setItem(KB_PROGRESS_KEY, JSON.stringify(progress));
+};
+
+export const getKbManualCards = (): KbFieldCard[] => {
+  if (!canUseLocalStorage()) return [];
+
+  try {
+    const raw = window.localStorage.getItem(KB_MANUAL_CARDS_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    return Array.isArray(parsed) ? (parsed as KbFieldCard[]) : [];
+  } catch {
+    return [];
+  }
+};
+
+export const saveKbManualCards = (cards: KbFieldCard[]) => {
+  if (!canUseLocalStorage()) return;
+  window.localStorage.setItem(KB_MANUAL_CARDS_KEY, JSON.stringify(cards));
+};
+
+export const deleteKbManualCard = (cardId: string) => {
+  const remainingCards = getKbManualCards().filter((card) => card.id !== cardId);
+  saveKbManualCards(remainingCards);
+
+  const progress = getKbLearningProgress();
+  delete progress[cardId];
+  saveKbLearningProgress(progress);
+
+  return { cards: remainingCards, progress };
 };
 
 export const mergeKbCardsWithProgress = (

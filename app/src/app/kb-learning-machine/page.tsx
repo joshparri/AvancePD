@@ -32,13 +32,16 @@ import {
 import {
   buildKbFlashcards,
   buildKbScenarioPrompt,
+  deleteKbManualCard,
   formatKbReviewDate,
   getKbCardsDueToday,
   getKbEvidenceSummary,
   getKbLearningProgress,
+  getKbManualCards,
   getLowConfidenceCards,
   mergeKbCardsWithProgress,
   recordKbReview,
+  saveKbManualCards,
   saveKbReflection,
   saveKbScenarioPractice,
   saveKbTicketNotePractice,
@@ -54,11 +57,27 @@ import {
   ClipboardCheck,
   FileText,
   Layers,
+  Pencil,
+  Plus,
   Search,
   Target,
+  Trash2,
 } from 'lucide-react';
 
 type TicketNoteDraft = Omit<KbTicketNotePractice, 'savedAt'>;
+
+type KbCardDraft = {
+  title: string;
+  category: string;
+  whenToUse: string;
+  prerequisites: string;
+  firstChecks: string;
+  coreSteps: string;
+  commonMistake: string;
+  escalateIf: string;
+  relatedSkill: string;
+  confidence: KbConfidence;
+};
 
 const emptyTicketNote: TicketNoteDraft = {
   summary: '',
@@ -69,6 +88,19 @@ const emptyTicketNote: TicketNoteDraft = {
   followUp: '',
   escalation: '',
   nextStep: '',
+};
+
+const emptyCardDraft: KbCardDraft = {
+  title: '',
+  category: 'Custom',
+  whenToUse: '',
+  prerequisites: '',
+  firstChecks: '',
+  coreSteps: '',
+  commonMistake: '',
+  escalateIf: '',
+  relatedSkill: '',
+  confidence: 'recognise',
 };
 
 const reviewRatings: KbReviewRating[] = ['Again', 'Hard', 'Good', 'Easy'];
@@ -100,10 +132,14 @@ const toTicketNoteMarkdown = (note: TicketNoteDraft) =>
 
 export default function KbLearningMachinePage() {
   const [progress, setProgress] = useState<KbProgressByCardId>(() => getKbLearningProgress());
-  const cards = useMemo(() => mergeKbCardsWithProgress(kbFieldCards, progress), [progress]);
+  const [manualCards, setManualCards] = useState<KbFieldCard[]>(() => getKbManualCards());
+  const cardCollection = useMemo(() => [...manualCards, ...kbFieldCards], [manualCards]);
+  const cards = useMemo(() => mergeKbCardsWithProgress(cardCollection, progress), [cardCollection, progress]);
   const [selectedCardId, setSelectedCardId] = useState(cards[0]?.id ?? '');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [editingManualCardId, setEditingManualCardId] = useState<string | null>(null);
+  const [cardDraft, setCardDraft] = useState<KbCardDraft>(emptyCardDraft);
   const [activeFlashcardIndex, setActiveFlashcardIndex] = useState(0);
   const [showFlashcardAnswer, setShowFlashcardAnswer] = useState(false);
   const [scenarioResponse, setScenarioResponse] = useState('');
@@ -118,6 +154,8 @@ export default function KbLearningMachinePage() {
 
   const selectedCard = cards.find((card) => card.id === selectedCardId) ?? cards[0];
   const selectedProgress = selectedCard ? progress[selectedCard.id] : undefined;
+  const manualCardIds = useMemo(() => new Set(manualCards.map((card) => card.id)), [manualCards]);
+  const selectedCardIsManual = selectedCard ? manualCardIds.has(selectedCard.id) : false;
   const dueCards = getKbCardsDueToday(cards);
   const lowConfidenceCards = getLowConfidenceCards(cards);
   const evidenceSummary = getKbEvidenceSummary(cards, progress);
@@ -172,6 +210,78 @@ export default function KbLearningMachinePage() {
       nextStep: savedNote.nextStep,
     } : emptyTicketNote);
     setReflectionText(progress[card.id]?.reflection?.text ?? '');
+  };
+
+  const handleCardDraftChange = <K extends keyof KbCardDraft>(field: K, value: KbCardDraft[K]) => {
+    setCardDraft((current) => ({ ...current, [field]: value }));
+  };
+
+  const resetCardDraft = () => {
+    setEditingManualCardId(null);
+    setCardDraft(emptyCardDraft);
+  };
+
+  const handleSaveManualCard = () => {
+    const now = new Date().toISOString();
+    const existingCard = editingManualCardId
+      ? manualCards.find((card) => card.id === editingManualCardId)
+      : undefined;
+    const nextCard: KbFieldCard = {
+      id: existingCard?.id ?? `manual-kb-${Date.now()}`,
+      title: cardDraft.title.trim() || 'Untitled field card',
+      category: cardDraft.category.trim() || 'Custom',
+      whenToUse: cardDraft.whenToUse.trim() || 'Add when this KB should be used.',
+      prerequisites: splitDraftLines(cardDraft.prerequisites, 'Confirm prerequisites before starting.'),
+      firstChecks: splitDraftLines(cardDraft.firstChecks, 'Record the safest first check.'),
+      coreSteps: splitDraftLines(cardDraft.coreSteps, 'Add the approved step-by-step workflow.'),
+      commonMistake: cardDraft.commonMistake.trim() || 'Add the mistake to avoid.',
+      escalateIf: cardDraft.escalateIf.trim() || 'Add escalation triggers.',
+      relatedSkill: cardDraft.relatedSkill.trim() || 'Custom skill',
+      confidence: cardDraft.confidence,
+      reviewDueDate: existingCard?.reviewDueDate ?? now,
+      lastReviewedAt: existingCard?.lastReviewedAt,
+      reviewHistory: existingCard?.reviewHistory ?? [],
+    };
+    const nextManualCards = existingCard
+      ? manualCards.map((card) => (card.id === existingCard.id ? nextCard : card))
+      : [nextCard, ...manualCards];
+
+    saveKbManualCards(nextManualCards);
+    setManualCards(nextManualCards);
+    setSelectedCardId(nextCard.id);
+    setSaveMessage(existingCard ? 'KB card updated' : 'KB card created');
+    window.setTimeout(() => setSaveMessage(''), 1800);
+    resetCardDraft();
+  };
+
+  const handleEditManualCard = (card: KbFieldCard) => {
+    if (!manualCardIds.has(card.id)) return;
+    setEditingManualCardId(card.id);
+    setCardDraft({
+      title: card.title,
+      category: card.category,
+      whenToUse: card.whenToUse,
+      prerequisites: card.prerequisites.join('\n'),
+      firstChecks: card.firstChecks.join('\n'),
+      coreSteps: card.coreSteps.join('\n'),
+      commonMistake: card.commonMistake,
+      escalateIf: card.escalateIf,
+      relatedSkill: card.relatedSkill,
+      confidence: card.confidence,
+    });
+  };
+
+  const handleDeleteManualCard = (card: KbFieldCard) => {
+    if (!manualCardIds.has(card.id)) return;
+    if (!window.confirm(`Delete custom KB card "${card.title}" and its local practice progress?`)) return;
+
+    const next = deleteKbManualCard(card.id);
+    setManualCards(next.cards);
+    setProgress({ ...next.progress });
+    setSelectedCardId(next.cards[0]?.id ?? kbFieldCards[0]?.id ?? '');
+    setSaveMessage('KB card deleted');
+    window.setTimeout(() => setSaveMessage(''), 1800);
+    resetCardDraft();
   };
 
   const handleReview = (rating: KbReviewRating) => {
@@ -379,9 +489,142 @@ export default function KbLearningMachinePage() {
                         <div className="mt-3 flex flex-wrap gap-2">
                           <Badge>{kbConfidenceLabels[card.confidence]}</Badge>
                           <Badge variant="secondary">{card.relatedSkill}</Badge>
+                          {manualCardIds.has(card.id) && <Badge variant="outline">Manual</Badge>}
                         </div>
                       </button>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Plus className="h-5 w-5" />
+                    {editingManualCardId ? 'Edit Custom KB Card' : 'Create Custom KB Card'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="kb-card-title">Title</Label>
+                      <Input
+                        id="kb-card-title"
+                        value={cardDraft.title}
+                        onChange={(event) => handleCardDraftChange('title', event.target.value)}
+                        placeholder="Example: Shared mailbox delegation"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="kb-card-category">Category</Label>
+                      <Input
+                        id="kb-card-category"
+                        value={cardDraft.category}
+                        onChange={(event) => handleCardDraftChange('category', event.target.value)}
+                        placeholder="Microsoft 365"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="kb-card-when">When to use</Label>
+                    <Textarea
+                      id="kb-card-when"
+                      value={cardDraft.whenToUse}
+                      onChange={(event) => handleCardDraftChange('whenToUse', event.target.value)}
+                      rows={2}
+                      placeholder="When this KB is useful in real work."
+                    />
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="kb-card-prerequisites">Prerequisites</Label>
+                      <Textarea
+                        id="kb-card-prerequisites"
+                        value={cardDraft.prerequisites}
+                        onChange={(event) => handleCardDraftChange('prerequisites', event.target.value)}
+                        rows={4}
+                        placeholder="One prerequisite per line."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="kb-card-first-checks">First checks</Label>
+                      <Textarea
+                        id="kb-card-first-checks"
+                        value={cardDraft.firstChecks}
+                        onChange={(event) => handleCardDraftChange('firstChecks', event.target.value)}
+                        rows={4}
+                        placeholder="One safe first check per line."
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="kb-card-core-steps">Core steps</Label>
+                    <Textarea
+                      id="kb-card-core-steps"
+                      value={cardDraft.coreSteps}
+                      onChange={(event) => handleCardDraftChange('coreSteps', event.target.value)}
+                      rows={4}
+                      placeholder="One repeatable step per line."
+                    />
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="kb-card-mistake">Common mistake</Label>
+                      <Textarea
+                        id="kb-card-mistake"
+                        value={cardDraft.commonMistake}
+                        onChange={(event) => handleCardDraftChange('commonMistake', event.target.value)}
+                        rows={3}
+                        placeholder="The risky or wasteful mistake to avoid."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="kb-card-escalate">Escalate if</Label>
+                      <Textarea
+                        id="kb-card-escalate"
+                        value={cardDraft.escalateIf}
+                        onChange={(event) => handleCardDraftChange('escalateIf', event.target.value)}
+                        rows={3}
+                        placeholder="Clear escalation triggers."
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="kb-card-skill">Related skill</Label>
+                      <Input
+                        id="kb-card-skill"
+                        value={cardDraft.relatedSkill}
+                        onChange={(event) => handleCardDraftChange('relatedSkill', event.target.value)}
+                        placeholder="Client communication"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="kb-card-confidence">Starting confidence</Label>
+                      <select
+                        id="kb-card-confidence"
+                        value={cardDraft.confidence}
+                        onChange={(event) => handleCardDraftChange('confidence', event.target.value as KbConfidence)}
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      >
+                        {confidenceOptions.map((confidence) => (
+                          <option key={confidence} value={confidence}>
+                            {kbConfidenceLabels[confidence]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" onClick={handleSaveManualCard}>
+                      <Plus className="mr-2 h-4 w-4" />
+                      {editingManualCardId ? 'Save card' : 'Create card'}
+                    </Button>
+                    {editingManualCardId && (
+                      <Button type="button" variant="outline" onClick={resetCardDraft}>
+                        Cancel edit
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -427,8 +670,21 @@ export default function KbLearningMachinePage() {
                       <div className="flex flex-wrap items-center gap-2">
                         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{selectedCard.title}</h2>
                         <Badge variant="outline">{selectedCard.category}</Badge>
+                        {selectedCardIsManual && <Badge variant="secondary">Manual card</Badge>}
                       </div>
                       <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{selectedCard.whenToUse}</p>
+                      {selectedCardIsManual && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <Button size="sm" variant="outline" onClick={() => handleEditManualCard(selectedCard)}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                          </Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleDeleteManualCard(selectedCard)}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </Button>
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
@@ -692,4 +948,13 @@ export default function KbLearningMachinePage() {
       </PageShell>
     </Layout>
   );
+}
+
+function splitDraftLines(value: string, fallback: string) {
+  const lines = value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  return lines.length ? lines : [fallback];
 }
