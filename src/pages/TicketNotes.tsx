@@ -69,11 +69,13 @@ function TicketNotes({ ticketNotePracticeCount, incrementTicketNotePractice }: T
   const [feedback, setFeedback] = useState<CoachFeedback | null>(null);
   const [feedbackError, setFeedbackError] = useState('');
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
 
   const handleGetFeedback = async () => {
     if (!userNote.trim()) return;
     setIsLoadingFeedback(true);
     setFeedbackError('');
+    setStatusMessage('');
     try {
       const request: TicketNoteFeedbackRequest = {
         idealAnswer: ticketNoteTemplate,
@@ -86,6 +88,28 @@ function TicketNotes({ ticketNotePracticeCount, incrementTicketNotePractice }: T
     } finally {
       setIsLoadingFeedback(false);
     }
+  };
+
+  const copyTicketNote = async () => {
+    try {
+      await navigator.clipboard.writeText(userNote.trim() || ticketNoteTemplate);
+      setStatusMessage('Ticket note copied to clipboard.');
+    } catch {
+      setStatusMessage('Unable to copy in this browser.');
+    }
+  };
+
+  const downloadTicketNote = () => {
+    const textToSave = userNote.trim() || ticketNoteTemplate;
+    const fileName = `ticket-note-${new Date().toISOString().slice(0, 10)}.txt`;
+    const blob = new Blob([textToSave], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+    setStatusMessage('Ticket note downloaded.');
   };
 
   return (
@@ -154,12 +178,19 @@ function TicketNotes({ ticketNotePracticeCount, incrementTicketNotePractice }: T
           rows={8}
         />
         <p className="privacy-reminder">Use generic training answers only. Do not include client names, passwords, hostnames, private ticket text, or sensitive data.</p>
-        {!userNote.trim() ? (
-          <p className="feedback-empty-hint">Write your ticket note first, then I can coach it.</p>
-        ) : (
-          <button type="button" onClick={handleGetFeedback} disabled={isLoadingFeedback}>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button type="button" onClick={copyTicketNote} className="btn-secondary">
+            Copy note
+          </button>
+          <button type="button" onClick={downloadTicketNote} className="btn-secondary">
+            Download note
+          </button>
+          <button type="button" onClick={handleGetFeedback} disabled={isLoadingFeedback} className="btn-primary">
             {isLoadingFeedback ? 'Getting feedback…' : feedback ? 'Get fresh feedback' : 'Get AI Feedback'}
           </button>
+        </div>
+        {statusMessage && (
+          <p className="mt-3 text-sm text-slate-700">{statusMessage}</p>
         )}
         {feedbackError && (
           <div className="error-panel">
