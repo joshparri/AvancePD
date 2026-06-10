@@ -3,12 +3,14 @@ import type { Client, LearningItem, Task, TimeEntry, WorkLog, Shift } from '../t
 import HealthyMspShiftPanel from '../components/HealthyMspShiftPanel';
 import QuickCapture from '../components/QuickCapture';
 import DataBackupPanel from '../components/DataBackupPanel';
+import { Lightbulb } from 'lucide-react';
 import type { HealthState } from '../utils/healthOutdoors';
 import { getTodayLog } from '../utils/healthOutdoors';
 import { mspScenarios } from '../data/mspScenarios';
 import { microLearningCards } from '../data/microLearning';
 import { getKbLearningMetrics } from '../features/kb-learning/kbLearningStorage';
 import type { AvanceProgress } from '../utils/progressStorage';
+import { getNextBestAction } from '../utils/nextBestAction';
 
 const PAGE_TITLE = 'Dashboard';
 
@@ -61,6 +63,7 @@ function Dashboard({
   const scenarioOfWeek = mspScenarios[getWeekNumber() % mspScenarios.length];
   const microCardOfDay = microLearningCards[new Date().getDay() % microLearningCards.length];
   const kbMetrics = getKbLearningMetrics(undefined, progress, learningItems);
+  const nextBestAction = getNextBestAction(progress);
 
   return (
     <div>
@@ -105,6 +108,38 @@ function Dashboard({
               <p>No time entries yet. Track your hours in the Time section.</p>
             )}
           </div>
+        </div>
+      </section>
+
+      <section className="card next-best-action-card border-l-4 border-indigo-500 bg-indigo-50/30 dark:bg-indigo-950/20">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-2">
+          <div className="flex gap-4">
+            <div className="mt-1 flex-shrink-0">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-400">
+                <Lightbulb className="h-6 w-6" />
+              </span>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-indigo-900 dark:text-indigo-100 m-0">One clear next action</h2>
+              <p className="text-sm font-semibold text-indigo-700 dark:text-indigo-300 mt-1">{nextBestAction.title}</p>
+              <p className="text-xs text-indigo-600/80 dark:text-indigo-400/80 mt-1 max-w-2xl">{nextBestAction.reason}</p>
+            </div>
+          </div>
+          <button 
+            type="button" 
+            className="primary-action whitespace-nowrap" 
+            onClick={() => {
+              const pageMap: Record<string, string> = {
+                'Evidence': 'evidencePack',
+                'Documentation': 'ticketNotes',
+                'Cybersecurity': 'mspScenarios',
+                'Networking': 'mspScenarios',
+              };
+              onNavigate(pageMap[nextBestAction.category] || 'mspScenarios');
+            }}
+          >
+            Start action
+          </button>
         </div>
       </section>
 

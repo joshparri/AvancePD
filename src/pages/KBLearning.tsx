@@ -1,5 +1,4 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { assessKbResponseWithGroq } from '../features/kb-learning/kbGroqAssessment';
 import {
   advanceKbCardProgress,
   getAllKbCards,
@@ -14,6 +13,7 @@ import {
   kbConfidenceLevels,
   kbFieldCardCategories,
   type KbAssessmentResult,
+  type KbCardActivityProgress,
   type KbConfidence,
   type KbFieldCard,
   type KbFieldCardCategory,
@@ -73,16 +73,138 @@ const activityLabels: Record<KbLearningActivity, string> = {
   reflect: 'Reflect'
 };
 
+function sanitizeText(value: string) {
+  return value.trim().replace(/\s+/g, ' ');
+}
+
+function hasSensitiveContent(value: string) {
+  const lower = value.toLowerCase();
+  const patterns = [/@[a-z0-9.-]+\.[a-z]{2,}/, /\b\d{1,3}(?:\.\d{1,3}){3}\b/, /\b(password|pwd|secret|token|ssh|credential|credentials|login|passphrase|ssn|api key)\b/i];
+  return patterns.some((pattern) => pattern.test(value)) || /\b(?:user|admin|root)\b/.test(lower) && /\b(?:\d|@|\.|:|\/|\\)\b/.test(value);
+}
+
+function simpleContains(text: string, phrase: string) {
+  return phrase && text.toLowerCase().includes(phrase.toLowerCase());
+}
+
+function getTextActivityAssessment(
+  activity: KbLearningActivity,
+  answer: string,
+  card: KbFieldCard
+): KbAssessmentResult {
+  const clean = sanitizeText(answer);
+  const wordCount = clean.split(/\s+/).filter(Boolean).length;
+  const summaryNotes: string[] = [];
+  let score = 0;
+  const warning = hasSensitiveContent(clean);
+
+  if (wordCount >= 30) {
+    score += 1;
+    summaryNotes.push('Includes enough detail.');
+  } else {
+    summaryNotes.push('Add more detail to hit a stronger learning note.');
+  }
+
+  const firstCheck = card.firstChecks[0] ?? '';
+  const coreStep = card.coreSteps[0] ?? '';
+  const escalation = card.escalateIf ?? '';
+
+  if (activity === 'recall') {
+    if (simpleContains(clean, card.whenToUse)) {
+      score += 1;
+      summaryNotes.push('Mentions when to use this KB.');
+    }
+    if (firstCheck && simpleContains(clean, firstCheck)) {
+      score += 1;
+      summaryNotes.push('Includes a first check or safe first step.');
+    }
+    if (escalation && /(escalat|risk|review|approval)/i.test(clean)) {
+      score += 1;
+      summaryNotes.push('Acknowledges escalation or risk.');
+    }
+  } else if (activity === 'practical') {
+    if (firstCheck && simpleContains(clean, firstCheck)) {
+      score += 1;
+      summaryNotes.push('References a safe first check.');
+    }
+    if (coreStep && simpleContains(clean, coreStep)) {
+      score += 1;
+      summaryNotes.push('Includes a safe next step.');
+    }
+    if (escalation && /(escalat|risk|approval|manager)/i.test(clean)) {
+      score += 1;
+      summaryNotes.push('Mentions risk, approval, or escalation.');
+    }
+  } else if (activity === 'ticket-note') {
+    if (/(summary|summar)/i.test(clean)) {
+      score += 1;
+      summaryNotes.push('Contains a summary.');
+    }
+    if (/(check|verify|confirmed|performed)/i.test(clean)) {
+      score += 1;
+      summaryNotes.push('Notes checks or verification.');
+    }
+    if (/(action|did|performed|took)/i.test(clean)) {
+      score += 1;
+      summaryNotes.push('States the action taken.');
+    }
+    if (/(result|status|resolved|completed)/i.test(clean)) {
+      score += 1;
+      summaryNotes.push('Mentions result or status.');
+    }
+    if (/(follow[- ]?up|next|none)/i.test(clean)) {
+      score += 1;
+      summaryNotes.push('Includes follow-up or notes none.');
+    }
+    if (escalation && /(escalat|risk|manager|supervisor|lead)/i.test(clean)) {
+      summaryNotes.push('Also mentions escalation guidance.');
+    }
+  } else if (activity === 'reflect') {
+    if (/(learn|understand|realized|remember)/i.test(clean)) {
+      score += 1;
+      summaryNotes.push('Describes what was learned.');
+    }
+    if (/(unclear|still|confusing|question|need to)/i.test(clean)) {
+      score += 1;
+      summaryNotes.push('Identifies what is still unclear.');
+    }
+    if (/(next|again|repeat|practice|review)/i.test(clean)) {
+      score += 1;
+      summaryNotes.push('Includes a next practice step.');
+    }
+  }
+
+  const normalizedScore = Math.min(score, 5);
+  const tip = normalizedScore >= 4
+    ? 'Good work. Keep the note clear and focused on safe steps.'
+    : 'Try mentioning the KB trigger, safe first checks, and escalation clearly next time.';
+
+  return {
+    score: normalizedScore,
+    tip,
+    summary: `${summaryNotes.join(' ')}${warning ? ' This may contain sensitive information. Consider replacing it with a generic reference.' : ''}`,
+    assessedAt: new Date().toISOString(),
+    source: 'local'
+  };
+}
+
+function getActivityButtonStatus(activity: KbLearningActivity, progress?: KbCardActivityProgress) {
+  if (!progress) return 'not-started';
+  if (activity === 'quiz' && progress.quizAttempt) return 'completed';
+  if (activity !== 'quiz' && progress.textResponses?.[activity]) return 'completed';
+  return 'not-started';
+}
+
 function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
   const [fieldCards, setFieldCards] = useState<KbFieldCard[]>(getAllKbCards);
   const [activityProgress, setActivityProgress] = useState(loadKbActivityProgress);
   const [form, setForm] = useState<FieldCardForm>(blankForm);
   const [filter, setFilter] = useState('all');
   const [selectedCardId, setSelectedCardId] = useState('');
+  const [activityStatus, setActivityStatus] = useState('');
   const [activeActivity, setActiveActivity] = useState<KbLearningActivity>('quiz');
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
   const [textAnswer, setTextAnswer] = useState('');
-  const [activityStatus, setActivityStatus] = useState('');
   const [externalLearningProgress, setExternalLearningProgress] = useState<ExternalLearningProgress>(loadExternalLearningProgress);
 
   useEffect(() => {
@@ -98,6 +220,7 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
   const recommendedCard = useMemo(() => getRecommendedCard(fieldCards, dueCards), [dueCards, fieldCards]);
   const selectedCard = fieldCards.find((card) => card.id === selectedCardId) ?? recommendedCard ?? fieldCards[0];
   const selectedProgress = selectedCard ? activityProgress[selectedCard.id] : undefined;
+  const activeTopicLabel = selectedCardId ? 'Now studying' : 'Recommended today';
   const quizQuestions = useMemo(() => selectedCard ? buildKbQuiz(selectedCard) : [], [selectedCard]);
   const externalResources = useMemo(
     () => selectedCard ? getResourcesForKbCard(selectedCard) : [],
@@ -124,6 +247,14 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
 
   const updateForm = <K extends keyof FieldCardForm>(field: K, value: FieldCardForm[K]) => {
     setForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const studyCard = (card: KbFieldCard) => {
+    setSelectedCardId(card.id);
+    setActivityStatus(`Now studying: ${card.title}`);
+    window.setTimeout(() => {
+      document.getElementById('kb-learning-hero')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
   };
 
   const addFieldCard = (event: FormEvent<HTMLFormElement>) => {
@@ -174,33 +305,27 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
     setActivityStatus(`Quiz saved: ${score}/${quizQuestions.length}.`);
   };
 
-  const submitTextActivity = async () => {
+  const submitTextActivity = () => {
     if (!selectedCard) return;
     const answer = textAnswer.trim();
     if (!answer) {
-      setActivityStatus('Write a short answer before asking for assessment.');
+      setActivityStatus('Write a short answer before saving your attempt.');
       return;
     }
 
-    setActivityStatus('Assessing...');
-    const result = await assessKbResponseWithGroq({
-      kbTitle: selectedCard.title,
-      activity: activeActivity,
-      userAnswer: answer
-    });
-
+    const assessment = getTextActivityAssessment(activeActivity, answer, selectedCard);
     setActivityProgress((current) => {
       const currentCardProgress = current[selectedCard.id];
       return updateKbActivityProgress(current, selectedCard.id, activeActivity, {
         textResponse: answer,
         assessments: {
           ...(currentCardProgress?.assessments ?? {}),
-          [activeActivity]: result
+          [activeActivity]: assessment
         }
       });
     });
-    setCardProgress(selectedCard, result.score);
-    setActivityStatus(`${result.source === 'groq' ? 'Groq' : 'Local'} assessment saved.`);
+    setCardProgress(selectedCard, assessment.score);
+    setActivityStatus(`Saved ${activityLabels[activeActivity]}. Score ${assessment.score}/5.`);
   };
 
   const markSavedResource = (resourceId: string) => setExternalLearningProgress(markResourceSaved(resourceId));
@@ -213,35 +338,41 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
   return (
     <div>
       <section className="card kb-session-card learning-hero-card">
-        <div className="skill-card-header">
+        <div className="skill-card-header" id="kb-learning-hero" tabIndex={-1}>
           <div>
             <h1>What are we learning today?</h1>
             <p className="page-subtitle">Pick one MSP skill, practise it, and follow a clear learning path.</p>
-            <p className="page-help">Hi Josh. Today’s recommended topic is <strong>{recommendedCard?.title ?? 'your first KB field card'}</strong>.</p>
+            <p className="page-help">Hi Josh. Today's active topic is <strong>{selectedCard?.title ?? 'your first KB field card'}</strong>.</p>
             <div className="recommendation-callout">
               <div className="recommendation-pill">
-                <span className="status-chip info">Recommended today</span>
-                <strong>{recommendedCard?.title ?? 'Select a KB field card to begin'}</strong>
+                <span className="status-chip info">{activeTopicLabel}</span>
+                <strong>{selectedCard?.title ?? 'Select a KB field card to begin'}</strong>
               </div>
               <p className="page-help">Focus your next activity on this topic and build a clear review path.</p>
             </div>
           </div>
           <div className="learning-hero-summary">
-            <span className="status-chip info">{recommendedCard?.relatedSkill ?? 'KB Learning'}</span>
+            <span className="status-chip info">{selectedCard?.relatedSkill ?? 'KB Learning'}</span>
             <span className="status-chip success">{metrics.kbCards} cards</span>
           </div>
         </div>
         <div className="learning-path-row status-button-row">
-          {(Object.keys(activityLabels) as KbLearningActivity[]).map((activity) => (
-            <button
-              key={activity}
-              type="button"
-              className={activeActivity === activity ? 'small-action active primary-action' : 'small-action secondary-action'}
-              onClick={() => setActiveActivity(activity)}
-            >
-              {activityLabels[activity]}
-            </button>
-          ))}
+          {(Object.keys(activityLabels) as KbLearningActivity[]).map((activity) => {
+            const status = getActivityButtonStatus(activity, selectedProgress);
+            return (
+              <button
+                key={activity}
+                type="button"
+                className={activeActivity === activity ? 'small-action active primary-action' : 'small-action secondary-action'}
+                onClick={() => setActiveActivity(activity)}
+              >
+                <span>{activityLabels[activity]}</span>
+                {status !== 'not-started' && (
+                  <span className={`activity-pill ${status}`}>{status === 'completed' ? 'Done' : 'Tried'}</span>
+                )}
+              </button>
+            );
+          })}
         </div>
         <div className="metric-row">
           <span className="status-chip info">{metrics.reviewsDue} reviews due</span>
@@ -347,7 +478,7 @@ function KBLearning({ progress, learningItems, onNavigate }: KBLearningProps) {
                 <p><strong>Escalate if:</strong> {card.escalateIf}</p>
                 <p><strong>Next review:</strong> {card.nextReviewAt.slice(0, 10)}</p>
               </details>
-              <button type="button" className="small-action" onClick={() => setSelectedCardId(card.id)}>
+              <button type="button" className="small-action" onClick={() => studyCard(card)}>
                 Study this
               </button>
             </article>
@@ -454,16 +585,20 @@ function QuizActivity({
             <div className="kb-quiz-options">
               {question.options.map((option) => {
                 const selected = answers[question.id] === option.id;
-                const showCorrect = savedAttempt && option.id === question.correctOptionId;
+                const correct = option.id === question.correctOptionId;
+                const selectedWrong = savedAttempt && selected && !correct;
+                const showCorrect = savedAttempt && correct;
                 return (
                   <button
                     key={option.id}
                     type="button"
-                    className={selected ? 'small-action active' : 'small-action'}
+                    className={
+                      selectedWrong ? 'small-action warn' : showCorrect ? 'small-action success' : selected ? 'small-action active' : 'small-action'
+                    }
                     onClick={() => onAnswer(question.id, option.id)}
                   >
                     {option.text}
-                    {showCorrect ? ' (correct)' : ''}
+                    {savedAttempt && (correct ? ' (correct)' : selectedWrong ? ' (your answer)' : '')}
                   </button>
                 );
               })}

@@ -97,6 +97,11 @@ type GameMission = {
   successText: string;
   failureText: string;
   flowSteps: string[];
+  followUpPrompt?: string;
+  followUpOptions?: MissionOption[];
+  followUpCorrectOptionId?: string;
+  followUpSuccessText?: string;
+  followUpFailureText?: string;
   scenarioTitle?: string;
   scenarioId?: string;
 };
@@ -274,6 +279,16 @@ function buildMissionOptions(
   };
 }
 
+function buildFollowUpOptions(
+  missionId: string,
+  correctText: string,
+  correctFeedback: string,
+  distractors: Array<{ text: string; feedback: string }>,
+  rotateBy: number
+) {
+  return buildMissionOptions(`${missionId}-follow`, correctText, correctFeedback, distractors, rotateBy);
+}
+
 function buildMissions(cards: MicroLearningCard[]): GameMission[] {
   return cards.flatMap((card, cardIndex) => {
     const factionId = factionForCategory(card.category);
@@ -356,6 +371,28 @@ function buildMissions(cards: MicroLearningCard[]): GameMission[] {
       cardIndex + 2
     );
 
+    const followUpPrompt = `Now choose the practical next step after the first move: ${shorten(card.practiceTask, 100)}`;
+    const followUpOptions = buildFollowUpOptions(
+      card.id,
+      shorten(card.practiceTask, 100),
+      'Correct: this is the practical follow-through that turns knowledge into momentum.',
+      [
+        {
+          text: 'Pause and ask the user if they want a full system rebuild first.',
+          feedback: 'A rebuild is rarely the next best step. The better move is to validate the issue and apply the concept directly.'
+        },
+        {
+          text: 'Document the issue and escalate it without confirming the root cause.',
+          feedback: 'Escalation can be useful, but not before you confirm the root cause and show that you can apply the concept.'
+        },
+        {
+          text: 'Wait for another ticket before taking corrective action.',
+          feedback: 'Delaying action misses the opportunity to practice and build confidence on the right issue now.'
+        }
+      ],
+      cardIndex + 3
+    );
+
     return [
       {
         id: scopeId,
@@ -370,6 +407,11 @@ function buildMissions(cards: MicroLearningCard[]): GameMission[] {
         successText: 'You narrowed the fault before changing the environment.',
         failureText: 'That choice creates avoidable risk. Start by scoping, preserving evidence, and using the safest first check.',
         flowSteps,
+        followUpPrompt,
+        followUpOptions: followUpOptions.options,
+        followUpCorrectOptionId: followUpOptions.correctOptionId,
+        followUpSuccessText: 'You completed the practical follow-through and locked in the learning cycle.',
+        followUpFailureText: 'That follow-up missed the learning step. Review the task and strengthen your next move.',
         scenarioTitle,
         scenarioId,
         ...scopeOptions
@@ -387,6 +429,11 @@ function buildMissions(cards: MicroLearningCard[]): GameMission[] {
         successText: 'You spotted the trap before it became technical debt.',
         failureText: 'The dangerous move is the one the card warns about directly. Slow down and protect the system state.',
         flowSteps,
+        followUpPrompt,
+        followUpOptions: followUpOptions.options,
+        followUpCorrectOptionId: followUpOptions.correctOptionId,
+        followUpSuccessText: 'You completed the practical follow-through and locked in the learning cycle.',
+        followUpFailureText: 'That follow-up missed the learning step. Review the task and strengthen your next move.',
         scenarioTitle,
         scenarioId,
         ...riskOptions
@@ -404,6 +451,11 @@ function buildMissions(cards: MicroLearningCard[]): GameMission[] {
         successText: 'Clean teach-back. That knowledge is now easier to use under pressure.',
         failureText: 'The best explanation connects the concept to risk, time, safety, or repeat tickets.',
         flowSteps,
+        followUpPrompt,
+        followUpOptions: followUpOptions.options,
+        followUpCorrectOptionId: followUpOptions.correctOptionId,
+        followUpSuccessText: 'You completed the practical follow-through and locked in the learning cycle.',
+        followUpFailureText: 'That follow-up missed the learning step. Review the task and strengthen your next move.',
         scenarioTitle,
         scenarioId,
         ...teachOptions
@@ -526,6 +578,7 @@ function AvancePDGames({ onNavigate }: AvancePDGamesProps) {
   const missions = useMemo(() => buildMissions(microLearningCards), []);
   const [gameState, setGameState] = useState<AvancePDGameState>(loadGameState);
   const [selectedOptionId, setSelectedOptionId] = useState('');
+  const [followUpPending, setFollowUpPending] = useState(false);
   const [activeTactic, setActiveTactic] = useState<TacticId>('none');
   const [mode, setMode] = useState<GameMode>('contracts');
   const [lastOutcome, setLastOutcome] = useState<MissionOutcome | null>(null);
@@ -569,13 +622,16 @@ function AvancePDGames({ onNavigate }: AvancePDGamesProps) {
 
   const visibleOptions = useMemo(() => {
     if (!currentMission) return [];
+    if (followUpPending && currentMission.followUpOptions) {
+      return currentMission.followUpOptions;
+    }
     if (activeTactic === 'mentor-call' && gameState.focus >= activeTacticConfig.cost) {
       const correct = currentMission.options.find((option) => option.correct);
       const firstWrong = currentMission.options.find((option) => !option.correct);
       return currentMission.options.filter((option) => option.id === correct?.id || option.id === firstWrong?.id);
     }
     return currentMission.options;
-  }, [activeTactic, activeTacticConfig.cost, currentMission, gameState.focus]);
+  }, [activeTactic, activeTacticConfig.cost, currentMission, followUpPending, gameState.focus]);
 
   useEffect(() => {
     if (!gameState.currentMissionId && missions[0]) {
@@ -637,6 +693,7 @@ function AvancePDGames({ onNavigate }: AvancePDGamesProps) {
   const startNextMission = () => {
     setGameState((current) => ({ ...current, currentMissionId: pickNextMission(missions, current).id }));
     setSelectedOptionId('');
+    setFollowUpPending(false);
     setLastOutcome(null);
     setActiveTactic('none');
   };
@@ -644,12 +701,115 @@ function AvancePDGames({ onNavigate }: AvancePDGamesProps) {
   const submitAnswer = () => {
     if (!currentMission || !selectedOptionId) return;
 
-    const selected = currentMission.options.find((option) => option.id === selectedOptionId);
-    const correct = selected?.id === currentMission.correctOptionId;
     const current = gameState;
     const currentMaxFocus = 3 + current.upgrades['focus-cache'];
     const tacticCost = activeTacticConfig.cost;
     const tacticReady = current.focus >= tacticCost;
+
+    if (followUpPending && currentMission.followUpOptions) {
+      const selected = currentMission.followUpOptions.find((option) => option.id === selectedOptionId);
+      const followUpCorrect = selected?.id === currentMission.followUpCorrectOptionId;
+      const correct = followUpCorrect;
+      const difficulty = difficultySettings[currentMission.difficulty];
+      const dailyBonus = correct && currentMission.factionId === dailyEvent.factionId ? 12 : 0;
+      const passiveXp = current.upgrades['automation-grid'] * 4;
+      const passiveCredits = current.upgrades['automation-grid'] * 3;
+      const forgeBonus = 1 + current.upgrades['knowledge-forge'] * 0.08 + (currentMission.kind === 'teach' ? 0.06 : 0);
+      const modeXp = mode === 'contracts' ? 8 : 0;
+      const modeCredits = mode === 'factory' ? 10 : 0;
+      const baseXp = correct ? Math.round((difficulty.xp + dailyBonus + modeXp) * forgeBonus) : 10;
+      const baseCredits = correct ? difficulty.credits + modeCredits : 6;
+      const xpGain = baseXp + passiveXp;
+      let creditsGain = baseCredits + passiveCredits;
+      const nextStreak = correct ? current.streak + 1 : 0;
+      const focusAfterCost = Math.max(0, current.focus - (activeTactic === 'none' || !tacticReady ? 0 : tacticCost));
+      const nextFocus = correct ? Math.min(currentMaxFocus, focusAfterCost + 1) : focusAfterCost;
+      const reward = rollReward(current, currentMission, correct);
+      const nextMastered = new Set(current.masteredCardIds);
+      const nextRareFinds = new Set(current.rareFinds);
+      let raidIntegrity = current.raidIntegrity;
+      let finalXpGain = xpGain;
+      let raidCleared = false;
+
+      if (correct) {
+        nextMastered.add(currentMission.cardId);
+        if (reward.rarity !== 'common') nextRareFinds.add(reward.name);
+        const raidDamage = difficulty.heat + nextStreak * 2 + (mode === 'raid' ? 12 : 0);
+        raidIntegrity = Math.max(0, current.raidIntegrity - raidDamage);
+        if (raidIntegrity === 0) {
+          raidCleared = true;
+          raidIntegrity = 100;
+          finalXpGain += 120;
+          creditsGain += 100;
+          nextRareFinds.add(`Raid cache ${today}`);
+        }
+      } else {
+        raidIntegrity = Math.min(100, current.raidIntegrity + 5);
+      }
+
+      const nextStanding = {
+        ...current.factionStanding,
+        [currentMission.factionId]: current.factionStanding[currentMission.factionId] + (correct ? 3 : 1)
+      };
+      const nextHeat = correct ? Math.max(0, current.heat - difficulty.heat) : Math.min(100, current.heat + 11);
+      const logEntry: MissionLog = {
+        missionId: currentMission.id,
+        cardId: currentMission.cardId,
+        category: currentMission.category,
+        correct,
+        reward: reward.name,
+        xp: finalXpGain,
+        credits: creditsGain,
+        at: new Date().toISOString()
+      };
+
+      let nextState: AvancePDGameState = {
+        ...current,
+        xp: current.xp + finalXpGain,
+        credits: current.credits + creditsGain,
+        streak: nextStreak,
+        bestStreak: Math.max(current.bestStreak, nextStreak),
+        focus: nextFocus,
+        turn: current.turn + 1,
+        heat: nextHeat,
+        raidIntegrity,
+        masteredCardIds: Array.from(nextMastered),
+        rareFinds: Array.from(nextRareFinds).slice(-16),
+        factionStanding: nextStanding,
+        history: [logEntry, ...current.history].slice(0, 80)
+      };
+      nextState = {
+        ...nextState,
+        badges: Array.from(new Set([...nextState.badges, ...earnedBadges(nextState)])),
+        currentMissionId: pickNextMission(missions, nextState).id
+      };
+
+      setGameState(nextState);
+      setLastOutcome({
+        correct,
+        cardId: currentMission.cardId,
+        missionId: currentMission.id,
+        selectedAnswer: selected?.text ?? 'No follow-up answer selected',
+        correctAnswer: currentMission.followUpOptions?.find((option) => option.id === currentMission.followUpCorrectOptionId)?.text ?? '',
+        answerFeedback: selected?.feedback ?? 'Review the concept card before trying the next contract.',
+        title: correct ? 'Mission flow complete' : 'Follow-up missed',
+        message: correct ? currentMission.followUpSuccessText ?? currentMission.successText : currentMission.followUpFailureText ?? currentMission.failureText,
+        explanation: currentMission.followUpPrompt ?? currentMission.clue,
+        reward: raidCleared ? `${reward.name} plus Raid Cache` : reward.name,
+        rarity: raidCleared ? 'epic' : reward.rarity,
+        xp: finalXpGain,
+        credits: creditsGain,
+        streak: nextStreak,
+        raidCleared
+      });
+      setSelectedOptionId('');
+      setFollowUpPending(false);
+      setActiveTactic('none');
+      return;
+    }
+
+    const selected = currentMission.options.find((option) => option.id === selectedOptionId);
+    const correct = selected?.id === currentMission.correctOptionId;
     const protectedWrong = !correct && activeTactic === 'change-window' && tacticReady;
     const automationBurst = correct && activeTactic === 'automation-burst' && tacticReady;
     const nextStreak = correct ? current.streak + 1 : protectedWrong ? Math.max(1, current.streak) : 0;
@@ -674,6 +834,29 @@ function AvancePDGames({ onNavigate }: AvancePDGamesProps) {
     let raidCleared = false;
 
     if (correct) {
+      if (currentMission.followUpPrompt && currentMission.followUpOptions?.length) {
+        setFollowUpPending(true);
+        setLastOutcome({
+          correct: true,
+          cardId: currentMission.cardId,
+          missionId: currentMission.id,
+          selectedAnswer: selected?.text ?? 'No answer selected',
+          correctAnswer: 'Follow-up step pending',
+          answerFeedback: 'Good first move. Now choose the practical follow-up that completes the troubleshooting flow.',
+          title: 'Step 2: follow-up decision',
+          message: 'You picked the right opening action. Complete the next troubleshooting step before claiming full mission rewards.',
+          explanation: currentMission.followUpPrompt,
+          reward: 'Follow-up pending',
+          rarity: 'common',
+          xp: 0,
+          credits: 0,
+          streak: current.streak + 1,
+          raidCleared: false
+        });
+        setSelectedOptionId('');
+        return;
+      }
+
       nextMastered.add(currentMission.cardId);
       if (reward.rarity !== 'common') nextRareFinds.add(reward.name);
       const raidDamage = difficulty.heat + nextStreak * 2 + (mode === 'raid' ? 12 : 0);
@@ -752,6 +935,7 @@ function AvancePDGames({ onNavigate }: AvancePDGamesProps) {
     if (!window.confirm('Reset AvancePDGames progress on this device?')) return;
     setGameState({ ...defaultGameState(), currentMissionId: missions[0]?.id ?? '' });
     setSelectedOptionId('');
+    setFollowUpPending(false);
     setLastOutcome(null);
     setActiveTactic('none');
   };
@@ -871,6 +1055,13 @@ function AvancePDGames({ onNavigate }: AvancePDGamesProps) {
             </div>
           </div>
 
+          {followUpPending && currentMission.followUpPrompt && (
+            <div className="games-followup-panel">
+              <h3>Follow-up step</h3>
+              <p>{currentMission.followUpPrompt}</p>
+            </div>
+          )}
+
           <div className="games-options">
             {visibleOptions.map((option) => (
               <button
@@ -886,7 +1077,7 @@ function AvancePDGames({ onNavigate }: AvancePDGamesProps) {
 
           <div className="games-action-row">
             <button type="button" className="primary-action" onClick={submitAnswer} disabled={!selectedOptionId}>
-              Lock answer
+              {followUpPending ? 'Complete follow-up' : 'Lock answer'}
             </button>
             <button type="button" className="secondary-action" onClick={startNextMission}>
               New contract
