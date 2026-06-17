@@ -21,6 +21,7 @@ import {
   BookOpen,
   Gamepad2,
   ShieldCheck,
+  Link2,
 } from 'lucide-react';
 
 const navigation = [
@@ -31,6 +32,7 @@ const navigation = [
   { name: 'MSP Scenarios', href: '/msp-scenarios', icon: ClipboardList },
   { name: 'MSP Quiz', href: '/msp-quiz', icon: Brain },
   { name: 'Learning Cockpit', href: '/learning-cockpit', icon: Lightbulb },
+  { name: 'App Links', href: '/app-links', icon: Link2 },
   { name: 'AvanceGame', href: '/avance-game', icon: Gamepad2 },
   { name: 'Field Ops', href: '/field-ops', icon: ShieldCheck },
   { name: 'Tool Primers', href: '/tool-primers', icon: Wrench },
