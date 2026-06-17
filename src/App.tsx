@@ -28,6 +28,7 @@ import MicroLearning from './pages/MicroLearning';
 import AvancePDGames from './pages/AvancePDGames';
 import HealthOutdoors from './pages/HealthOutdoors';
 import PromptPacks from './pages/PromptPacks';
+import AppLinks from './pages/AppLinks';
 import Search from './pages/Search';
 import ShortcutOverlay from './components/ShortcutOverlay';
 import MobileBottomActions from './components/MobileBottomActions';
@@ -90,6 +91,7 @@ const pages: Array<{ id: PageId; label: string; path: string }> = [
   { id: 'evidencePack', label: 'Evidence Pack', path: '/evidence-pack' },
   { id: 'microLearning', label: 'Micro-Learning', path: '/micro-learning' },
   { id: 'promptPacks', label: 'Prompt Packs', path: '/prompt-packs' },
+  { id: 'appLinks', label: 'App Links', path: '/app-links' },
   { id: 'avancePDGames', label: 'AvancePD Games', path: '/avance-pd-games' }
 ];
 
@@ -120,6 +122,7 @@ type PageId =
   | 'evidencePack'
   | 'microLearning'
   | 'promptPacks'
+  | 'appLinks'
   | 'avancePDGames';
 
 const pageIdToPath: Record<PageId, string> = pages.reduce((acc, page) => {
@@ -516,6 +519,7 @@ function AppContent() {
               />
             }
           />
+          <Route path="/app-links" element={<AppLinks />} />
           <Route path="/avance-pd-games" element={<AvancePDGames onNavigate={(page) => navigateToPage(page as PageId)} />} />
           <Route path="/" element={<Navigate replace to="/dashboard" />} />
           <Route path="*" element={<Navigate replace to="/dashboard" />} />
