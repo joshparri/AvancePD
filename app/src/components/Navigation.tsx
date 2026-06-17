@@ -17,6 +17,7 @@ import {
   NotebookText,
   Wrench,
   HeartPulse,
+  Eye,
   BookOpen,
   Gamepad2,
   ShieldCheck,
@@ -37,6 +38,7 @@ const navigation = [
   { name: 'Evidence Pack', href: '/evidence-pack', icon: Archive },
   { name: 'KB Learning Machine', href: '/kb-learning-machine', icon: BookOpen },
   { name: 'Health & Outdoors', href: '/health-outdoors', icon: HeartPulse },
+  { name: 'Eye Care', href: '/eye-care', icon: Eye },
   { name: 'MSP Roadmap', href: '/msp-roadmap', icon: Map },
 ];
 

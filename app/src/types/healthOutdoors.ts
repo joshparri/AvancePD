@@ -21,6 +21,7 @@ export interface HealthOutdoorsSettings {
   quietModeUntil?: string;
   snoozeUntil?: string;
   reminderCadenceMinutes: number;
+  eyeCareWorkModeEnabled: boolean;
   emailSetupEnabled: false;
   lastNotificationId?: string;
   lastNotificationTime?: string;
@@ -83,6 +84,7 @@ export const createDefaultHealthOutdoorsSettings = (): HealthOutdoorsSettings =>
     notificationPermissionDenied: false,
     faithPromptEnabled: true,
     reminderCadenceMinutes: 60,
+    eyeCareWorkModeEnabled: false,
     emailSetupEnabled: false,
     createdAt: now,
     updatedAt: now,
@@ -171,6 +173,8 @@ export const normalizeHealthOutdoorsSettings = (value: unknown): HealthOutdoorsS
       typeof value.reminderCadenceMinutes === 'number' && value.reminderCadenceMinutes > 0
         ? value.reminderCadenceMinutes
         : defaults.reminderCadenceMinutes,
+    eyeCareWorkModeEnabled:
+      typeof value.eyeCareWorkModeEnabled === 'boolean' ? value.eyeCareWorkModeEnabled : defaults.eyeCareWorkModeEnabled,
     emailSetupEnabled: false,
     lastNotificationId: optionalString(value.lastNotificationId) ? value.lastNotificationId : undefined,
     lastNotificationTime: optionalString(value.lastNotificationTime)

@@ -25,6 +25,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { healthActions, researchCards, weeklyReviewPrompts } from '@/data/healthOutdoors';
+import EyeCareWorkModeToggle from '@/shared/health/EyeCareWorkModeToggle';
 import {
   addOutdoorMinutes,
   completeHealthAction,
@@ -476,6 +477,10 @@ export default function HealthOutdoorsPage() {
                 <CardTitle className="text-lg">Settings and guardrails</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <EyeCareWorkModeToggle
+                  checked={settings.eyeCareWorkModeEnabled}
+                  onChange={(checked) => setSettings(updateHealthOutdoorsSettings({ eyeCareWorkModeEnabled: checked }))}
+                />
                 <div className="flex items-center gap-2">
                   <Checkbox
                     id="faith-prompt"

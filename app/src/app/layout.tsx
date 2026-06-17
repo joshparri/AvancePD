@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { DarkModeProvider } from "@/contexts/dark-mode";
 import "./globals.css";
+import EyeCareInitializer from '@/components/EyeCareInitializer';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +31,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <DarkModeProvider>{children}</DarkModeProvider>
+        <DarkModeProvider>
+          <EyeCareInitializer />
+          {children}
+        </DarkModeProvider>
       </body>
     </html>
   );

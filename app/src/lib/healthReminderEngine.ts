@@ -131,8 +131,20 @@ const toReminder = (template: ReminderTemplate, date: Date): HealthReminder => {
   };
 };
 
-const getScheduleForDate = (date: Date): HealthReminder[] =>
-  reminderTemplates.map((template) => toReminder(template, date));
+const eyeCareTemplates: ReminderTemplate[] = [
+  {
+    id: 'midday-eyes-blink',
+    actionId: 'eyes-blink-focus',
+    time: '15:00',
+    phase: 'afternoon',
+    title: 'Midday eye reset',
+    message: 'Blink slowly and look away from the screen for a few seconds to refresh your eyes.',
+    notificationBody: 'Tiny reset: blink slowly and look away from the screen for a few seconds.',
+  }
+];
+
+const getScheduleForDate = (date: Date, settings: HealthOutdoorsSettings): HealthReminder[] =>
+  [...reminderTemplates, ...(settings.eyeCareWorkModeEnabled ? eyeCareTemplates : [])].map((template) => toReminder(template, date));
 
 const isReminderOpen = (reminder: HealthReminder, dailyLog: DailyHealthLog) =>
   !dailyLog.completedReminderIds.includes(reminder.id) &&
@@ -197,7 +209,7 @@ export const getDueReminder = (
     return null;
   }
 
-  const schedule = getScheduleForDate(now).filter((reminder) => isReminderOpen(reminder, dailyLog));
+  const schedule = getScheduleForDate(now, settings).filter((reminder) => isReminderOpen(reminder, dailyLog));
   const dueReminders = schedule.filter((reminder) => reminder.scheduledAt.getTime() <= now.getTime());
   return dueReminders[dueReminders.length - 1] ?? null;
 };
@@ -226,7 +238,7 @@ export const getNextReminder = (
       continue;
     }
 
-    const schedule = getScheduleForDate(date).filter((reminder) => {
+    const schedule = getScheduleForDate(date, settings).filter((reminder) => {
       const isToday = dayOffset === 0;
       const open = isToday ? isReminderOpen(reminder, dailyLog) : true;
       return open && reminder.scheduledAt.getTime() > now.getTime();

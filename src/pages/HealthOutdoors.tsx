@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { healthResearchCards } from '../data/healthResearch';
 import HealthyMspShiftPanel from '../components/HealthyMspShiftPanel';
+import EyeCareWorkModeToggle from '../../shared/health/EyeCareWorkModeToggle';
 import {
   buildReminders,
   createEmptyDayLog,
@@ -500,6 +501,13 @@ function HealthOutdoors({ healthState, setHealthState, addTask, defaultClientId 
             </button>
             <span className="health-muted">Notification permission: {healthState.settings.notificationPermissionStatus}</span>
           </div>
+          <EyeCareWorkModeToggle
+            checked={healthState.settings.eyeCareWorkModeEnabled}
+            onChange={(checked) => setHealthState((state) => ({
+              ...state,
+              settings: { ...state.settings, eyeCareWorkModeEnabled: checked }
+            }))}
+          />
           <label className="checklist-item"><input type="checkbox" checked={healthState.settings.enableFaithPrompt} onChange={(event) => setHealthState((state) => ({ ...state, settings: { ...state.settings, enableFaithPrompt: event.target.checked } }))} />Enable optional faith prompt</label>
           <label className="checklist-item"><input type="checkbox" checked={healthState.settings.enableEmailSetup} onChange={(event) => setHealthState((state) => ({ ...state, settings: { ...state.settings, enableEmailSetup: event.target.checked } }))} />Enable email setup section</label>
           <button type="button" className="small-action" onClick={() => setHealthState((state) => ({ ...state, settings: defaultHealthSettings }))}>Reset settings</button>
