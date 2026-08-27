@@ -1,7 +1,8 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { topFriends } from '../lib/socialEngine';
+import { topFriends, type Friend } from '../lib/socialEngine';
 
 const avatarColors: Record<string, string> = {
   amber: 'bg-amber-400',
@@ -10,7 +11,11 @@ const avatarColors: Record<string, string> = {
 };
 
 export default function FriendLeaderboard() {
-  const friends = topFriends().slice(0, 5);
+  const [friends, setFriends] = useState<Friend[]>([]);
+
+  useEffect(() => {
+    setFriends(topFriends().slice(0, 5));
+  }, []);
 
   return (
     <Card>

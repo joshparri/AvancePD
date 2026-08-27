@@ -27,7 +27,7 @@ const defaultModeStats = (): AvanceGameProgress['modeStats'] => ({
   'break-fix': { played: 0, correct: 0 },
 });
 
-const defaultProgress = (): AvanceGameProgress => ({
+export const defaultAvanceGameProgress = (): AvanceGameProgress => ({
   totalXp: 0,
   currentStreak: 0,
   longestStreak: 0,
@@ -51,20 +51,20 @@ const yesterdayKey = () => {
 };
 
 export const getAvanceGameProgress = (): AvanceGameProgress => {
-  if (!canUseStorage()) return defaultProgress();
+  if (!canUseStorage()) return defaultAvanceGameProgress();
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaultProgress();
+    if (!raw) return defaultAvanceGameProgress();
     const parsed = JSON.parse(raw) as Partial<AvanceGameProgress>;
     return {
-      ...defaultProgress(),
+      ...defaultAvanceGameProgress(),
       ...parsed,
       modeStats: { ...defaultModeStats(), ...parsed.modeStats },
       challengeStats: parsed.challengeStats ?? {},
       skillStats: parsed.skillStats ?? {},
     };
   } catch {
-    return defaultProgress();
+    return defaultAvanceGameProgress();
   }
 };
 

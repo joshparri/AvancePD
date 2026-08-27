@@ -9,7 +9,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { avanceExternalItPlatforms, avanceGameModeMeta, type AvanceGameMode } from '@/data/avanceGameContent';
-import { getAvanceGameProgress, recordChallengeResult, type AvanceGameProgress } from '@/lib/avanceGameProgress';
+import {
+  defaultAvanceGameProgress,
+  getAvanceGameProgress,
+  recordChallengeResult,
+  type AvanceGameProgress,
+} from '@/lib/avanceGameProgress';
 import { ArrowLeft, ArrowUpRight, Gamepad2, Trophy, Zap } from 'lucide-react';
 import { DailyChallenge } from './components/DailyChallenge';
 import EventBanner from './components/EventBanner';
@@ -27,6 +32,7 @@ import { XpLevelBar } from './components/XpLevelBar';
 import {
   addXP,
   awardBadge,
+  defaultRewardState,
   loadRewardState,
   recordBossAttempt,
   recordNodeActivity,
@@ -41,9 +47,6 @@ import { getMultiplier } from './lib/eventEngine';
 type ToastState = { message: string; variant: 'default' | 'bonus' | 'unlock' | 'shield' } | null;
 
 function initRewardState(): { state: RewardState; shieldUsed: boolean } {
-  if (typeof window === 'undefined') {
-    return { state: loadRewardState(), shieldUsed: false };
-  }
   const prev = loadRewardState();
   const { newState, shieldUsed } = updateStreak(prev);
   saveRewardState(newState);
@@ -51,11 +54,10 @@ function initRewardState(): { state: RewardState; shieldUsed: boolean } {
 }
 
 export default function AvanceGamePage() {
-  const [init] = useState(initRewardState);
-  const [reward, setReward] = useState<RewardState>(init.state);
-  const [legacy, setLegacy] = useState<AvanceGameProgress>(() => getAvanceGameProgress());
+  const [reward, setReward] = useState<RewardState>(() => defaultRewardState());
+  const [legacy, setLegacy] = useState<AvanceGameProgress>(() => defaultAvanceGameProgress());
   const [toast, setToast] = useState<ToastState>(
-    init.shieldUsed ? { message: '🛡 Streak Shield used — streak protected!', variant: 'shield' } : null
+    null
   );
   const [xpDelta, setXpDelta] = useState(0);
   const [spinning, setSpinning] = useState(false);
@@ -64,6 +66,15 @@ export default function AvanceGamePage() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<'idle' | 'correct' | 'wrong'>('idle');
   const [lastXp, setLastXp] = useState(0);
+
+  useEffect(() => {
+    const init = initRewardState();
+    setReward(init.state);
+    setLegacy(getAvanceGameProgress());
+    if (init.shieldUsed) {
+      setToast({ message: 'Streak Shield used - streak protected!', variant: 'shield' });
+    }
+  }, []);
 
   const unlockedNodes = useMemo(() => getUnlockedNodeIds(reward), [reward]);
   const today = new Date().toISOString().slice(0, 10);

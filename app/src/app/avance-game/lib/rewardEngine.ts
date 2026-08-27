@@ -40,7 +40,7 @@ export const xpProgressInLevel = (xp: number) => {
   return { current, max: XP_PER_LEVEL, level, percent: Math.min(100, Math.round((current / XP_PER_LEVEL) * 100)) };
 };
 
-const defaultState = (): RewardState => ({
+export const defaultRewardState = (): RewardState => ({
   xp: 0,
   level: 1,
   streak: 0,
@@ -73,12 +73,12 @@ const migrateLegacy = (): Partial<RewardState> | null => {
 };
 
 export const loadRewardState = (): RewardState => {
-  if (!canUseStorage()) return defaultState();
+  if (!canUseStorage()) return defaultRewardState();
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) {
       const legacy = migrateLegacy();
-      const base = defaultState();
+      const base = defaultRewardState();
       if (legacy) {
         const xp = legacy.xp ?? 0;
         return {
@@ -94,7 +94,7 @@ export const loadRewardState = (): RewardState => {
     const parsed = JSON.parse(raw) as Partial<RewardState>;
     const xp = parsed.xp ?? 0;
     return {
-      ...defaultState(),
+      ...defaultRewardState(),
       ...parsed,
       xp,
       level: levelFromXp(xp),
@@ -104,7 +104,7 @@ export const loadRewardState = (): RewardState => {
       mysteryMeter: parsed.mysteryMeter ?? 0,
     };
   } catch {
-    return defaultState();
+    return defaultRewardState();
   }
 };
 
